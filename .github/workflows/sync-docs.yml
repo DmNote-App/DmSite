@@ -8,6 +8,10 @@ on:
   # 수동 실행 가능
   workflow_dispatch:
 
+  # 원본 레포에서 트리거 (docs/plugin 변경 시)
+  repository_dispatch:
+    types: [docs-updated]
+
 jobs:
   sync-docs:
     runs-on: ubuntu-latest
