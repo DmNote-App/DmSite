@@ -1,0 +1,65 @@
+name: Sync Docs from DmNote
+
+on:
+  # 매일 UTC 기준 00:00에 실행 (한국 시간 09:00)
+  schedule:
+    - cron: "0 0 * * *"
+
+  # 수동 실행 가능
+  workflow_dispatch:
+
+jobs:
+  sync-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout DmSite (현재 레포)
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: dmsite
+
+      - name: Checkout DmNote (원본 레포)
+        uses: actions/checkout@v4
+        with:
+          repository: DmNote-App/DmNote
+          path: dmnote
+          sparse-checkout: |
+            docs/plugin
+          sparse-checkout-cone-mode: false
+
+      - name: Sync docs/plugin to app/docs
+        run: |
+          # 기존 app/docs 내용 삭제 (동기화를 위해)
+          rm -rf dmsite/app/docs/*
+
+          # DmNote의 docs/plugin 내용을 DmSite의 app/docs로 복사
+          if [ -d "dmnote/docs/plugin" ]; then
+            cp -r dmnote/docs/plugin/* dmsite/app/docs/
+            echo "✅ 문서 동기화 완료"
+          else
+            echo "⚠️ dmnote/docs/plugin 폴더가 존재하지 않습니다"
+            exit 1
+          fi
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          cd dmsite
+          git add -A
+          if git diff --staged --quiet; then
+            echo "changes=false" >> $GITHUB_OUTPUT
+            echo "📝 변경사항이 없습니다"
+          else
+            echo "changes=true" >> $GITHUB_OUTPUT
+            echo "📝 변경사항이 발견되었습니다"
+          fi
+
+      - name: Commit and Push changes
+        if: steps.check_changes.outputs.changes == 'true'
+        run: |
+          cd dmsite
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git commit -m "docs: DmNote에서 문서 동기화 [자동]"
+          git push
