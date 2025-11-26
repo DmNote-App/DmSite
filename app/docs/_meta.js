@@ -1,5 +1,4 @@
 export default {
-  index: "소개",
   "getting-started": "시작하기",
   "declarative-api": "선언형 API",
   "template-syntax": "템플릿 문법",
