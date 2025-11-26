@@ -1,0 +1,195 @@
+---
+title: CSS/JS 파일
+description: 커스텀 CSS/JS 파일 관리 API
+---
+
+# CSS/JS 파일
+
+## dmn.css
+
+커스텀 CSS 파일 관리 API입니다.
+
+### list()
+
+등록된 CSS 파일 목록을 조회합니다.
+
+```javascript
+const files = await dmn.css.list();
+// [{ name: "custom.css", enabled: true }, ...]
+```
+
+### read(name)
+
+CSS 파일 내용을 읽습니다.
+
+```javascript
+const content = await dmn.css.read("custom.css");
+console.log(content);
+```
+
+### write(name, content)
+
+CSS 파일을 저장합니다.
+
+```javascript
+await dmn.css.write(
+  "mytheme.css",
+  `
+  .key-container {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+  }
+`
+);
+```
+
+### enable(name) / disable(name)
+
+CSS 파일을 활성화/비활성화합니다.
+
+```javascript
+await dmn.css.enable("mytheme.css");
+await dmn.css.disable("default.css");
+```
+
+### remove(name)
+
+CSS 파일을 삭제합니다.
+
+```javascript
+await dmn.css.remove("unused.css");
+```
+
+### onChanged(listener)
+
+CSS 파일 변경 이벤트를 구독합니다.
+
+```javascript
+const unsub = dmn.css.onChanged((files) => {
+  console.log("CSS 파일 목록 변경:", files);
+});
+```
+
+## dmn.js
+
+커스텀 JS(플러그인) 파일 관리 API입니다.
+
+### list()
+
+등록된 JS 파일 목록을 조회합니다.
+
+```javascript
+const files = await dmn.js.list();
+// [{ name: "plugin.js", enabled: true }, ...]
+```
+
+### read(name)
+
+JS 파일 내용을 읽습니다.
+
+```javascript
+const content = await dmn.js.read("plugin.js");
+```
+
+### write(name, content)
+
+JS 파일을 저장합니다.
+
+```javascript
+await dmn.js.write(
+  "myplugin.js",
+  `
+  defineElement("myWidget", {
+    template: () => htm\`<div>Hello!</div>\`
+  });
+`
+);
+```
+
+### enable(name) / disable(name)
+
+JS 파일을 활성화/비활성화합니다.
+
+```javascript
+await dmn.js.enable("myplugin.js");
+await dmn.js.disable("oldplugin.js");
+```
+
+### remove(name)
+
+JS 파일을 삭제합니다.
+
+```javascript
+await dmn.js.remove("unused.js");
+```
+
+### onChanged(listener)
+
+JS 파일 변경 이벤트를 구독합니다.
+
+```javascript
+const unsub = dmn.js.onChanged((files) => {
+  console.log("JS 파일 목록 변경:", files);
+});
+```
+
+## 공통 패턴
+
+### 파일 목록 UI
+
+```javascript
+async function renderFileList(type) {
+  const api = type === "css" ? dmn.css : dmn.js;
+  const files = await api.list();
+
+  return files.map((f) => ({
+    name: f.name,
+    enabled: f.enabled,
+    toggle: () => (f.enabled ? api.disable(f.name) : api.enable(f.name)),
+    remove: () => api.remove(f.name),
+  }));
+}
+```
+
+### 파일 백업
+
+```javascript
+async function backupFiles() {
+  const cssFiles = await dmn.css.list();
+  const jsFiles = await dmn.js.list();
+
+  const backup = {
+    css: {},
+    js: {},
+    timestamp: Date.now(),
+  };
+
+  for (const f of cssFiles) {
+    backup.css[f.name] = {
+      content: await dmn.css.read(f.name),
+      enabled: f.enabled,
+    };
+  }
+
+  for (const f of jsFiles) {
+    backup.js[f.name] = {
+      content: await dmn.js.read(f.name),
+      enabled: f.enabled,
+    };
+  }
+
+  return backup;
+}
+```
+
+## 파일 저장 위치
+
+| 플랫폼  | 경로                                           |
+| ------- | ---------------------------------------------- |
+| Windows | `%APPDATA%/dmnote/custom/`                     |
+| macOS   | `~/Library/Application Support/dmnote/custom/` |
+| Linux   | `~/.config/dmnote/custom/`                     |
+
+<Callout type="info">
+  파일은 자동으로 저장됩니다. 외부 편집기로 수정한 경우 앱을 재시작하면
+  반영됩니다.
+</Callout>

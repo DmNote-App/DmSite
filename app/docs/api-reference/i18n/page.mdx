@@ -1,0 +1,210 @@
+---
+title: 국제화 (i18n)
+description: 다국어 지원 및 로케일 API
+---
+
+# 국제화 (i18n)
+
+## 로케일 조회
+
+### getLocale()
+
+현재 앱 로케일을 조회합니다.
+
+```javascript
+const locale = dmn.i18n.getLocale();
+console.log(locale); // "ko" 또는 "en"
+```
+
+### getSupportedLocales()
+
+지원되는 로케일 목록을 조회합니다.
+
+```javascript
+const locales = dmn.i18n.getSupportedLocales();
+// ["ko", "en"]
+```
+
+## 이벤트 구독
+
+### onLocaleChange(listener)
+
+로케일 변경 이벤트를 구독합니다.
+
+```javascript
+const unsub = dmn.i18n.onLocaleChange((locale) => {
+  console.log("로케일 변경:", locale);
+  updateUI(locale);
+});
+
+registerCleanup(unsub);
+```
+
+## 플러그인 다국어 지원
+
+### defineElement에서 다국어
+
+```javascript
+const messages = {
+  ko: {
+    title: "키보드 모니터",
+    count: "입력 횟수",
+    reset: "초기화",
+  },
+  en: {
+    title: "Keyboard Monitor",
+    count: "Key Count",
+    reset: "Reset",
+  },
+};
+
+defineElement("i18nDemo", {
+  template({ state }) {
+    const t = messages[state.locale] || messages.en;
+
+    return htm`
+      <div class="monitor">
+        <h3>${t.title}</h3>
+        <p>${t.count}: ${state.count}</p>
+        <button onClick=${() => (state.count = 0)}>
+          ${t.reset}
+        </button>
+      </div>
+    `;
+  },
+
+  setup({ state }) {
+    state.locale = dmn.i18n.getLocale();
+    state.count = 0;
+
+    const unsub = dmn.i18n.onLocaleChange((locale) => {
+      state.locale = locale;
+    });
+
+    registerCleanup(unsub);
+  },
+});
+```
+
+### 다국어 헬퍼 함수
+
+```javascript
+function createI18n(messages) {
+  let currentLocale = dmn.i18n.getLocale();
+
+  // 로케일 변경 감지
+  dmn.i18n.onLocaleChange((locale) => {
+    currentLocale = locale;
+  });
+
+  return function t(key, params = {}) {
+    const msg = messages[currentLocale]?.[key] || messages.en?.[key] || key;
+
+    // 간단한 변수 치환
+    return msg.replace(/\{(\w+)\}/g, (_, k) => params[k] ?? `{${k}}`);
+  };
+}
+
+// 사용
+const t = createI18n({
+  ko: {
+    greeting: "안녕하세요, {name}님!",
+    keyCount: "총 {count}회 입력",
+  },
+  en: {
+    greeting: "Hello, {name}!",
+    keyCount: "Total {count} inputs",
+  },
+});
+
+console.log(t("greeting", { name: "사용자" }));
+// "안녕하세요, 사용자님!"
+```
+
+## 컨텍스트 메뉴 다국어
+
+```javascript
+const menuLabels = {
+  ko: {
+    settings: "설정",
+    reset: "초기화",
+    about: "정보",
+  },
+  en: {
+    settings: "Settings",
+    reset: "Reset",
+    about: "About",
+  },
+};
+
+function getLabel(key) {
+  const locale = dmn.i18n.getLocale();
+  return menuLabels[locale]?.[key] || menuLabels.en[key];
+}
+
+dmn.ui.contextMenu.register({
+  label: getLabel("settings"),
+  action: () => openSettings(),
+});
+```
+
+## 로케일별 포맷팅
+
+### 숫자 포맷
+
+```javascript
+function formatNumber(num) {
+  const locale = dmn.i18n.getLocale();
+  return new Intl.NumberFormat(locale).format(num);
+}
+
+console.log(formatNumber(1234567));
+// ko: "1,234,567"
+// en: "1,234,567"
+```
+
+### 날짜 포맷
+
+```javascript
+function formatDate(date) {
+  const locale = dmn.i18n.getLocale();
+  return new Intl.DateTimeFormat(locale, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  }).format(date);
+}
+
+console.log(formatDate(new Date()));
+// ko: "2024년 12월 25일"
+// en: "December 25, 2024"
+```
+
+### 상대 시간
+
+```javascript
+function formatRelativeTime(date) {
+  const locale = dmn.i18n.getLocale();
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
+
+  const diff = date - Date.now();
+  const days = Math.round(diff / (1000 * 60 * 60 * 24));
+
+  if (Math.abs(days) < 1) {
+    const hours = Math.round(diff / (1000 * 60 * 60));
+    return rtf.format(hours, "hour");
+  }
+  return rtf.format(days, "day");
+}
+```
+
+## 지원 로케일
+
+| 코드 | 언어    |
+| ---- | ------- |
+| `ko` | 한국어  |
+| `en` | English |
+
+<Callout type="info">
+  추가 언어 지원은 향후 업데이트에서 제공될 예정입니다.
+</Callout>

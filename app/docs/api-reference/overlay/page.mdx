@@ -1,0 +1,161 @@
+---
+title: 오버레이 (overlay)
+description: 오버레이 창 상태 조회 및 제어 API
+---
+
+# 오버레이 (overlay)
+
+## 상태 조회
+
+### get()
+
+현재 오버레이 상태를 조회합니다.
+
+```typescript
+interface OverlayState {
+  visible: boolean;
+  locked: boolean;
+  bounds: { x: number; y: number; width: number; height: number };
+  anchor: { x: number; y: number };
+}
+```
+
+```javascript
+const state = await dmn.overlay.get();
+console.log("위치:", state.bounds.x, state.bounds.y);
+console.log("잠금 상태:", state.locked);
+```
+
+## 상태 제어
+
+### setVisible(visible)
+
+오버레이 표시 여부를 설정합니다.
+
+```javascript
+await dmn.overlay.setVisible(true); // 표시
+await dmn.overlay.setVisible(false); // 숨김
+```
+
+### setLock(locked)
+
+오버레이 잠금 상태를 설정합니다.
+
+```javascript
+await dmn.overlay.setLock(true); // 잠금 (이동/크기조절 불가)
+await dmn.overlay.setLock(false); // 잠금 해제
+```
+
+### setAnchor(anchor)
+
+앵커 포인트를 설정합니다.
+
+```javascript
+await dmn.overlay.setAnchor({ x: 0.5, y: 0.5 }); // 중앙 기준
+await dmn.overlay.setAnchor({ x: 0, y: 0 }); // 좌상단 기준
+await dmn.overlay.setAnchor({ x: 1, y: 1 }); // 우하단 기준
+```
+
+### resize(size)
+
+오버레이 크기를 변경합니다.
+
+```javascript
+await dmn.overlay.resize({ width: 800, height: 200 });
+```
+
+### move(position)
+
+오버레이 위치를 변경합니다.
+
+```javascript
+await dmn.overlay.move({ x: 100, y: 100 });
+```
+
+## 이벤트 구독
+
+### onBoundsChanged(listener)
+
+위치/크기 변경 이벤트를 구독합니다.
+
+```javascript
+const unsub = dmn.overlay.onBoundsChanged((bounds) => {
+  console.log(`새 위치: ${bounds.x}, ${bounds.y}`);
+  console.log(`새 크기: ${bounds.width} x ${bounds.height}`);
+});
+
+// 정리 시 구독 해제
+registerCleanup(unsub);
+```
+
+### onVisibilityChanged(listener)
+
+표시 상태 변경 이벤트를 구독합니다.
+
+```javascript
+const unsub = dmn.overlay.onVisibilityChanged((visible) => {
+  console.log(visible ? "오버레이 표시됨" : "오버레이 숨겨짐");
+});
+```
+
+### onLockChanged(listener)
+
+잠금 상태 변경 이벤트를 구독합니다.
+
+```javascript
+const unsub = dmn.overlay.onLockChanged((locked) => {
+  console.log(locked ? "잠금됨" : "잠금 해제됨");
+});
+```
+
+### onAnchorChanged(listener)
+
+앵커 변경 이벤트를 구독합니다.
+
+```javascript
+const unsub = dmn.overlay.onAnchorChanged((anchor) => {
+  console.log(`앵커: ${anchor.x}, ${anchor.y}`);
+});
+```
+
+## 사용 예제
+
+### 창 상태 저장/복원
+
+```javascript
+// 상태 저장
+async function saveOverlayState() {
+  const state = await dmn.overlay.get();
+  await dmn.plugin.storage.set("overlayState", state);
+}
+
+// 상태 복원
+async function restoreOverlayState() {
+  const saved = await dmn.plugin.storage.get("overlayState");
+  if (saved) {
+    await dmn.overlay.setVisible(saved.visible);
+    await dmn.overlay.setLock(saved.locked);
+    await dmn.overlay.move({ x: saved.bounds.x, y: saved.bounds.y });
+    await dmn.overlay.resize({
+      width: saved.bounds.width,
+      height: saved.bounds.height,
+    });
+  }
+}
+```
+
+### 프리셋 위치로 이동
+
+```javascript
+const presets = {
+  topLeft: { x: 10, y: 10 },
+  topRight: { x: -310, y: 10 }, // 음수는 화면 우측 기준
+  bottomCenter: { x: 0.5, y: -110 },
+  center: { x: 0.5, y: 0.5 },
+};
+
+async function moveToPreset(name) {
+  const pos = presets[name];
+  if (pos) await dmn.overlay.move(pos);
+}
+```
