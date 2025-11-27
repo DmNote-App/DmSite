@@ -7,4 +7,5 @@ export default {
   "css-js": "CSS/JS",
   presets: "프리셋 (presets)",
   i18n: "다국어 (i18n)",
+  plugin: "플러그인 (plugin)",
 };

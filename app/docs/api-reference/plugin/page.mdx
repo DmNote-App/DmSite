@@ -1,0 +1,309 @@
+````mdx
+---
+title: 플러그인 (plugin)
+description: dmn.plugin 네임스페이스 API 레퍼런스
+---
+
+# 플러그인 API (dmn.plugin)
+
+플러그인 생명주기, 스토리지, 선언형 UI 정의를 위한 API입니다.
+
+## 메서드
+
+### registerCleanup
+
+플러그인 언로드 시 호출될 클린업 함수를 등록합니다.
+
+```typescript
+dmn.plugin.registerCleanup(cleanup: () => void): void
+```
+````
+
+**예시:**
+
+```javascript
+const timer = setInterval(() => console.log("tick"), 1000);
+
+dmn.plugin.registerCleanup(() => {
+  clearInterval(timer);
+  console.log("플러그인 정리 완료");
+});
+```
+
+### storage
+
+플러그인별 격리된 스토리지입니다. 자세한 내용은 [스토리지](/plugin/storage) 문서를 참고하세요.
+
+```typescript
+dmn.plugin.storage.get(key: string): Promise<any>
+dmn.plugin.storage.set(key: string, value: any): Promise<void>
+dmn.plugin.storage.remove(key: string): Promise<void>
+dmn.plugin.storage.clear(): Promise<void>
+dmn.plugin.storage.keys(): Promise<string[]>
+```
+
+### defineElement
+
+선언형 UI를 정의합니다. 자세한 내용은 [선언형 API](/plugin/declarative-api) 문서를 참고하세요.
+
+```typescript
+dmn.plugin.defineElement(definition: PluginDefinition): void
+```
+
+## PluginDefinition
+
+`defineElement`에 전달하는 설정 객체입니다.
+
+```typescript
+interface PluginDefinition {
+  /** 플러그인 이름 (컨텍스트 메뉴에 표시) */
+  name: string;
+
+  /** 최대 인스턴스 개수 (0 = 무제한, 기본값) */
+  maxInstances?: number;
+
+  /**
+   * 리사이즈 앵커 (크기 변경 시 기준점)
+   * @default "top-left"
+   */
+  resizeAnchor?: ElementResizeAnchor;
+
+  /** 컨텍스트 메뉴 설정 */
+  contextMenu?: {
+    create?: string; // 생성 메뉴 라벨
+    delete?: string; // 삭제 메뉴 라벨
+    items?: PluginDefinitionContextMenuItem[];
+  };
+
+  /** 설정 스키마 */
+  settings?: Record<string, PluginSettingSchema>;
+
+  /** 다국어 메시지 */
+  messages?: Record<string, Record<string, string>>;
+
+  /** 미리보기 상태 (메인 윈도우용) */
+  previewState?: Record<string, any>;
+
+  /** 템플릿 함수 */
+  template: (
+    state: Record<string, any>,
+    settings: Record<string, any>,
+    helpers: DisplayElementTemplateHelpers
+  ) => DisplayElementTemplateResult | string;
+
+  /** 마운트 로직 (오버레이에서만 실행) */
+  onMount?: (context: PluginDefinitionHookContext) => void | (() => void);
+}
+```
+
+## ElementResizeAnchor
+
+요소 크기 변경 시 기준점을 지정하는 타입입니다.
+
+```typescript
+type ElementResizeAnchor =
+  | "top-left" // 좌상단 (기본값)
+  | "top-center" // 상단 중앙
+  | "top-right" // 우상단
+  | "center-left" // 좌측 중앙
+  | "center" // 정중앙
+  | "center-right" // 우측 중앙
+  | "bottom-left" // 좌하단
+  | "bottom-center" // 하단 중앙
+  | "bottom-right"; // 우하단
+```
+
+### 앵커 동작
+
+크기가 변경될 때 지정한 앵커 위치가 고정되고, 다른 방향으로 확장/축소됩니다.
+
+| 앵커           | 동작                         |
+| -------------- | ---------------------------- |
+| `top-left`     | 우측, 하단으로 확장/축소     |
+| `center`       | 모든 방향으로 균등 확장/축소 |
+| `bottom-right` | 좌측, 상단으로 확장/축소     |
+
+## PluginDefinitionHookContext
+
+`onMount` 콜백에 전달되는 컨텍스트 객체입니다.
+
+```typescript
+interface PluginDefinitionHookContext {
+  /** 상태 업데이트 */
+  setState: (updates: Record<string, any>) => void;
+
+  /** 현재 설정 조회 */
+  getSettings: () => Record<string, any>;
+
+  /** 리사이즈 앵커 설정 */
+  setAnchor: (anchor: ElementResizeAnchor) => void;
+
+  /** 현재 리사이즈 앵커 조회 */
+  getAnchor: () => ElementResizeAnchor;
+
+  /**
+   * 이벤트 훅 등록
+   * - "key": 매핑된 키 이벤트
+   * - "rawKey": 모든 원시 입력 이벤트
+   */
+  onHook: (event: "key" | "rawKey", callback: (...args: any[]) => void) => void;
+
+  /** 컨텍스트 메뉴용 함수 노출 */
+  expose: (actions: Record<string, (...args: any[]) => any>) => void;
+
+  /** 현재 언어 코드 */
+  locale: string;
+
+  /** 번역 함수 */
+  t: PluginTranslateFn;
+
+  /** 언어 변경 구독 */
+  onLocaleChange: (listener: (locale: string) => void) => Unsubscribe;
+
+  /** 설정 변경 구독 */
+  onSettingsChange: (
+    listener: (
+      newSettings: Record<string, any>,
+      oldSettings: Record<string, any>
+    ) => void
+  ) => void;
+}
+```
+
+### setAnchor / getAnchor
+
+인스턴스별로 리사이즈 앵커를 동적으로 변경하거나 조회합니다.
+
+```javascript
+onMount: ({ setAnchor, getAnchor, getSettings }) => {
+  // 현재 앵커 확인
+  console.log("현재 앵커:", getAnchor()); // "top-left" (기본값)
+
+  // 앵커를 중앙으로 변경
+  setAnchor("center");
+
+  // 설정에 따라 앵커 변경
+  const settings = getSettings();
+  if (settings.expandFromCenter) {
+    setAnchor("center");
+  }
+},
+```
+
+**앵커 우선순위:**
+
+1. `setAnchor()`로 설정한 인스턴스별 앵커
+2. `PluginDefinition.resizeAnchor` (Definition 기본값)
+3. `"top-left"` (시스템 기본값)
+
+## PluginSettingSchema
+
+설정 스키마 정의 타입입니다.
+
+```typescript
+interface PluginSettingSchema {
+  type: "boolean" | "color" | "number" | "string" | "select";
+  default: any;
+  label: string;
+  min?: number; // number 타입용
+  max?: number; // number 타입용
+  step?: number; // number 타입용
+  options?: { label: string; value: any }[]; // select 타입용
+  placeholder?: string; // string/number 타입용
+}
+```
+
+## 예시
+
+### 기본 플러그인
+
+```javascript
+// @id simple-counter
+
+dmn.plugin.defineElement({
+  name: "Simple Counter",
+  maxInstances: 3,
+  resizeAnchor: "top-left",
+
+  settings: {
+    textColor: {
+      type: "color",
+      default: "#FFFFFF",
+      label: "텍스트 색상",
+    },
+  },
+
+  previewState: {
+    count: 42,
+  },
+
+  template: (state, settings, { html }) => html`
+    <div style="color: ${settings.textColor}; padding: 16px;">
+      Count: ${state.count ?? 0}
+    </div>
+  `,
+
+  onMount: ({ setState, onHook }) => {
+    let count = 0;
+
+    onHook("key", ({ state }) => {
+      if (state === "DOWN") {
+        count++;
+        setState({ count });
+      }
+    });
+  },
+});
+```
+
+### 동적 앵커 변경
+
+```javascript
+// @id dynamic-anchor-panel
+
+dmn.plugin.defineElement({
+  name: "Dynamic Anchor Panel",
+  resizeAnchor: "top-left", // 기본 앵커
+
+  settings: {
+    expandFromCenter: {
+      type: "boolean",
+      default: false,
+      label: "중앙에서 확장",
+    },
+  },
+
+  template: (state, settings, { html }) => html`
+    <div style="padding: 16px; background: rgba(0,0,0,0.8);">
+      앵커: ${state.currentAnchor ?? "top-left"}
+    </div>
+  `,
+
+  onMount: ({
+    setState,
+    getSettings,
+    setAnchor,
+    getAnchor,
+    onSettingsChange,
+  }) => {
+    // 초기 앵커 설정
+    const settings = getSettings();
+    const anchor = settings.expandFromCenter ? "center" : "top-left";
+    setAnchor(anchor);
+    setState({ currentAnchor: anchor });
+
+    // 설정 변경 시 앵커 업데이트
+    onSettingsChange((newSettings, oldSettings) => {
+      if (newSettings.expandFromCenter !== oldSettings.expandFromCenter) {
+        const newAnchor = newSettings.expandFromCenter ? "center" : "top-left";
+        setAnchor(newAnchor);
+        setState({ currentAnchor: newAnchor });
+      }
+    });
+  },
+});
+```
+
+```
+
+```
