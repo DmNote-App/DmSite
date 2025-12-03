@@ -1,0 +1,241 @@
+---
+title: 카운터 스타일링
+description: CSS로 키 카운터의 모양과 효과를 커스터마이징하는 방법
+---
+
+# 카운터 스타일링
+
+이 가이드에서는 CSS를 사용하여 키 카운터의 모양을 커스터마이징하는 방법을 설명합니다.
+
+## 기본 구조
+
+카운터는 `.counter` 클래스와 `data-counter-state` 속성을 통해 상태를 나타냅니다:
+
+- `data-counter-state="inactive"`: 키를 누르지 않은 상태
+- `data-counter-state="active"`: 키를 누르고 있는 상태
+
+## 전역 카운터 스타일
+
+모든 카운터에 공통으로 적용되는 스타일을 설정합니다:
+
+```css
+.counter {
+  /* 폰트 스타일 */
+  font-size: 24px;
+  font-weight: 700;
+
+  /* 폰트 패밀리 */
+  font-family: "Roboto Mono", monospace;
+}
+```
+
+## CSS 변수
+
+카운터는 다음 CSS 변수를 지원합니다:
+
+| 변수                     | 설명               | 기본값        |
+| ------------------------ | ------------------ | ------------- |
+| `--counter-color`        | 텍스트 색상        | `#FFFFFF`     |
+| `--counter-stroke-color` | 텍스트 외곽선 색상 | `transparent` |
+| `--counter-stroke-width` | 텍스트 외곽선 두께 | `0px`         |
+
+## 비활성 상태 스타일
+
+키를 누르지 않았을 때의 카운터 스타일입니다:
+
+```css
+.counter[data-counter-state="inactive"] {
+  /* 텍스트 색상 */
+  --counter-color: #474244;
+
+  /* 외곽선 비활성화 */
+  --counter-stroke-color: transparent;
+}
+```
+
+## 활성 상태 스타일
+
+키를 누르고 있을 때의 카운터 스타일입니다:
+
+```css
+.counter[data-counter-state="active"] {
+  /* 텍스트 색상 */
+  --counter-color: #ff2b80;
+
+  /* 외곽선 */
+  --counter-stroke-color: transparent;
+
+  /* 글로우 효과 */
+  text-shadow: 0px 0px 3px #ff2b80;
+}
+```
+
+## 특정 키의 카운터 스타일
+
+클래스 선택자를 조합하여 특정 키의 카운터만 다르게 스타일링할 수 있습니다.
+
+### 예제: 파란색 키의 카운터
+
+```css
+/* .blue 클래스를 가진 키의 카운터 - 비활성 상태 */
+.blue .counter[data-counter-state="inactive"] {
+  --counter-color: #1a4a5c;
+}
+
+/* .blue 클래스를 가진 키의 카운터 - 활성 상태 */
+.blue .counter[data-counter-state="active"] {
+  --counter-color: #2ebef3;
+  --counter-stroke-color: transparent;
+  text-shadow: 0px 0px 3px #2ebef3;
+}
+```
+
+<Callout type="info">
+  클래스 조합을 사용하면 키와 카운터의 색상을 일치시켜 통일감 있는 디자인을 만들
+  수 있습니다.
+</Callout>
+
+## 스타일 예제
+
+### 네온 글로우 스타일
+
+```css
+.counter {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.counter[data-counter-state="inactive"] {
+  --counter-color: #333;
+}
+
+.counter[data-counter-state="active"] {
+  --counter-color: #00ff88;
+  text-shadow: 0px 0px 2px #00ff88, 0px 0px 4px #00ff88, 0px 0px 8px #00ff88;
+}
+```
+
+### 외곽선 스타일
+
+```css
+.counter {
+  font-size: 28px;
+  font-weight: 900;
+}
+
+.counter[data-counter-state="inactive"] {
+  --counter-color: #fff;
+  --counter-stroke-color: #333;
+  --counter-stroke-width: 2px;
+}
+
+.counter[data-counter-state="active"] {
+  --counter-color: #fff;
+  --counter-stroke-color: #ff2b80;
+  --counter-stroke-width: 2px;
+}
+```
+
+### 미니멀 스타일
+
+```css
+.counter {
+  font-size: 14px;
+  font-weight: 400;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.counter[data-counter-state="inactive"] {
+  --counter-color: #999;
+}
+
+.counter[data-counter-state="active"] {
+  --counter-color: #333;
+}
+```
+
+### 레인보우 그라데이션 스타일
+
+```css
+.counter[data-counter-state="active"] {
+  background: linear-gradient(
+    45deg,
+    #ff2b80,
+    #ff8c00,
+    #ffee00,
+    #00ff88,
+    #00bfff,
+    #8b5cf6
+  );
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: rainbow 2s ease infinite;
+}
+
+@keyframes rainbow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+```
+
+## 키와 카운터 색상 맞추기
+
+키와 카운터 색상을 일관되게 유지하는 예제입니다:
+
+```css
+/* 기본 키 - 핑크 테마 */
+[data-state="active"] {
+  --key-border: 3px solid #ff2b80;
+  --key-text-color: #ff2b80;
+  text-shadow: 0px 0px 3px #ff2b80;
+}
+
+.counter[data-counter-state="active"] {
+  --counter-color: #ff2b80;
+  text-shadow: 0px 0px 3px #ff2b80;
+}
+
+/* 파란색 키 - 블루 테마 */
+.blue[data-state="active"] {
+  --key-border: 3px solid #2ebef3;
+  --key-text-color: #2ebef3;
+  text-shadow: 0px 0px 3px #2ebef3;
+}
+
+.blue .counter[data-counter-state="active"] {
+  --counter-color: #2ebef3;
+  text-shadow: 0px 0px 3px #2ebef3;
+}
+```
+
+## 고급 팁
+
+### 숫자 폰트 최적화
+
+카운터 숫자가 변경될 때 레이아웃이 흔들리지 않도록 고정폭 숫자를 사용합니다:
+
+```css
+.counter {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+```
+
+### 카운터 크기 제한
+
+큰 숫자에서도 레이아웃이 깨지지 않도록 최소/최대 너비를 설정합니다:
+
+```css
+.counter {
+  min-width: 30px;
+  text-align: center;
+}
+```

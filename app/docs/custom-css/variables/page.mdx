@@ -1,0 +1,164 @@
+---
+title: CSS 변수 레퍼런스
+description: DM Note에서 사용할 수 있는 모든 CSS 변수 목록
+---
+
+# CSS 변수 레퍼런스
+
+DM Note에서 스타일링에 사용할 수 있는 모든 CSS 변수를 정리했습니다.
+
+## 키 스타일 변수
+
+키 요소에 적용되는 CSS 변수입니다. `[data-state="inactive"]` 또는 `[data-state="active"]` 선택자와 함께 사용합니다.
+
+| 변수               | 설명                        | 타입                        | 예시                              |
+| ------------------ | --------------------------- | --------------------------- | --------------------------------- |
+| `--key-radius`     | 키 모서리의 둥근 정도       | `<length>`                  | `8px`, `50%`                      |
+| `--key-bg`         | 키의 배경색 또는 그라데이션 | `<color>` 또는 `<gradient>` | `#ff2b80`, `linear-gradient(...)` |
+| `--key-border`     | 키의 테두리 스타일          | `<border>`                  | `2px solid #fff`, `none`          |
+| `--key-text-color` | 키 텍스트 색상              | `<color>`                   | `#ffffff`                         |
+| `--key-offset-x`   | 활성 상태에서 X축 이동량    | `<length>`                  | `0px`, `2px`                      |
+| `--key-offset-y`   | 활성 상태에서 Y축 이동량    | `<length>`                  | `4px`                             |
+
+### 사용 예시
+
+```css
+[data-state="inactive"] {
+  --key-radius: 8px;
+  --key-bg: #2a2a2a;
+  --key-border: 2px solid #444;
+  --key-text-color: #888;
+}
+
+[data-state="active"] {
+  --key-radius: 8px;
+  --key-bg: #ff2b80;
+  --key-border: 2px solid #ff2b80;
+  --key-text-color: #fff;
+  --key-offset-x: 0px;
+  --key-offset-y: 4px;
+}
+```
+
+## 카운터 스타일 변수
+
+카운터 요소에 적용되는 CSS 변수입니다. `.counter[data-counter-state="..."]` 선택자와 함께 사용합니다.
+
+| 변수                     | 설명               | 타입       | 예시                     |
+| ------------------------ | ------------------ | ---------- | ------------------------ |
+| `--counter-color`        | 카운터 텍스트 색상 | `<color>`  | `#ffffff`                |
+| `--counter-stroke-color` | 텍스트 외곽선 색상 | `<color>`  | `#000000`, `transparent` |
+| `--counter-stroke-width` | 텍스트 외곽선 두께 | `<length>` | `1px`, `2px`             |
+
+### 사용 예시
+
+```css
+.counter[data-counter-state="inactive"] {
+  --counter-color: #666;
+  --counter-stroke-color: transparent;
+  --counter-stroke-width: 0px;
+}
+
+.counter[data-counter-state="active"] {
+  --counter-color: #ff2b80;
+  --counter-stroke-color: #fff;
+  --counter-stroke-width: 1px;
+}
+```
+
+## 선택자 레퍼런스
+
+### 키 선택자
+
+| 선택자                                           | 설명                              |
+| ------------------------------------------------ | --------------------------------- |
+| `[data-state="inactive"]`                        | 비활성 상태의 모든 키             |
+| `[data-state="active"]`                          | 활성 상태의 모든 키               |
+| `[data-state="inactive"], [data-state="active"]` | 모든 상태의 모든 키               |
+| `.클래스명[data-state="active"]`                 | 특정 클래스를 가진 키의 활성 상태 |
+
+### 카운터 선택자
+
+| 선택자                                            | 설명                           |
+| ------------------------------------------------- | ------------------------------ |
+| `.counter`                                        | 모든 카운터                    |
+| `.counter[data-counter-state="inactive"]`         | 비활성 상태의 카운터           |
+| `.counter[data-counter-state="active"]`           | 활성 상태의 카운터             |
+| `.클래스명 .counter[data-counter-state="active"]` | 특정 클래스를 가진 키의 카운터 |
+
+## 표준 CSS 속성
+
+CSS 변수 외에도 다음 표준 CSS 속성들을 자유롭게 사용할 수 있습니다:
+
+### 자주 사용되는 속성
+
+```css
+[data-state="active"] {
+  /* 그림자 효과 */
+  box-shadow: 0px 0px 8px #ff2b80;
+
+  /* 텍스트 그림자 */
+  text-shadow: 0px 0px 4px #ff2b80;
+
+  /* 트랜지션 */
+  transition: all 0.1s ease-in-out;
+
+  /* 폰트 스타일 */
+  font-size: 24px;
+  font-weight: 700;
+  font-family: "Roboto", sans-serif;
+
+  /* 변형 */
+  transform: scale(1.05);
+
+  /* 필터 */
+  filter: brightness(1.2);
+}
+```
+
+## 주의사항
+
+### !important 사용
+
+일부 스타일이 적용되지 않는 경우 `!important`를 사용할 수 있습니다:
+
+```css
+[data-state="active"] {
+  --key-bg: #ff2b80 !important;
+  box-shadow: 0px 0px 8px #ff2b80 !important;
+}
+```
+
+### 브라우저 호환성
+
+DM Note는 Chromium 기반 WebView를 사용하므로 최신 CSS 기능을 대부분 지원합니다:
+
+- CSS Variables (Custom Properties) ✅
+- CSS Grid / Flexbox ✅
+- CSS Animations / Transitions ✅
+- CSS Filters ✅
+- backdrop-filter ✅
+- mix-blend-mode ✅
+
+### 상속과 우선순위
+
+1. 전역 스타일이 먼저 적용됩니다.
+2. 클래스 선택자가 있으면 전역 스타일을 덮어씁니다.
+3. 더 구체적인 선택자가 우선합니다.
+
+```css
+/* 우선순위: 1 (가장 낮음) */
+[data-state="active"] {
+  --key-bg: red;
+}
+
+/* 우선순위: 2 */
+.blue[data-state="active"] {
+  --key-bg: blue;
+}
+
+/* 우선순위: 3 (가장 높음) */
+.blue.special[data-state="active"] {
+  --key-bg: purple;
+}
+```
