@@ -12,7 +12,7 @@ jobs:
         run: |
           curl -X POST \
             -H "Accept: application/vnd.github.v3+json" \
-            -H "Authorization: token ${{ secrets.DMSITE_PAT }}" \
+            -H "Authorization: token ${{ secrets.DMSITE_TRIGGER_TOKEN }}" \
             https://api.github.com/repos/DmNote-App/DmSite/dispatches \
             -d '{"event_type":"version-update"}'
           echo "Triggered DmSite update for version: ${{ github.event.release.tag_name }}"
