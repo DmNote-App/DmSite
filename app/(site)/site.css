@@ -2,21 +2,21 @@
   font-family: 'KimJeongCheolHandwriting';
   src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2302_01@1.0/KimjungchulScript-Light.woff2') format('woff2');
   font-weight: 300;
-  font-display: swap;
+  font-display: optional;
 }
 
 @font-face {
   font-family: 'KimJeongCheolHandwriting';
   src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2302_01@1.0/KimjungchulScript-Regular.woff2') format('woff2');
   font-weight: 400;
-  font-display: swap;
+  font-display: optional;
 }
 
 @font-face {
   font-family: 'KimJeongCheolHandwriting';
   src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2302_01@1.0/KimjungchulScript-Bold.woff2') format('woff2');
   font-weight: 700;
-  font-display: swap;
+  font-display: optional;
 }
 
 /* Suit Font Definition (viewer only) */
@@ -286,11 +286,6 @@
   to {
     transform: rotate(360deg);
   }
-}
-
-/* Smooth scroll */
-html {
-  scroll-behavior: smooth;
 }
 
 /* 지원되는 브라우저에서만: 뷰포트 밖 애니메이션 일시정지 */

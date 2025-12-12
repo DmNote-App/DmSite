@@ -1,20 +1,12 @@
 export default function LandingPage() {
   return (
     <div className="dark">
-      <div className="bg-[#050507] text-white font-sans overflow-x-hidden w-screen selection:bg-accent-500 selection:text-white">
+      <div className="bg-[#050507] text-white font-sans overflow-x-hidden w-full selection:bg-accent-500 selection:text-white">
         {/* Hero Section with Background Effects */}
         <section className="relative min-h-screen overflow-hidden isolate" style={{ contain: 'layout paint' }}>
           {/* Background Effects - contained within hero section */}
           <div className="absolute inset-0 z-0 pointer-events-none section-fade-mask animate-fade-in">
             <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#22d3ee]/20 rounded-full blur-[80px] animate-pulse-slow transform-gpu" />
-            <div
-              className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-[#c084fc]/20 rounded-full blur-[80px] animate-pulse-slow transform-gpu"
-              style={{ animationDelay: "2s" }}
-            />
-            <div
-              className="absolute bottom-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#818cf8]/15 rounded-full blur-[80px] animate-pulse-slow transform-gpu"
-              style={{ animationDelay: "3s" }}
-            />
             <div className="absolute top-[10%] left-[50%] transform -translate-x-1/2 w-[70%] h-[70%] bg-gradient-to-b from-[#818cf8]/10 via-[#f472b6]/10 to-transparent blur-[70px] transform-gpu" />
           </div>
 
@@ -72,32 +64,34 @@ export default function LandingPage() {
                 style={{ animationDelay: "0.3s" }}
               >
                 <a
-                  href="https://github.com/DmNote-App/DmNote"
+                  href="https://github.com/DmNote-App/DmNote/releases/latest"
                   target="_blank"
                   rel="noreferrer"
-                  className="group relative w-full sm:w-40 h-14 bg-white text-black rounded-xl font-bold text-lg overflow-hidden flex items-center justify-center hover:scale-105 hover:bg-gray-100 transition duration-300"
+                  className="group relative w-full sm:w-40 h-14 bg-white text-black rounded-xl font-bold text-lg overflow-hidden flex items-center justify-center gap-2 hover:scale-105 hover:bg-gray-100 transition duration-300"
                 >
-                  <span className="relative flex items-center justify-center gap-2">
-                    <svg
-                      className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.026.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    GitHub
-                  </span>
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                    />
+                  </svg>
+                  Download
                 </a>
 
                 <a
-                  href="/docs"
+                  href="https://github.com/DmNote-App/DmNote/releases"
+                  target="_blank"
+                  rel="noreferrer"
                   className="glass-effect w-full sm:w-40 h-14 rounded-xl font-medium text-gray-300 border border-white/10 hover:bg-white/10 hover:text-white transition hover:border-white/20 flex items-center justify-center"
                 >
-                  API Docs
+                  Release
                 </a>
               </div>
 
@@ -158,10 +152,7 @@ export default function LandingPage() {
         </section>
 
         {/* Section 2: Features Section - Simple Dark Background */}
-        <section
-          className="relative bg-[#0a0a0c] py-32 px-6 border-t border-white/5"
-          style={{ contentVisibility: 'auto', containIntrinsicSize: '900px' }}
-        >
+        <section className="relative bg-[#0a0a0c] py-32 px-6 border-t border-white/5">
           <div className="max-w-7xl mx-auto">
             {/* Section Header */}
             <div className="text-center mb-20">
@@ -288,21 +279,10 @@ export default function LandingPage() {
         </section>
 
         {/* Footer */}
-        <footer
-          className="relative z-10 py-6 px-6 border-t border-white/5 bg-[#0a0a0c]"
-          style={{ contentVisibility: 'auto', containIntrinsicSize: '200px' }}
-        >
-          <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="text-gray-500 text-sm">
+        <footer className="relative z-10 py-6 px-6 border-t border-white/5 bg-[#0a0a0c]">
+          <div className="max-w-7xl mx-auto flex flex-col items-center justify-center gap-4">
+            <div className="text-gray-500 text-sm text-center">
               © 2025 DM Note. Licensed under GPL-3.0
-            </div>
-            <div className="flex items-center gap-6">
-              <a
-                href="/docs"
-                className="text-gray-500 hover:text-white transition-colors"
-              >
-                Documentation
-              </a>
             </div>
           </div>
         </footer>
