@@ -3,7 +3,7 @@
     "dev": "next --turbopack",
     "build": "next build",
     "start": "next start",
-    "postbuild": "pagefind --site .next/server/app --output-path public/_pagefind"
+    "postbuild": "pagefind --site out --output-path out/_pagefind && cp CNAME out/CNAME"
   },
   "dependencies": {
     "next": "^16.0.3",
