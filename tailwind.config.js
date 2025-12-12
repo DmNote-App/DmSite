@@ -7,6 +7,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      screens: {
+        'viewer': '950px', // Custom breakpoint for key viewer visibility
+      },
       fontFamily: {
         sans: ["Pretendard", "sans-serif"],
       },

@@ -186,19 +186,66 @@
   background: rgba(255, 255, 255, 0.05);
 }
 
-.viewer-bg-glow {
+/* Feature Cards */
+.feature-card {
+  position: relative;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 1rem;
+  transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+  border-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+}
+
+.feature-icon {
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  margin-bottom: 1.25rem;
+  transition: all 0.3s ease;
+}
+
+/* CTA Card */
+.cta-card {
+  position: relative;
+  padding: 4rem 2rem;
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.05), rgba(129, 140, 248, 0.05), rgba(192, 132, 252, 0.05));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 2rem;
+  overflow: hidden;
+}
+
+.cta-card::before {
+  content: '';
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 130%;
-  height: 130%;
-  background-image: linear-gradient(to right, #22d3ee, #818cf8, #c084fc, #f472b6, #22d3ee);
-  background-size: 200% auto;
-  animation: gradientMove 8s linear infinite;
-  filter: blur(120px);
-  opacity: 0.2;
-  border-radius: 50%;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at center, rgba(129, 140, 248, 0.1) 0%, transparent 50%);
+  animation: rotate 20s linear infinite;
   pointer-events: none;
-  z-index: -1;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
 }

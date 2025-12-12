@@ -1,31 +1,31 @@
-import { KeyViewerPreview } from "@/components/keyviewer/KeyViewerPreview";
-
 export default function LandingPage() {
   return (
     <div className="dark">
-      <div className="bg-[#050507] text-white font-sans overflow-x-hidden overflow-y-auto lg:overflow-y-hidden h-screen w-screen selection:bg-accent-500 selection:text-white">
-        {/* Background Effects */}
-        <div className="fixed inset-0 z-0 pointer-events-none">
-          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-brand-900/20 rounded-full blur-[120px] animate-pulse-slow" />
+      <div className="bg-[#050507] text-white font-sans overflow-x-hidden overflow-y-auto w-screen selection:bg-accent-500 selection:text-white">
+        {/* Hero Section with Background Effects */}
+        <section className="relative min-h-screen overflow-hidden">
+          {/* Background Effects - contained within hero section */}
+          <div className="absolute inset-0 z-0 pointer-events-none">
+            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-brand-900/20 rounded-full blur-[120px] animate-pulse-slow" />
+            <div
+              className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-accent-900/20 rounded-full blur-[120px] animate-pulse-slow"
+              style={{ animationDelay: "2s" }}
+            />
+            <div className="absolute top-[20%] left-[50%] transform -translate-x-1/2 w-[60%] h-[60%] bg-gradient-to-b from-transparent via-brand-900/5 to-transparent blur-[100px]" />
+          </div>
+
+          {/* Grid Pattern */}
           <div
-            className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-accent-900/20 rounded-full blur-[120px] animate-pulse-slow"
-            style={{ animationDelay: "2s" }}
+            className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none"
+            style={{
+              backgroundImage:
+                "linear-gradient(#ffffff 1px, transparent 1px), linear-gradient(90deg, #ffffff 1px, transparent 1px)",
+              backgroundSize: "50px 50px",
+            }}
           />
-          <div className="absolute top-[20%] left-[50%] transform -translate-x-1/2 w-[60%] h-[60%] bg-gradient-to-b from-transparent via-brand-900/5 to-transparent blur-[100px]" />
-        </div>
 
-        {/* Grid Pattern */}
-        <div
-          className="fixed inset-0 z-0 opacity-[0.03] pointer-events-none"
-          style={{
-            backgroundImage:
-              "linear-gradient(#ffffff 1px, transparent 1px), linear-gradient(90deg, #ffffff 1px, transparent 1px)",
-            backgroundSize: "50px 50px",
-          }}
-        />
-
-        {/* Main Content */}
-        <main className="relative z-10 min-h-screen flex flex-col items-center justify-between max-w-7xl mx-auto px-6 pt-32 pb-0">
+          {/* Main Content */}
+          <main className="relative z-10 min-h-screen flex flex-col items-center justify-center max-w-7xl mx-auto px-6">
           {/* Text Content */}
           <div className="text-center space-y-10 max-w-4xl mx-auto z-20 flex-1 flex flex-col justify-center">
             <div className="space-y-8">
@@ -99,7 +99,7 @@ export default function LandingPage() {
                 style={{ animationDelay: "0.4s" }}
               >
                 <div
-                  className="flex items-center gap-2 text-gray-500 hover:text-brand-400 transition-colors duration-300"
+                  className="flex items-center gap-2 text-gray-500 hover:text-[#61DAFB] transition-colors duration-300"
                   title="React"
                 >
                   <svg className="w-5 h-5 mb-[3px]" viewBox="0 14 128 100" fill="currentColor">
@@ -146,16 +146,152 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-
-          {/* Interactive Visual */}
-          <div
-            className="relative w-full max-w-4xl mt-12 flex-none flex items-end justify-center translate-y-0 md:-translate-y-2"
-            style={{ animationDelay: "0.5s" }}
-          >
-            <div className="viewer-bg-glow" />
-            <KeyViewerPreview />
-          </div>
         </main>
+        </section>
+
+        {/* Section 2: Features Section - Simple Dark Background */}
+        <section className="relative bg-[#0a0a0c] py-32 px-6 border-t border-white/5">
+          <div className="max-w-7xl mx-auto">
+            {/* Section Header */}
+            <div className="text-center mb-20">
+              <span className="inline-block px-4 py-1.5 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-sm font-medium mb-6">
+                Features
+              </span>
+              <h2 className="text-4xl md:text-5xl font-bold mb-6">
+                Fully <span className="gradient-text" data-text="Customizable">Customizable</span>
+              </h2>
+              <p className="text-lg text-gray-400 max-w-2xl mx-auto">
+                DM Note는 완벽한 커스터마이징을 지원합니다.<br />
+                당신만의 키뷰어를 만들어보세요.
+              </p>
+            </div>
+
+            {/* Features Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* Feature 1 */}
+              <div className="feature-card group">
+                <div className="feature-icon bg-cyan-500/10 text-cyan-400 group-hover:bg-cyan-500/20">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold mb-3 text-white">실시간 입력 감지</h3>
+                <p className="text-gray-400 leading-relaxed text-sm">
+                  Windows Raw Input API를 사용하여 키보드와 마우스 입력을 실시간으로 감지하고 시각화합니다.
+                </p>
+              </div>
+
+              {/* Feature 2 */}
+              <div className="feature-card group">
+                <div className="feature-icon bg-violet-500/10 text-violet-400 group-hover:bg-violet-500/20">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold mb-3 text-white">그리드 기반 레이아웃</h3>
+                <p className="text-gray-400 leading-relaxed text-sm">
+                  직관적인 그리드 시스템으로 키의 크기와 위치를 자유롭게 조절할 수 있습니다.
+                </p>
+              </div>
+
+              {/* Feature 3 */}
+              <div className="feature-card group">
+                <div className="feature-icon bg-pink-500/10 text-pink-400 group-hover:bg-pink-500/20">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold mb-3 text-white">커스텀 CSS 지원</h3>
+                <p className="text-gray-400 leading-relaxed text-sm">
+                  CSS로 키뷰어를 세밀하게 커스터마이징하여 원하는 스타일을 적용할 수 있습니다.
+                </p>
+              </div>
+
+              {/* Feature 4 */}
+              <div className="feature-card group">
+                <div className="feature-icon bg-amber-500/10 text-amber-400 group-hover:bg-amber-500/20">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold mb-3 text-white">프리셋 시스템</h3>
+                <p className="text-gray-400 leading-relaxed text-sm">
+                  자신만의 설정을 프리셋으로 저장하고, 언제든지 불러와 사용할 수 있습니다.
+                </p>
+              </div>
+
+              {/* Feature 5 */}
+              <div className="feature-card group">
+                <div className="feature-icon bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-500/20">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold mb-3 text-white">오버레이 모드</h3>
+                <p className="text-gray-400 leading-relaxed text-sm">
+                  게임 위에 투명하게 표시하거나 OBS로 크로마키 없이 캡처할 수 있습니다.
+                </p>
+              </div>
+
+              {/* Feature 6 */}
+              <div className="feature-card group">
+                <div className="feature-icon bg-blue-500/10 text-blue-400 group-hover:bg-blue-500/20">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold mb-3 text-white">노트 효과</h3>
+                <p className="text-gray-400 leading-relaxed text-sm">
+                  리듬게임에 최적화된 노트 이펙트로 시각적 피드백을 제공합니다.
+                </p>
+              </div>
+
+              {/* Feature 7 - Key Counter */}
+              <div className="feature-card group">
+                <div className="feature-icon bg-indigo-500/10 text-indigo-400 group-hover:bg-indigo-500/20">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold mb-3 text-white">키 카운터</h3>
+                <p className="text-gray-400 leading-relaxed text-sm">
+                  키 입력 횟수를 실시간으로 표시합니다.
+                </p>
+              </div>
+
+              {/* Feature 8 - Settings */}
+              <div className="feature-card group">
+                <div className="feature-icon bg-orange-500/10 text-orange-400 group-hover:bg-orange-500/20">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold mb-3 text-white">다양한 설정</h3>
+                <p className="text-gray-400 leading-relaxed text-sm">
+                  한국어/영어 다국어 지원과 다양한 그래픽 렌더링 옵션을 제공합니다.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Footer */}
+        <footer className="relative z-10 py-6 px-6 border-t border-white/5 bg-[#0a0a0c]">
+          <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="text-gray-500 text-sm">
+              © 2025 DM Note. Licensed under GPL-3.0
+            </div>
+            <div className="flex items-center gap-6">
+              <a
+                href="/docs"
+                className="text-gray-500 hover:text-white transition-colors"
+              >
+                Documentation
+              </a>
+            </div>
+          </div>
+        </footer>
       </div>
     </div>
   );
