@@ -1,0 +1,54 @@
+name: Update Version Badge
+
+on:
+  repository_dispatch:
+    types: [version-update]
+  workflow_dispatch: # 수동 실행도 가능
+
+jobs:
+  update-version:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get latest release version
+        id: get_version
+        run: |
+          VERSION=$(curl -s https://api.github.com/repos/DmNote-App/DmNote/releases/latest | jq -r '.tag_name')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Latest version: $VERSION"
+
+      - name: Update index.html
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          # v 접두사가 없으면 추가
+          if [[ ! "$VERSION" =~ ^v ]]; then
+            VERSION="v$VERSION"
+          fi
+          
+          # sed로 버전 업데이트 (v숫자.숫자.숫자 패턴 매칭)
+          sed -i "s/v[0-9]\+\.[0-9]\+\.[0-9]\+ Available Now/${VERSION} Available Now/g" index.html
+          
+          echo "Updated to version: $VERSION"
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if git diff --quiet index.html; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push
+        if: steps.check_changes.outputs.changed == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add index.html
+          git commit -m "chore: update version badge to ${{ steps.get_version.outputs.version }}"
+          git push
