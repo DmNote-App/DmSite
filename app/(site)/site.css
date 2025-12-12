@@ -129,6 +129,8 @@
   background-image: linear-gradient(to right, #22d3ee, #818cf8, #c084fc, #f472b6, #22d3ee);
   background-size: 200% auto;
   animation: gradientMove 8s linear infinite;
+  will-change: background-position;
+  contain: paint;
   padding: 0.2em 0.1em;
   margin: -0.2em 0;
   line-height: 1.5;
@@ -142,14 +144,17 @@
   width: 100%;
   height: 100%;
   z-index: -1;
-  background: inherit;
+  background-image: linear-gradient(to right, #22d3ee, #818cf8, #c084fc, #f472b6, #22d3ee);
+  background-size: 200% auto;
+  background-position: 0% 50%;
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
-  filter: blur(8px);
-  opacity: 0.8;
+  filter: blur(6px);
+  opacity: 0.7;
   padding: 0.2em 0.1em;
   box-sizing: border-box;
+  transform: translateZ(0);
 }
 
 @keyframes gradientMove {
@@ -195,9 +200,10 @@
 .glass-effect {
   position: relative;
   overflow: hidden;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateZ(0);
 }
 
 /* Feature Cards */
@@ -207,14 +213,35 @@
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 1rem;
-  transition: all 0.3s ease;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.3s ease;
+  overflow: hidden;
+}
+
+.feature-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.01));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 0;
+}
+
+.feature-card > * {
+  position: relative;
+  z-index: 1;
 }
 
 .feature-card:hover {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
   border-color: rgba(255, 255, 255, 0.1);
   transform: translateY(-4px);
   box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+}
+
+.feature-card:hover::before {
+  opacity: 1;
 }
 
 .feature-icon {
@@ -241,13 +268,15 @@
 .cta-card::before {
   content: '';
   position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
+  top: -25%;
+  left: -25%;
+  width: 150%;
+  height: 150%;
   background: radial-gradient(circle at center, rgba(129, 140, 248, 0.1) 0%, transparent 50%);
   animation: rotate 20s linear infinite;
   pointer-events: none;
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 @keyframes rotate {
@@ -262,4 +291,21 @@
 /* Smooth scroll */
 html {
   scroll-behavior: smooth;
+}
+
+/* 지원되는 브라우저에서만: 뷰포트 밖 애니메이션 일시정지 */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .animate-pulse-slow {
+      animation-timeline: view();
+      animation-range: contain;
+    }
+  }
+}
+
+/* 레이어 격리로 리페인트 범위 제한 */
+.section-fade-mask {
+  contain: paint;
+  content-visibility: auto;
+  contain-intrinsic-size: 100vw 100vh;
 }

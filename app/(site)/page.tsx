@@ -1,26 +1,34 @@
 export default function LandingPage() {
   return (
     <div className="dark">
-      <div className="bg-[#050507] text-white font-sans overflow-x-hidden overflow-y-auto w-screen selection:bg-accent-500 selection:text-white">
+      <div className="bg-[#050507] text-white font-sans overflow-x-hidden w-screen selection:bg-accent-500 selection:text-white">
         {/* Hero Section with Background Effects */}
-        <section className="relative min-h-screen overflow-hidden">
+        <section className="relative min-h-screen overflow-hidden isolate" style={{ contain: 'layout paint' }}>
           {/* Background Effects - contained within hero section */}
           <div className="absolute inset-0 z-0 pointer-events-none section-fade-mask animate-fade-in">
-            <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#22d3ee]/30 rounded-full blur-[120px] animate-pulse-slow" />
+            <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#22d3ee]/20 rounded-full blur-[80px] animate-pulse-slow transform-gpu" />
             <div
-              className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-[#c084fc]/30 rounded-full blur-[120px] animate-pulse-slow"
+              className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-[#c084fc]/20 rounded-full blur-[80px] animate-pulse-slow transform-gpu"
               style={{ animationDelay: "2s" }}
             />
-            <div className="absolute top-[10%] left-[50%] transform -translate-x-1/2 w-[70%] h-[70%] bg-gradient-to-b from-[#818cf8]/20 via-[#f472b6]/20 to-transparent blur-[100px]" />
+            <div
+              className="absolute bottom-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#818cf8]/15 rounded-full blur-[80px] animate-pulse-slow transform-gpu"
+              style={{ animationDelay: "3s" }}
+            />
+            <div className="absolute top-[10%] left-[50%] transform -translate-x-1/2 w-[70%] h-[70%] bg-gradient-to-b from-[#818cf8]/10 via-[#f472b6]/10 to-transparent blur-[70px] transform-gpu" />
           </div>
 
-          {/* Grid Pattern */}
+          {/* Grid Pattern with Radial Fade */}
           <div
-            className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none"
+            className="absolute inset-0 z-0 pointer-events-none"
             style={{
               backgroundImage:
                 "linear-gradient(#ffffff 1px, transparent 1px), linear-gradient(90deg, #ffffff 1px, transparent 1px)",
               backgroundSize: "50px 50px",
+              maskImage: "radial-gradient(ellipse 60% 60% at 50% 50%, black 20%, transparent 70%)",
+              WebkitMaskImage: "radial-gradient(ellipse 60% 60% at 50% 50%, black 20%, transparent 70%)",
+              opacity: 0.06,
+              contain: 'paint',
             }}
           />
 
@@ -53,9 +61,9 @@ export default function LandingPage() {
                   </span>
                 </h1>
                 <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto font-light leading-relaxed">
-                  DM Note는 게임에서 사용하기 위해 제작된 키뷰어입니다.
+                  게이머를 위한 커스텀 키뷰어
                   <br />
-                  강력한 커스터마이징과 직관적인 인터페이스를 제공합니다.
+                  커스터마이징과 직관적인 인터페이스를 제공합니다.
                 </p>
               </div>
 
@@ -86,10 +94,10 @@ export default function LandingPage() {
                 </a>
 
                 <a
-                  href="https://github.com/DmNote-App/DmNote/releases"
+                  href="/docs"
                   className="glass-effect w-full sm:w-40 h-14 rounded-xl font-medium text-gray-300 border border-white/10 hover:bg-white/10 hover:text-white transition hover:border-white/20 flex items-center justify-center"
                 >
-                  Releases
+                  API Docs
                 </a>
               </div>
 
@@ -150,7 +158,10 @@ export default function LandingPage() {
         </section>
 
         {/* Section 2: Features Section - Simple Dark Background */}
-        <section className="relative bg-[#0a0a0c] py-32 px-6 border-t border-white/5">
+        <section
+          className="relative bg-[#0a0a0c] py-32 px-6 border-t border-white/5"
+          style={{ contentVisibility: 'auto', containIntrinsicSize: '900px' }}
+        >
           <div className="max-w-7xl mx-auto">
             {/* Section Header */}
             <div className="text-center mb-20">
@@ -277,7 +288,10 @@ export default function LandingPage() {
         </section>
 
         {/* Footer */}
-        <footer className="relative z-10 py-6 px-6 border-t border-white/5 bg-[#0a0a0c]">
+        <footer
+          className="relative z-10 py-6 px-6 border-t border-white/5 bg-[#0a0a0c]"
+          style={{ contentVisibility: 'auto', containIntrinsicSize: '200px' }}
+        >
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="text-gray-500 text-sm">
               © 2025 DM Note. Licensed under GPL-3.0
