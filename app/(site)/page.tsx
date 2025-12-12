@@ -5,13 +5,13 @@ export default function LandingPage() {
         {/* Hero Section with Background Effects */}
         <section className="relative min-h-screen overflow-hidden">
           {/* Background Effects - contained within hero section */}
-          <div className="absolute inset-0 z-0 pointer-events-none">
-            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-brand-900/20 rounded-full blur-[120px] animate-pulse-slow" />
+          <div className="absolute inset-0 z-0 pointer-events-none section-fade-mask animate-fade-in">
+            <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#22d3ee]/30 rounded-full blur-[120px] animate-pulse-slow" />
             <div
-              className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-accent-900/20 rounded-full blur-[120px] animate-pulse-slow"
+              className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-[#c084fc]/30 rounded-full blur-[120px] animate-pulse-slow"
               style={{ animationDelay: "2s" }}
             />
-            <div className="absolute top-[20%] left-[50%] transform -translate-x-1/2 w-[60%] h-[60%] bg-gradient-to-b from-transparent via-brand-900/5 to-transparent blur-[100px]" />
+            <div className="absolute top-[10%] left-[50%] transform -translate-x-1/2 w-[70%] h-[70%] bg-gradient-to-b from-[#818cf8]/20 via-[#f472b6]/20 to-transparent blur-[100px]" />
           </div>
 
           {/* Grid Pattern */}
