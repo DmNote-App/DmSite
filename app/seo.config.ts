@@ -26,7 +26,7 @@ export const baseMetadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
     default: siteConfig.title,
-    template: `%s | ${siteConfig.name}`,
+    template: `%s`,
   },
   description: siteConfig.description,
   keywords: [...siteConfig.keywords],
@@ -67,7 +67,7 @@ export const baseMetadata: Metadata = {
 export const docsMetadata: Metadata = {
   title: {
     default: `${siteConfig.name} 문서`,
-    template: `%s | ${siteConfig.name} 문서`,
+    template: `%s`,
   },
   description:
     "DM Note API 레퍼런스",
