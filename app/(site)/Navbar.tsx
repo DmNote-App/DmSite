@@ -6,7 +6,7 @@ export function Navbar() {
       <div className="flex items-center gap-4">
         <Link href="/" className="font-bold text-white flex items-center gap-2">
           <img src="/icon.ico" alt="DM Note Logo" className="w-6 h-6 rounded-md" />
-          DM NOTE
+          DM Note
         </Link>
       </div>
       <div className="flex items-center gap-6">
