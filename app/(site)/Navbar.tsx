@@ -4,8 +4,9 @@ export function Navbar() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 h-16 backdrop-blur-xl border-b border-white/10">
       <div className="flex items-center gap-4">
-        <Link href="/" className="text-xl font-bold text-white flex items-center gap-2">
-          DM Note
+        <Link href="/" className="font-bold text-white flex items-center gap-2">
+          <img src="/icon.ico" alt="DM Note Logo" className="w-6 h-6 rounded-md" />
+          DM NOTE
         </Link>
       </div>
       <div className="flex items-center gap-6">
