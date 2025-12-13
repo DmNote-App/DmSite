@@ -210,6 +210,81 @@ dmn.plugin.defineElement({
 2. Definition의 `resizeAnchor`
 3. 기본값 `"top-left"`
 
+## 리사이즈 설정 (resizable, preserveAxis)
+
+플러그인 요소의 크기를 사용자가 그리드에서 직접 조절할 수 있도록 하려면 `resizable` 옵션을 사용합니다.
+
+### resizable
+
+`resizable: true`로 설정하면 요소에 8방향 리사이즈 핸들이 표시됩니다.
+
+```javascript
+dmn.plugin.defineElement({
+  name: "Resizable Panel",
+  resizable: true, // 그리드에서 크기 조절 가능
+  // ...
+});
+```
+
+<Callout type="warning">
+  **반응형 디자인 필수**: `resizable` 옵션을 사용하려면 플러그인 내부 요소가
+  반응형으로 디자인되어야 합니다. 고정 크기(px) 대신 상대 단위(`%`, `flex`, `fr`
+  등)를 사용하고, 루트 요소에 `width: 100%; height: 100%`를 적용하세요. 그렇지
+  않으면 리사이즈해도 내부 콘텐츠가 컨테이너 크기에 맞게 조절되지 않습니다.
+</Callout>
+
+### preserveAxis
+
+설정이 변경될 때 유지할 크기 축을 지정합니다. `resizable: true`일 때만 적용됩니다.
+
+| 값       | 설명                                     |
+| -------- | ---------------------------------------- |
+| `both`   | 가로와 세로 모두 유지 (기본값)           |
+| `width`  | 가로 크기 유지, 세로는 콘텐츠에 맞춤     |
+| `height` | 세로 크기 유지, 가로는 콘텐츠에 맞춤     |
+| `none`   | 둘 다 콘텐츠에 맞춤 (리사이즈 효과 리셋) |
+
+```javascript
+dmn.plugin.defineElement({
+  name: "KPS Panel",
+  resizable: true,
+  preserveAxis: "width", // 설정 변경 시 가로 크기 유지
+  // ...
+});
+```
+
+### 사용 예시
+
+KPS 패널처럼 그래프 표시 옵션이 있는 경우:
+
+- `preserveAxis: "width"`로 설정하면 그래프 표시를 켜고 꺼도 가로 크기는 유지됩니다
+- 세로 크기는 그래프 유무에 따라 자동으로 조절됩니다
+
+```javascript
+dmn.plugin.defineElement({
+  name: "KPS Panel",
+  resizable: true,
+  preserveAxis: "width",
+  resizeAnchor: "bottom-left", // 하단 고정 (그래프가 위에서 펼쳐짐)
+
+  settings: {
+    showGraph: { type: "boolean", default: true, label: "그래프 표시" },
+  },
+
+  template: (state, settings, { html }) => html`
+    <div style="width: 100%; height: 100%;">
+      <div class="kps-value">${state.kps ?? 0}</div>
+      ${settings.showGraph ? html`<div class="graph">...</div>` : ""}
+    </div>
+  `,
+});
+```
+
+<Callout type="tip">
+  `resizable` 요소의 템플릿에서 루트 요소에 `width: 100%; height: 100%`를
+  적용하면 사용자가 조절한 크기에 맞게 내부 콘텐츠가 채워집니다.
+</Callout>
+
 ## 컨텍스트 메뉴 (contextMenu)
 
 ### 기본 설정
