@@ -75,7 +75,7 @@ export const translations = {
       title: "Custom",
       titleHighlight: "Key Viewer",
       description: "Custom Key Viewer for Gamers",
-      descriptionSub: "Offering full customization and an intuitive interface",
+      descriptionSub: "Offering full customization and an intuitive UI",
       download: "Download",
       release: "Release",
     },
