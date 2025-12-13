@@ -1,0 +1,13 @@
+diff --git a/node_modules/nextra/dist/client/components/select.js b/node_modules/nextra/dist/client/components/select.js
+index 0417451..ed96349 100644
+--- a/node_modules/nextra/dist/client/components/select.js
++++ b/node_modules/nextra/dist/client/components/select.js
+@@ -63,7 +63,7 @@ const Select = (t0) => {
+   }
+   let t6;
+   if ($[10] !== anchor || $[11] !== t5) {
+-    t6 = /* @__PURE__ */ jsx(ListboxOptions, { as: "ul", transition: true, anchor, className: _temp, children: t5 });
++    t6 = /* @__PURE__ */ jsx(ListboxOptions, { as: "ul", transition: true, anchor, modal: false, className: _temp, children: t5 });
+     $[10] = anchor;
+     $[11] = t5;
+     $[12] = t6;

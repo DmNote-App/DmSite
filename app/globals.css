@@ -27,3 +27,9 @@ body {
   /* 레이아웃 리플로우 최소화 */
   overflow-x: hidden;
 }
+
+/* Docs footer padding: match landing page (py-6) */
+.dm-docs-footer {
+  padding-top: 1.5rem !important;
+  padding-bottom: 1.5rem !important;
+}

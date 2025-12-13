@@ -18,7 +18,11 @@ const navbar = (
     projectLink="https://github.com/DmNote-App/DmNote"
   />
 );
-const footer = <Footer>GPL 3.0 {new Date().getFullYear()} © DM Note.</Footer>;
+const footer = (
+  <Footer className="dm-docs-footer">
+    GPL 3.0 {new Date().getFullYear()} © DM Note.
+  </Footer>
+);
 
 export default async function DocsLayout({ children }) {
   return (
