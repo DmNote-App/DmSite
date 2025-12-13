@@ -1,7 +1,8 @@
 import "./globals.css";
-import { baseMetadata } from "./seo.config";
+import { baseMetadata, baseViewport } from "./seo.config";
 
 export const metadata = baseMetadata;
+export const viewport = baseViewport;
 
 export default function RootLayout({
   children,

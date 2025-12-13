@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 
 export const siteConfig = {
   url: "https://dmnote.app",
@@ -62,6 +62,10 @@ export const baseMetadata: Metadata = {
     index: true,
     follow: true,
   },
+  other: {
+    "theme-color": "#000000",
+    "apple-mobile-web-app-status-bar-style": "black-translucent",
+  },
 };
 
 export const docsMetadata: Metadata = {
@@ -76,4 +80,9 @@ export const docsMetadata: Metadata = {
     description:
       "DM Note API 레퍼런스",
   },
+};
+
+export const baseViewport: Viewport = {
+  themeColor: "#000000",
+  colorScheme: "dark",
 };
