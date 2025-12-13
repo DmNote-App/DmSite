@@ -1,3 +1,15 @@
+import { siteConfig } from "../seo.config";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: siteConfig.title,
+  description: siteConfig.description,
+  openGraph: {
+    title: siteConfig.title,
+    description: siteConfig.description,
+  },
+};
+
 export default function LandingPage() {
   return (
     <div className="dark">
