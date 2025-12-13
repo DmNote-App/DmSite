@@ -18,4 +18,12 @@ html.dark .nextra-mobile-nav {
 
 html {
   scrollbar-gutter: stable;
+  /* 스크롤 성능 최적화 */
+  scroll-behavior: auto;
+}
+
+/* 스크롤 중 GPU 가속 및 성능 최적화 */
+body {
+  /* 레이아웃 리플로우 최소화 */
+  overflow-x: hidden;
 }

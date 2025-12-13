@@ -128,8 +128,8 @@
   -webkit-background-clip: text;
   background-image: linear-gradient(to right, #22d3ee, #818cf8, #c084fc, #f472b6, #22d3ee);
   background-size: 200% auto;
-  animation: gradientMove 8s linear infinite;
-  will-change: background-position;
+  animation: gradientMove 12s linear infinite;
+  transform: translateZ(0);
   contain: paint;
   padding: 0.2em 0.1em;
   margin: -0.2em 0;
@@ -146,15 +146,24 @@
   z-index: -1;
   background-image: linear-gradient(to right, #22d3ee, #818cf8, #c084fc, #f472b6, #22d3ee);
   background-size: 200% auto;
-  background-position: 0% 50%;
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
   filter: blur(6px);
-  opacity: 0.7;
+  opacity: 0.5;
   padding: 0.2em 0.1em;
   box-sizing: border-box;
   transform: translateZ(0);
+  animation: gradientMove 12s linear infinite;
+  contain: paint;
+}
+
+/* 스크롤 중 그라데이션 blur 효과 일시정지로 성능 향상 */
+@media (prefers-reduced-motion: reduce) {
+  .gradient-text,
+  .gradient-text::after {
+    animation: none;
+  }
 }
 
 @keyframes gradientMove {
@@ -303,4 +312,75 @@
   contain: paint;
   content-visibility: auto;
   contain-intrinsic-size: 100vw 100vh;
+}
+
+/* 스크롤 진행 표시기 글로우 효과 */
+.scroll-progress-glow {
+  box-shadow: 0 0 20px rgba(129, 140, 248, 0.5), 0 0 40px rgba(192, 132, 252, 0.3);
+}
+
+/* 섹션 전환 시 배경 블렌딩 */
+.section-blend {
+  transition: background-color 0.5s ease-out;
+}
+
+/* 패럴랙스 요소 최적화 */
+.parallax-element {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* 스크롤 유도 애니메이션 */
+@keyframes scrollBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(10px);
+  }
+}
+
+.scroll-indicator {
+  animation: scrollBounce 2s ease-in-out infinite;
+}
+
+/* 피처 카드 등장 효과 강화 */
+.feature-card-reveal {
+  opacity: 0;
+  transform: translateY(60px) scale(0.9);
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.feature-card-reveal.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* 배경 글로우 효과 애니메이션 */
+@keyframes glowPulse {
+  0%, 100% {
+    opacity: 0.05;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.1;
+    transform: scale(1.05);
+  }
+}
+
+.bg-glow-animate {
+  animation: glowPulse 8s ease-in-out infinite;
+}
+
+/* 스무스 스크롤 트랜지션 */
+.smooth-transition {
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* 히어로 콘텐츠 스크롤 페이드 */
+.hero-scroll-fade {
+  will-change: opacity, transform;
+  transform-origin: center center;
 }
