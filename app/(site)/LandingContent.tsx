@@ -51,26 +51,25 @@ export function LandingContent() {
         style={{ backgroundColor: "#08080a" }}
       />
       
-      {/* 노이즈 오버레이 - 밴딩 방지 디더링 (SVG 필터, 전체 화면) */}
-      <svg className="fixed inset-0 w-full h-full z-[1] pointer-events-none" preserveAspectRatio="none">
-        <defs>
-          <filter id="noise-filter" x="0%" y="0%" width="100%" height="100%">
-            <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch" result="noise" />
-            <feColorMatrix type="saturate" values="0" />
-          </filter>
-        </defs>
-        <rect width="100%" height="100%" filter="url(#noise-filter)" opacity="0.04" />
-      </svg>
+      {/* 노이즈 오버레이 - 밴딩 방지 디더링 (정적 base64 노이즈, GPU 가속) */}
+      <div 
+        className="fixed inset-0 z-[1] pointer-events-none opacity-[0.04] will-change-transform"
+        style={{
+          backgroundImage: `url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwBAMAAAClLOS0AAAAElBMVEUAAAAAAAAAAAAAAAAAAAAAAADgKxmiAAAABnRSTlMCCgkGBAUmfekYAAAASklEQVQ4y2MgFjCCgCMYOIGBMxg4g4ELGLiAgSsYuIKBGxi4gYE7GLiDgQcYeICBJxh4goEXGHiBgTcYeIOBDxj4gIEvGPgSBQBU7hjnIPLcYAAAAABJRU5ErkJggg==")`,
+          backgroundRepeat: 'repeat',
+          transform: 'translateZ(0)',
+        }}
+      />
 
       <div className="relative z-10 text-white font-sans overflow-x-hidden w-full selection:bg-accent-500 selection:text-white">
         {/* Hero Section with Background Effects */}
         <section
           ref={heroRef}
-          className="relative min-h-screen overflow-hidden isolate"
-          style={{ contain: "layout paint" }}
+          className="relative overflow-hidden isolate"
+          style={{ contain: "layout paint", minHeight: "100dvh" }}
         >
           {/* 배경 그라데이션 효과 - SVG로 밴딩 방지 */}
-          <svg className="absolute inset-0 w-full h-full z-0 pointer-events-none" preserveAspectRatio="xMidYMid slice">
+          <svg className="absolute inset-0 w-full h-full z-0 pointer-events-none" preserveAspectRatio="xMidYMid slice" style={{ transform: 'translateZ(0)' }}>
             <defs>
               {/* 중앙 상단 메인 글로우 - 보라 */}
               <radialGradient id="hero-glow-center" cx="50%" cy="0%" r="70%" fx="50%" fy="0%">
@@ -114,14 +113,15 @@ export function LandingContent() {
 
           {/* Main Content - 스크롤 시 스케일 다운 + 페이드 아웃 */}
           <motion.main
-            className="relative z-10 min-h-screen flex flex-col items-center justify-center max-w-7xl mx-auto px-6 will-change-[transform,opacity]"
+            className="relative z-10 flex flex-col items-center justify-center max-w-7xl mx-auto px-[30px] sm:px-6 pt-16 pb-24 will-change-[transform,opacity]"
             style={{
               opacity: smoothHeroOpacity,
               scale: smoothHeroScale,
+              minHeight: "100dvh",
             }}
           >
             {/* Text Content */}
-            <div className="text-center space-y-10 max-w-4xl mx-auto z-20 flex-1 flex flex-col justify-center">
+            <div className="w-full text-center space-y-8 md:space-y-10 max-w-4xl mx-auto z-20 flex flex-col justify-center">
               <div className="space-y-8">
                 <ScrollFade delay={0.1} distance={30}>
                   <a
@@ -263,17 +263,17 @@ export function LandingContent() {
 
           {/* 스크롤 유도 애니메이션 */}
           <motion.div
-            className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20"
+            className="absolute bottom-6 md:bottom-8 left-1/2 transform -translate-x-1/2 z-20"
             style={{ opacity: smoothHeroOpacity }}
           >
             <motion.div
-              className="flex flex-col items-center gap-2 text-gray-500"
-              animate={{ y: [0, 10, 0] }}
+              className="flex flex-col items-center gap-1 md:gap-2 text-gray-500"
+              animate={{ y: [0, 8, 0] }}
               transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
             >
-              <span className="text-xs uppercase tracking-widest">Scroll</span>
+              <span className="text-[10px] md:text-xs uppercase tracking-widest">Scroll</span>
               <svg
-                className="w-5 h-5"
+                className="w-4 h-4 md:w-5 md:h-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -294,18 +294,17 @@ export function LandingContent() {
           ref={featuresRef}
           className="relative py-32 px-6"
         >
-          {/* 배경 글로우 효과 - SVG로 밴딩 방지 + 상단 페이드로 자연스러운 연결 */}
-          <svg className="absolute inset-0 w-full h-full overflow-visible pointer-events-none" preserveAspectRatio="xMidYMid slice">
+          {/* 배경 글로우 효과 - SVG로 밴딩 방지 + CSS mask로 상단 페이드 (성능 최적화) */}
+          <svg 
+            className="absolute inset-0 w-full h-full overflow-visible pointer-events-none" 
+            preserveAspectRatio="xMidYMid slice"
+            style={{ 
+              transform: 'translateZ(0)',
+              maskImage: 'linear-gradient(to bottom, transparent 0%, black 30%, black 100%)',
+              WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 30%, black 100%)'
+            }}
+          >
             <defs>
-              {/* 상단 페이드 마스크 - 섹션 시작 부분에서 그라데이션이 점진적으로 나타남 */}
-              <linearGradient id="features-fade-mask" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="white" stopOpacity="0" />
-                <stop offset="30%" stopColor="white" stopOpacity="1" />
-                <stop offset="100%" stopColor="white" stopOpacity="1" />
-              </linearGradient>
-              <mask id="features-top-fade">
-                <rect width="100%" height="100%" fill="url(#features-fade-mask)" />
-              </mask>
               {/* 우측 보라 글로우 - 위치를 더 아래로 조정 */}
               <radialGradient id="features-glow-right" cx="110%" cy="40%" r="50%" fx="110%" fy="40%">
                 <stop offset="0%" stopColor="#818cf8" stopOpacity="0.08" />
@@ -319,10 +318,8 @@ export function LandingContent() {
                 <stop offset="100%" stopColor="#22d3ee" stopOpacity="0" />
               </radialGradient>
             </defs>
-            <g mask="url(#features-top-fade)">
-              <rect width="100%" height="100%" fill="url(#features-glow-right)" />
-              <rect width="100%" height="100%" fill="url(#features-glow-left)" />
-            </g>
+            <rect width="100%" height="100%" fill="url(#features-glow-right)" />
+            <rect width="100%" height="100%" fill="url(#features-glow-left)" />
           </svg>
 
           <div className="max-w-7xl mx-auto relative z-10">
