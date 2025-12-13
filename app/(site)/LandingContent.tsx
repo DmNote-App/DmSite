@@ -40,25 +40,27 @@ export function LandingContent() {
   const smoothHeroOpacity = useSpring(heroOpacity, springConfig);
   const smoothHeroScale = useSpring(heroScale, springConfig);
 
-  // 전체 배경색 전환 (스크롤에 따라 #050507 → #0a0a0c)
-  const bgColorProgress = useTransform(heroScrollProgress, [0.3, 1], [0, 1]);
-
   return (
     <div className="dark">
       {/* 스크롤 진행 표시기 */}
       <ScrollProgressBar />
 
-      {/* 스크롤에 따라 배경색이 자연스럽게 변하는 레이어 */}
-      <motion.div
-        className="fixed inset-0 z-0 pointer-events-none will-change-[background-color]"
-        style={{
-          backgroundColor: useTransform(
-            bgColorProgress,
-            [0, 1],
-            ["#050507", "#0a0a0c"]
-          ),
-        }}
+      {/* 단일 고정 배경 */}
+      <div 
+        className="fixed inset-0 z-0 pointer-events-none"
+        style={{ backgroundColor: "#08080a" }}
       />
+      
+      {/* 노이즈 오버레이 - 밴딩 방지 디더링 (SVG 필터, 전체 화면) */}
+      <svg className="fixed inset-0 w-full h-full z-[1] pointer-events-none" preserveAspectRatio="none">
+        <defs>
+          <filter id="noise-filter" x="0%" y="0%" width="100%" height="100%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch" result="noise" />
+            <feColorMatrix type="saturate" values="0" />
+          </filter>
+        </defs>
+        <rect width="100%" height="100%" filter="url(#noise-filter)" opacity="0.04" />
+      </svg>
 
       <div className="relative z-10 text-white font-sans overflow-x-hidden w-full selection:bg-accent-500 selection:text-white">
         {/* Hero Section with Background Effects */}
@@ -67,24 +69,32 @@ export function LandingContent() {
           className="relative min-h-screen overflow-hidden isolate"
           style={{ contain: "layout paint" }}
         >
-          {/* 배경 그라데이션 효과 */}
-          <div className="absolute inset-0 z-0 pointer-events-none section-fade-mask">
-            {/* 중앙 상단 메인 글로우 */}
-            <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[70%] h-[60%] bg-[#818cf8]/15 rounded-full blur-[100px] transform-gpu" />
-            {/* 좌측 청록 */}
-            <div className="absolute top-[10%] left-[-5%] w-[40%] h-[50%] bg-[#22d3ee]/12 rounded-full blur-[90px] transform-gpu" />
-            {/* 우측 핑크 */}
-            <div className="absolute top-[10%] right-[-5%] w-[40%] h-[50%] bg-[#f472b6]/10 rounded-full blur-[90px] transform-gpu" />
-            {/* 노이즈 오버레이 - 밴딩 방지 디더링 */}
-            <div 
-              className="absolute inset-0 opacity-[0.035] mix-blend-overlay pointer-events-none"
-              style={{
-                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-                backgroundRepeat: 'repeat',
-                backgroundSize: '128px 128px',
-              }}
-            />
-          </div>
+          {/* 배경 그라데이션 효과 - SVG로 밴딩 방지 */}
+          <svg className="absolute inset-0 w-full h-full z-0 pointer-events-none" preserveAspectRatio="xMidYMid slice">
+            <defs>
+              {/* 중앙 상단 메인 글로우 - 보라 */}
+              <radialGradient id="hero-glow-center" cx="50%" cy="0%" r="70%" fx="50%" fy="0%">
+                <stop offset="0%" stopColor="#818cf8" stopOpacity="0.15" />
+                <stop offset="50%" stopColor="#818cf8" stopOpacity="0.06" />
+                <stop offset="100%" stopColor="#818cf8" stopOpacity="0" />
+              </radialGradient>
+              {/* 좌측 청록 */}
+              <radialGradient id="hero-glow-left" cx="0%" cy="30%" r="60%" fx="0%" fy="30%">
+                <stop offset="0%" stopColor="#22d3ee" stopOpacity="0.12" />
+                <stop offset="50%" stopColor="#22d3ee" stopOpacity="0.04" />
+                <stop offset="100%" stopColor="#22d3ee" stopOpacity="0" />
+              </radialGradient>
+              {/* 우측 핑크 */}
+              <radialGradient id="hero-glow-right" cx="100%" cy="30%" r="60%" fx="100%" fy="30%">
+                <stop offset="0%" stopColor="#f472b6" stopOpacity="0.10" />
+                <stop offset="50%" stopColor="#f472b6" stopOpacity="0.03" />
+                <stop offset="100%" stopColor="#f472b6" stopOpacity="0" />
+              </radialGradient>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#hero-glow-center)" />
+            <rect width="100%" height="100%" fill="url(#hero-glow-left)" />
+            <rect width="100%" height="100%" fill="url(#hero-glow-right)" />
+          </svg>
 
           {/* Grid Pattern with Radial Fade - 스크롤 시 페이드 아웃 */}
           <motion.div
@@ -284,11 +294,36 @@ export function LandingContent() {
           ref={featuresRef}
           className="relative py-32 px-6"
         >
-          {/* 배경 글로우 효과 - 정적으로 변경하여 성능 최적화 */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute top-[20%] right-[-10%] w-[40%] h-[40%] bg-[#818cf8]/5 rounded-full blur-[100px] transform-gpu" />
-            <div className="absolute bottom-[10%] left-[-10%] w-[30%] h-[30%] bg-[#22d3ee]/5 rounded-full blur-[80px] transform-gpu" />
-          </div>
+          {/* 배경 글로우 효과 - SVG로 밴딩 방지 + 상단 페이드로 자연스러운 연결 */}
+          <svg className="absolute inset-0 w-full h-full overflow-visible pointer-events-none" preserveAspectRatio="xMidYMid slice">
+            <defs>
+              {/* 상단 페이드 마스크 - 섹션 시작 부분에서 그라데이션이 점진적으로 나타남 */}
+              <linearGradient id="features-fade-mask" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="white" stopOpacity="0" />
+                <stop offset="30%" stopColor="white" stopOpacity="1" />
+                <stop offset="100%" stopColor="white" stopOpacity="1" />
+              </linearGradient>
+              <mask id="features-top-fade">
+                <rect width="100%" height="100%" fill="url(#features-fade-mask)" />
+              </mask>
+              {/* 우측 보라 글로우 - 위치를 더 아래로 조정 */}
+              <radialGradient id="features-glow-right" cx="110%" cy="40%" r="50%" fx="110%" fy="40%">
+                <stop offset="0%" stopColor="#818cf8" stopOpacity="0.08" />
+                <stop offset="60%" stopColor="#818cf8" stopOpacity="0.02" />
+                <stop offset="100%" stopColor="#818cf8" stopOpacity="0" />
+              </radialGradient>
+              {/* 좌측 하단 청록 글로우 */}
+              <radialGradient id="features-glow-left" cx="-10%" cy="90%" r="40%" fx="-10%" fy="90%">
+                <stop offset="0%" stopColor="#22d3ee" stopOpacity="0.08" />
+                <stop offset="60%" stopColor="#22d3ee" stopOpacity="0.02" />
+                <stop offset="100%" stopColor="#22d3ee" stopOpacity="0" />
+              </radialGradient>
+            </defs>
+            <g mask="url(#features-top-fade)">
+              <rect width="100%" height="100%" fill="url(#features-glow-right)" />
+              <rect width="100%" height="100%" fill="url(#features-glow-left)" />
+            </g>
+          </svg>
 
           <div className="max-w-7xl mx-auto relative z-10">
             {/* Section Header */}
