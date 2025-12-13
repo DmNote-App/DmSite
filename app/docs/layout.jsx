@@ -6,7 +6,12 @@ import "nextra-theme-docs/style.css";
 const banner = <Banner storageKey="some-key">Nextra 4.0 is released 🎉</Banner>;
 const navbar = (
   <Navbar
-    logo={<b>DM Note</b>}
+    logo={
+      <div className="flex items-center gap-2">
+        <img src="/icon.ico" alt="DM Note Logo" className="w-6 h-6 rounded-md" />
+        <b>DM Note</b>
+      </div>
+    }
     projectLink="https://github.com/DmNote-App/DmNote"
   />
 );
