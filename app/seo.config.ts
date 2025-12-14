@@ -36,6 +36,9 @@ export const baseMetadata: Metadata = {
     icon: siteConfig.icon,
     shortcut: siteConfig.icon,
   },
+  alternates: {
+    canonical: siteConfig.url,
+  },
   openGraph: {
     type: "website",
     locale: siteConfig.locale,
