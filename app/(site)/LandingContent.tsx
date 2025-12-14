@@ -819,10 +819,14 @@ function ShowcaseVideoCard({
   // 모바일에서는 애니메이션 거리 축소
   const xOffset = direction === "left" ? (isMobile ? -30 : -60) : (isMobile ? 30 : 60);
   const x = useTransform(scrollYProgress, [0, 0.5], [xOffset, 0]);
+  // PC에서만 y 애니메이션 추가 (대각선 효과)
+  const yOffset = isMobile ? 0 : 40;
+  const y = useTransform(scrollYProgress, [0, 0.5], [yOffset, 0]);
 
   const springConfig = { stiffness: 300, damping: 50, restDelta: 0.001 };
   const smoothOpacity = useSpring(opacity, springConfig);
   const smoothX = useSpring(x, springConfig);
+  const smoothY = useSpring(y, springConfig);
 
   return (
     <motion.div
@@ -831,6 +835,7 @@ function ShowcaseVideoCard({
       style={{
         opacity: smoothOpacity,
         x: smoothX,
+        y: smoothY,
       }}
     >
       <div className="group relative h-full overflow-hidden rounded-2xl bg-white/5 border border-white/5 transition-colors duration-300 hover:border-white/10">
