@@ -2,7 +2,7 @@
 
 import { useLanguage } from "./i18n";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import {
   ScrollProgressBar,
   HeroScrollEffect,
@@ -24,10 +24,16 @@ export function LandingContent() {
     offset: ["start start", "end start"],
   });
 
-  // 피처 섹션 스크롤
+  // 피처 섹션 스크롤 (등장용)
   const { scrollYProgress: featuresScrollProgress } = useScroll({
     target: featuresRef,
     offset: ["start end", "start start"],
+  });
+
+  // 피처 섹션 퇴장 스크롤 (2페이지 → 3페이지 전환)
+  const { scrollYProgress: featuresExitProgress } = useScroll({
+    target: featuresRef,
+    offset: ["end end", "end start"],
   });
 
   // 배경 효과 애니메이션 값 - useTransform만 사용하여 성능 최적화
@@ -39,6 +45,12 @@ export function LandingContent() {
   const springConfig = { stiffness: 300, damping: 50, restDelta: 0.001 };
   const smoothHeroOpacity = useSpring(heroOpacity, springConfig);
   const smoothHeroScale = useSpring(heroScale, springConfig);
+
+  // Features 섹션 퇴장 애니메이션 값 (2페이지 → 3페이지)
+  const featuresOpacity = useTransform(featuresExitProgress, [0, 0.5, 0.8], [1, 0.6, 0]);
+  const featuresScale = useTransform(featuresExitProgress, [0, 0.8], [1, 0.9]);
+  const smoothFeaturesOpacity = useSpring(featuresOpacity, springConfig);
+  const smoothFeaturesScale = useSpring(featuresScale, springConfig);
 
   return (
     <div className="dark">
@@ -293,6 +305,7 @@ export function LandingContent() {
         <section
           ref={featuresRef}
           className="relative py-32 px-6"
+          style={{ minHeight: "100dvh" }}
         >
           {/* 배경 글로우 효과 - SVG로 밴딩 방지 + CSS mask로 상단 페이드 (성능 최적화) */}
           <svg 
@@ -322,7 +335,13 @@ export function LandingContent() {
             <rect width="100%" height="100%" fill="url(#features-glow-left)" />
           </svg>
 
-          <div className="max-w-7xl mx-auto relative z-10">
+          <motion.div 
+            className="max-w-7xl mx-auto relative z-10 will-change-[transform,opacity]"
+            style={{
+              opacity: smoothFeaturesOpacity,
+              scale: smoothFeaturesScale,
+            }}
+          >
             {/* Section Header */}
             <FeatureSectionReveal>
               <div className="text-center mb-20">
@@ -547,6 +566,57 @@ export function LandingContent() {
                 description={t.features.items.settings.description}
               />
             </div>
+          </motion.div>
+        </section>
+
+        {/* Section 3: Showcase Section */}
+        <section className="relative py-32 px-6 overflow-hidden">
+          {/* 배경 글로우 효과 */}
+          <svg 
+            className="absolute inset-0 w-full h-full overflow-visible pointer-events-none" 
+            preserveAspectRatio="xMidYMid slice"
+            style={{ transform: 'translateZ(0)' }}
+          >
+            <defs>
+              {/* Section 2에서 이어지는 좌측 상단 청록 글로우 */}
+              <radialGradient id="showcase-glow-top-left" cx="-10%" cy="-10%" r="40%" fx="-10%" fy="-10%">
+                <stop offset="0%" stopColor="#22d3ee" stopOpacity="0.08" />
+                <stop offset="60%" stopColor="#22d3ee" stopOpacity="0.02" />
+                <stop offset="100%" stopColor="#22d3ee" stopOpacity="0" />
+              </radialGradient>
+
+              <radialGradient id="showcase-glow-center" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                <stop offset="0%" stopColor="#c084fc" stopOpacity="0.08" />
+                <stop offset="60%" stopColor="#c084fc" stopOpacity="0.02" />
+                <stop offset="100%" stopColor="#c084fc" stopOpacity="0" />
+              </radialGradient>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#showcase-glow-top-left)" />
+            <rect width="100%" height="100%" fill="url(#showcase-glow-center)" />
+          </svg>
+
+          <div className="max-w-7xl mx-auto relative z-10">
+            {/* Section Header */}
+            <FeatureSectionReveal>
+              <div className="text-center mb-16">
+                <h2 className="text-4xl md:text-5xl font-bold mb-6">
+                  {t.showcase.title}{" "}
+                  <span
+                    className="gradient-text"
+                    data-text={t.showcase.titleHighlight}
+                  >
+                    {t.showcase.titleHighlight}
+                  </span>
+                  {t.showcase.titleSuffix}
+                </h2>
+                <p className="text-lg text-gray-400 max-w-2xl mx-auto">
+                  {t.showcase.description}
+                </p>
+              </div>
+            </FeatureSectionReveal>
+
+            {/* Video Showcase Grid - Bento Style */}
+            <ShowcaseGrid t={t} />
           </div>
         </section>
 
@@ -559,6 +629,68 @@ export function LandingContent() {
           </div>
         </footer>
       </div>
+    </div>
+  );
+}
+
+// Showcase Grid 컴포넌트 - 오른쪽 카드들이 동시에 나타나도록 스크롤 공유
+function ShowcaseGrid({ t }: { t: any }) {
+  const gridRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+  
+  // 그리드 전체의 스크롤 진행률
+  const { scrollYProgress } = useScroll({
+    target: gridRef,
+    offset: ["start end", "center center"],
+  });
+
+  return (
+    <div ref={gridRef} className="showcase-grid">
+      <ShowcaseVideoCard
+        src="/assets/CSS.mp4"
+        title={t.showcase.items.css.title}
+        description={t.showcase.items.css.description}
+        className="showcase-card-large"
+        delay={0}
+        direction="left"
+      />
+      <ShowcaseVideoCard
+        src="/assets/Grid.mp4"
+        title={t.showcase.items.grid.title}
+        description={t.showcase.items.grid.description}
+        className="showcase-card-medium"
+        delay={0}
+        direction="right"
+        parentScrollProgress={isMobile ? undefined : scrollYProgress}
+      />
+      <ShowcaseVideoCard
+        src="/assets/counter.webm"
+        title={t.showcase.items.counter.title}
+        description={t.showcase.items.counter.description}
+        className="showcase-card-small"
+        delay={0}
+        direction={isMobile ? "left" : "right"}
+        parentScrollProgress={isMobile ? undefined : scrollYProgress}
+      />
+      <ShowcaseVideoCard
+        src="/assets/plugin.webm"
+        title={t.showcase.items.plugin.title}
+        description={t.showcase.items.plugin.description}
+        className="showcase-card-small"
+        delay={0}
+        direction="right"
+        parentScrollProgress={isMobile ? undefined : scrollYProgress}
+      />
     </div>
   );
 }
@@ -639,6 +771,93 @@ function FeatureCard({
         </div>
         <h3 className="text-xl font-semibold mb-3 text-white">{title}</h3>
         <p className="text-gray-400 leading-relaxed text-sm">{description}</p>
+      </div>
+    </motion.div>
+  );
+}
+
+// Showcase Video Card 컴포넌트
+function ShowcaseVideoCard({
+  src,
+  title,
+  description,
+  className = "",
+  delay = 0,
+  direction = "left",
+  parentScrollProgress,
+}: {
+  src: string;
+  title: string;
+  description: string;
+  className?: string;
+  delay?: number;
+  direction?: "left" | "right";
+  parentScrollProgress?: any;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const { scrollYProgress: selfScrollProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "center center"],
+  });
+
+  // 부모 스크롤 진행률이 있으면 사용, 없으면 자체 스크롤 사용
+  const scrollYProgress = parentScrollProgress ?? selfScrollProgress;
+
+  const opacity = useTransform(scrollYProgress, [0, 0.5], [0, 1]);
+  // 모바일에서는 애니메이션 거리 축소
+  const xOffset = direction === "left" ? (isMobile ? -30 : -60) : (isMobile ? 30 : 60);
+  const x = useTransform(scrollYProgress, [0, 0.5], [xOffset, 0]);
+
+  const springConfig = { stiffness: 300, damping: 50, restDelta: 0.001 };
+  const smoothOpacity = useSpring(opacity, springConfig);
+  const smoothX = useSpring(x, springConfig);
+
+  return (
+    <motion.div
+      ref={ref}
+      className={`showcase-card ${className}`}
+      style={{
+        opacity: smoothOpacity,
+        x: smoothX,
+      }}
+    >
+      <div className="group relative h-full overflow-hidden rounded-2xl bg-white/5 border border-white/5 transition-colors duration-300 hover:border-white/10">
+        {/* Video Container */}
+        <div className="absolute inset-0">
+          <video
+            ref={videoRef}
+            src={src}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          />
+          {/* Gradient Overlay for Text Readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#08080a] via-[#08080a]/40 to-transparent opacity-95" />
+        </div>
+        
+        {/* Content - 모바일 패딩 및 텍스트 크기 조정 */}
+        <div className="relative h-full flex flex-col justify-end p-4 sm:p-6 z-10">
+          <h3 key={title} className="text-lg sm:text-xl font-bold text-white mb-1 sm:mb-2">
+            {title}
+          </h3>
+          <p key={description} className="text-xs sm:text-sm text-gray-400 font-medium leading-relaxed line-clamp-2 sm:line-clamp-none">
+            {description}
+          </p>
+        </div>
       </div>
     </motion.div>
   );

@@ -2,21 +2,21 @@
   font-family: 'KimJeongCheolHandwriting';
   src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2302_01@1.0/KimjungchulScript-Light.woff2') format('woff2');
   font-weight: 300;
-  font-display: optional;
+  font-display: swap;
 }
 
 @font-face {
   font-family: 'KimJeongCheolHandwriting';
   src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2302_01@1.0/KimjungchulScript-Regular.woff2') format('woff2');
   font-weight: 400;
-  font-display: optional;
+  font-display: swap;
 }
 
 @font-face {
   font-family: 'KimJeongCheolHandwriting';
   src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2302_01@1.0/KimjungchulScript-Bold.woff2') format('woff2');
   font-weight: 700;
-  font-display: optional;
+  font-display: swap;
 }
 
 /* Suit Font Definition (viewer only) */
@@ -121,7 +121,7 @@
 .gradient-text {
   position: relative;
   display: inline-block;
-  font-family: 'KimJeongCheolHandwriting', sans-serif;
+  font-family: 'KimJeongCheolHandwriting', sans-serif !important;
   font-weight: 700;
   color: transparent;
   background-clip: text;
@@ -379,3 +379,66 @@
   will-change: opacity, transform;
   transform-origin: center center;
 }
+
+/* ========================================
+   Showcase Section - Video Cards Grid
+   ======================================== */
+
+/* Bento-style Grid Layout */
+.showcase-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+/* 모바일 카드 높이 */
+.showcase-card-large,
+.showcase-card-medium,
+.showcase-card-small {
+  min-height: 200px;
+}
+
+@media (min-width: 640px) {
+  .showcase-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .showcase-card-large,
+  .showcase-card-medium,
+  .showcase-card-small {
+    min-height: 240px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .showcase-grid {
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(2, 300px); /* 고정 높이로 변경하여 비율 유지 */
+    gap: 1.5rem;
+  }
+  
+  .showcase-card-large {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+  
+  .showcase-card-medium {
+    grid-column: span 2;
+    grid-row: span 1;
+  }
+  
+  .showcase-card-small {
+    grid-column: span 1;
+    grid-row: span 1;
+  }
+}
+
+/* Showcase Card Base */
+.showcase-card {
+  will-change: transform, opacity;
+  height: 100%;
+}
+
+/* Inner card styles are now handled by Tailwind classes in the component */
+
+

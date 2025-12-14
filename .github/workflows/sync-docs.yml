@@ -34,6 +34,12 @@ jobs:
 
       - name: Sync docs/plugin to app/docs
         run: |
+          # layout.jsx 백업 (Nextra에서 필요한 파일)
+          if [ -f "dmsite/app/docs/layout.jsx" ]; then
+            cp dmsite/app/docs/layout.jsx /tmp/layout.jsx.bak
+            echo "📦 layout.jsx 백업 완료"
+          fi
+
           # 기존 app/docs 내용 삭제 (동기화를 위해)
           rm -rf dmsite/app/docs/*
 
@@ -44,6 +50,12 @@ jobs:
           else
             echo "⚠️ dmnote/docs/plugin 폴더가 존재하지 않습니다"
             exit 1
+          fi
+
+          # layout.jsx 복원
+          if [ -f "/tmp/layout.jsx.bak" ]; then
+            cp /tmp/layout.jsx.bak dmsite/app/docs/layout.jsx
+            echo "📦 layout.jsx 복원 완료"
           fi
 
       - name: Check for changes

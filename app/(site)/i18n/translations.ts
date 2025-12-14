@@ -65,6 +65,32 @@ export const translations = {
     footer: {
       copyright: "© 2025 DM Note. Licensed under GPL-3.0",
     },
+    showcase: {
+      sectionLabel: "Showcase",
+      title: "Quick",
+      titleHighlight: "Preview",
+      titleSuffix: "",
+      description: "주요 기능들을 빠르게 살펴보세요.",
+      download: "다운로드",
+      items: {
+        css: {
+          title: "CSS 커스터마이징",
+          description: "자유로운 스타일링",
+        },
+        grid: {
+          title: "그리드 레이아웃",
+          description: "직관적인 배치",
+        },
+        counter: {
+          title: "키 카운터",
+          description: "실시간 입력 통계",
+        },
+        plugin: {
+          title: "플러그인",
+          description: "JavaScript 확장",
+        },
+      },
+    },
   },
   en: {
     nav: {
@@ -130,6 +156,32 @@ export const translations = {
     footer: {
       copyright: "© 2025 DM Note. Licensed under GPL-3.0",
     },
+    showcase: {
+      sectionLabel: "Showcase",
+      title: "Quick",
+      titleHighlight: "Preview",
+      titleSuffix: "",
+      description: "Take a quick look at the key features of DM Note",
+      download: "Download",
+      items: {
+        css: {
+          title: "CSS Customization",
+          description: "Unlimited styling",
+        },
+        grid: {
+          title: "Grid Layout",
+          description: "Intuitive positioning",
+        },
+        counter: {
+          title: "Key Counter",
+          description: "Real-time statistics",
+        },
+        plugin: {
+          title: "Plugins",
+          description: "Extend with JavaScript",
+        },
+      },
+    },
   },
 };
 
@@ -163,4 +215,18 @@ export type Translations = {
     };
   };
   footer: { copyright: string };
+  showcase: {
+    sectionLabel: string;
+    title: string;
+    titleHighlight: string;
+    titleSuffix: string;
+    description: string;
+    download: string;
+    items: {
+      css: { title: string; description: string };
+      grid: { title: string; description: string };
+      counter: { title: string; description: string };
+      plugin: { title: string; description: string };
+    };
+  };
 };
