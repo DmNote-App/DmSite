@@ -32,6 +32,7 @@ export default function RootLayout({
   return (
     <html lang="ko" dir="ltr" suppressHydrationWarning>
       <head>
+        <meta name="naver-site-verification" content="b249cc8c4fa1792f5e3b50b6a8e4ee6ebca3fd2d" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

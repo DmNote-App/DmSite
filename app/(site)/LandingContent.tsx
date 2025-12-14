@@ -681,6 +681,7 @@ function ShowcaseGrid({ t }: { t: any }) {
         delay={0}
         direction={isMobile ? "left" : "right"}
         parentScrollProgress={isMobile ? undefined : scrollYProgress}
+        videoScale={1.02}
       />
       <ShowcaseVideoCard
         src="/assets/plugin.webm"
@@ -710,7 +711,7 @@ function TechStackIcon({
       className="flex items-center gap-2 text-gray-500 transition-colors duration-300 cursor-default"
       title={name}
       whileHover={{ scale: 1.1, color: hoverColor }}
-      transition={{ type: "spring", stiffness: 400, damping: 17 }}
+      transition={{ type: "tween", duration: 0.2, ease: "easeOut" }}
     >
       {icon}
       <span className="text-xs font-medium">{name}</span>
@@ -785,6 +786,7 @@ function ShowcaseVideoCard({
   delay = 0,
   direction = "left",
   parentScrollProgress,
+  videoScale = 1,
 }: {
   src: string;
   title: string;
@@ -793,6 +795,7 @@ function ShowcaseVideoCard({
   delay?: number;
   direction?: "left" | "right";
   parentScrollProgress?: any;
+  videoScale?: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -852,7 +855,8 @@ function ShowcaseVideoCard({
             loop
             muted
             playsInline
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            className="w-full h-full object-cover"
+            style={videoScale !== 1 ? { transform: `scale(${videoScale})` } : undefined}
           />
           {/* Gradient Overlay for Text Readability */}
           <div className="absolute inset-0 bg-gradient-to-t from-[#08080a] via-[#08080a]/40 to-transparent opacity-95" />
