@@ -810,6 +810,51 @@ function ShowcaseVideoCard({
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  useEffect(() => {
+    const el = ref.current;
+    const video = videoRef.current;
+    if (!el || !video) return;
+
+    const pause = () => {
+      try {
+        video.pause();
+      } catch {
+      }
+    };
+
+    const play = async () => {
+      try {
+        await video.play();
+      } catch {
+      }
+    };
+
+    if (!("IntersectionObserver" in window)) {
+      void play();
+      return pause;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (!entry) return;
+        if (entry.isIntersecting) {
+          void play();
+        } else {
+          pause();
+        }
+      },
+      { threshold: 0.2, rootMargin: "200px 0px" }
+    );
+
+    observer.observe(el);
+
+    return () => {
+      observer.disconnect();
+      pause();
+    };
+  }, [src]);
+
   const { scrollYProgress: selfScrollProgress } = useScroll({
     target: ref,
     offset: ["start end", "center center"],
@@ -851,7 +896,7 @@ function ShowcaseVideoCard({
           <video
             ref={videoRef}
             src={src}
-            autoPlay
+            preload="metadata"
             loop
             muted
             playsInline
