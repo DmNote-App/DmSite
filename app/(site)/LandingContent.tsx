@@ -800,6 +800,10 @@ function ShowcaseVideoCard({
   const ref = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [resolvedSrc, setResolvedSrc] = useState<string | null>(() => {
+    const clean = src.split("?")[0]?.split("#")[0] ?? src;
+    return clean.toLowerCase().endsWith(".webm") ? null : src;
+  });
 
   useEffect(() => {
     const checkMobile = () => {
@@ -811,9 +815,27 @@ function ShowcaseVideoCard({
   }, []);
 
   useEffect(() => {
+    const clean = src.split("?")[0]?.split("#")[0] ?? src;
+
+    if (!clean.toLowerCase().endsWith(".webm")) {
+      setResolvedSrc(src);
+      return;
+    }
+
+    const testVideo = document.createElement("video");
+    const canPlay =
+      testVideo.canPlayType('video/webm; codecs="vp8, vorbis"') ||
+      testVideo.canPlayType('video/webm; codecs="vp9, opus"') ||
+      testVideo.canPlayType("video/webm");
+
+    setResolvedSrc(canPlay ? src : null);
+  }, [src]);
+
+  useEffect(() => {
     const el = ref.current;
     const video = videoRef.current;
     if (!el || !video) return;
+    if (!resolvedSrc) return;
 
     const pause = () => {
       try {
@@ -853,7 +875,7 @@ function ShowcaseVideoCard({
       observer.disconnect();
       pause();
     };
-  }, [src]);
+  }, [resolvedSrc]);
 
   const { scrollYProgress: selfScrollProgress } = useScroll({
     target: ref,
@@ -893,16 +915,21 @@ function ShowcaseVideoCard({
       <div className="group relative h-full overflow-hidden rounded-2xl bg-white/5 border border-white/5 transition-colors duration-300 hover:border-white/10">
         {/* Video Container */}
         <div className="absolute inset-0">
-          <video
-            ref={videoRef}
-            src={src}
-            preload="metadata"
-            loop
-            muted
-            playsInline
-            className="w-full h-full object-cover"
-            style={videoScale !== 1 ? { transform: `scale(${videoScale})` } : undefined}
-          />
+          {resolvedSrc ? (
+            <video
+              ref={videoRef}
+              src={resolvedSrc}
+              preload="metadata"
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-cover"
+              style={videoScale !== 1 ? { transform: `scale(${videoScale})` } : undefined}
+              onError={() => setResolvedSrc(null)}
+            />
+          ) : (
+            <div className="w-full h-full bg-[#0b0b0d]" />
+          )}
           {/* Gradient Overlay for Text Readability */}
           <div className="absolute inset-0 bg-gradient-to-t from-[#08080a] via-[#08080a]/40 to-transparent opacity-95" />
         </div>
