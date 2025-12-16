@@ -1,12 +1,25 @@
 "use client";
 
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useRef } from "react";
 import Lenis from "lenis";
 
 export default function SmoothScroll({ children }: { children: ReactNode }) {
+  const lenisRef = useRef<Lenis | null>(null);
+  const rafIdRef = useRef<number | null>(null);
+
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) return;
+
+    // 이전 인스턴스 정리
+    if (lenisRef.current) {
+      lenisRef.current.destroy();
+      lenisRef.current = null;
+    }
+    if (rafIdRef.current) {
+      cancelAnimationFrame(rafIdRef.current);
+      rafIdRef.current = null;
+    }
 
     const lenis = new Lenis({
       duration: 1.0,
@@ -23,17 +36,26 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
       touchMultiplier: 2,
     });
 
-    let rafId: number | null = null;
+    lenisRef.current = lenis;
+
     function raf(time: number) {
-      lenis.raf(time);
-      rafId = requestAnimationFrame(raf);
+      if (lenisRef.current) {
+        lenisRef.current.raf(time);
+      }
+      rafIdRef.current = requestAnimationFrame(raf);
     }
 
-    rafId = requestAnimationFrame(raf);
+    rafIdRef.current = requestAnimationFrame(raf);
 
     return () => {
-      if (rafId) cancelAnimationFrame(rafId);
-      lenis.destroy();
+      if (rafIdRef.current) {
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
+      }
+      if (lenisRef.current) {
+        lenisRef.current.destroy();
+        lenisRef.current = null;
+      }
     };
   }, []);
 

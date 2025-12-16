@@ -25,7 +25,6 @@ export function useScrollProgress(): ScrollProgress {
   });
 
   const lastScrollY = useRef(0);
-  const rafId = useRef<number | null>(null);
 
   const updateScroll = useCallback(() => {
     const scrollY = window.scrollY;
@@ -53,11 +52,13 @@ export function useScrollProgress(): ScrollProgress {
   }, []);
 
   useEffect(() => {
+    let localRafId: number | null = null;
+    
     const handleScroll = () => {
-      if (rafId.current) {
-        cancelAnimationFrame(rafId.current);
+      if (localRafId) {
+        cancelAnimationFrame(localRafId);
       }
-      rafId.current = requestAnimationFrame(updateScroll);
+      localRafId = requestAnimationFrame(updateScroll);
     };
 
     // 초기값 설정
@@ -69,8 +70,9 @@ export function useScrollProgress(): ScrollProgress {
     return () => {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleScroll);
-      if (rafId.current) {
-        cancelAnimationFrame(rafId.current);
+      if (localRafId) {
+        cancelAnimationFrame(localRafId);
+        localRafId = null;
       }
     };
   }, [updateScroll]);
@@ -90,23 +92,28 @@ export function useSectionProgress(
     const section = sectionRef.current;
     if (!section) return;
 
+    let rafId: number | null = null;
+
     const handleScroll = () => {
-      const rect = section.getBoundingClientRect();
-      const viewportHeight = window.innerHeight;
+      if (rafId) cancelAnimationFrame(rafId);
+      
+      rafId = requestAnimationFrame(() => {
+        const rect = section.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
 
-      // 섹션이 뷰포트에 들어왔는지 확인
-      const startOffset = offset.start ?? 0;
-      const endOffset = offset.end ?? 0;
+        // 섹션이 뷰포트에 들어왔는지 확인
+        const startOffset = offset.start ?? 0;
+        const endOffset = offset.end ?? 0;
 
-      const sectionTop = rect.top - viewportHeight + startOffset;
-      const sectionBottom = rect.bottom - endOffset;
-      const sectionHeight = rect.height + viewportHeight - startOffset - endOffset;
+        const sectionTop = rect.top - viewportHeight + startOffset;
+        const sectionHeight = rect.height + viewportHeight - startOffset - endOffset;
 
-      // 진행률 계산 (0: 섹션 시작, 1: 섹션 끝)
-      const currentProgress = Math.max(0, Math.min(1, -sectionTop / sectionHeight));
+        // 진행률 계산 (0: 섹션 시작, 1: 섹션 끝)
+        const currentProgress = Math.max(0, Math.min(1, -sectionTop / sectionHeight));
 
-      setProgress(currentProgress);
-      setIsInView(rect.top < viewportHeight && rect.bottom > 0);
+        setProgress(currentProgress);
+        setIsInView(rect.top < viewportHeight && rect.bottom > 0);
+      });
     };
 
     handleScroll();
@@ -116,6 +123,7 @@ export function useSectionProgress(
     return () => {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleScroll);
+      if (rafId) cancelAnimationFrame(rafId);
     };
   }, [sectionRef, offset.start, offset.end]);
 

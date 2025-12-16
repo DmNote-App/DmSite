@@ -19,11 +19,9 @@ export function Parallax({ children, speed = 0.5, className = "" }: ParallaxProp
   });
 
   const y = useTransform(scrollYProgress, [0, 1], [speed * 100, -speed * 100]);
-  // 스프링 설정 최적화 - 높은 damping으로 떨림 방지
-  const smoothY = useSpring(y, { stiffness: 300, damping: 50, restDelta: 0.001 });
 
   return (
-    <motion.div ref={ref} style={{ y: smoothY }} className={`${className} will-change-transform`}>
+    <motion.div ref={ref} style={{ y }} className={`${className} will-change-transform transition-transform duration-100 ease-out`}>
       {children}
     </motion.div>
   );
@@ -71,7 +69,7 @@ export function ScrollFade({
     [directions[direction].y, 0]
   );
 
-  // 스프링 설정 최적화 - 높은 damping으로 떨림 방지
+  // 스프링 설정 - 부드러운 초기 등장 애니메이션
   const springConfig = { stiffness: 300, damping: 50, restDelta: 0.001 };
   const smoothOpacity = useSpring(opacity, springConfig);
   const smoothX = useSpring(x, springConfig);
@@ -117,19 +115,14 @@ export function ScrollScale({
   const scale = useTransform(scrollYProgress, [0, 1], [scaleFrom, scaleTo]);
   const opacity = useTransform(scrollYProgress, [0, 0.3, 1], [0, 0.5, 1]);
 
-  // 스프링 설정 최적화 - 높은 damping으로 떨림 방지
-  const springConfig = { stiffness: 300, damping: 50, restDelta: 0.001 };
-  const smoothScale = useSpring(scale, springConfig);
-  const smoothOpacity = useSpring(opacity, springConfig);
-
   return (
     <motion.div
       ref={ref}
       style={{
-        scale: smoothScale,
-        opacity: smoothOpacity,
+        scale,
+        opacity,
       }}
-      className={`${className} will-change-[transform,opacity]`}
+      className={`${className} will-change-[transform,opacity] transition-[transform,opacity] duration-100 ease-out`}
     >
       {children}
     </motion.div>

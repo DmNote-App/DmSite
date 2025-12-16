@@ -41,7 +41,7 @@ export function LandingContent() {
   const heroOpacity = useTransform(heroScrollProgress, [0, 0.5, 0.8], [1, 0.6, 0]);
   const heroScale = useTransform(heroScrollProgress, [0, 0.8], [1, 0.9]);
 
-  // 스프링 설정 최적화 - 높은 damping으로 떨림 방지, restDelta로 안정화
+  // 스프링 설정 - Hero/Features 메인 애니메이션만 적용 (반복 컴포넌트는 제외)
   const springConfig = { stiffness: 300, damping: 50, restDelta: 0.001 };
   const smoothHeroOpacity = useSpring(heroOpacity, springConfig);
   const smoothHeroScale = useSpring(heroScale, springConfig);
@@ -634,15 +634,10 @@ export function LandingContent() {
 function ShowcaseGrid({ t }: { t: any }) {
   const gridRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
-
+  
+  // 클라이언트에서만 모바일 체크 (hydration 오류 방지)
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    setIsMobile(window.innerWidth < 768);
   }, []);
   
   // 그리드 전체의 스크롤 진행률
@@ -745,20 +740,14 @@ function FeatureCard({
   const y = useTransform(scrollYProgress, [0, 0.5], [60, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.5], [0.9, 1]);
 
-  // 스프링 설정 최적화 - 높은 damping으로 떨림 방지
-  const springConfig = { stiffness: 300, damping: 50, restDelta: 0.001 };
-  const smoothOpacity = useSpring(opacity, springConfig);
-  const smoothY = useSpring(y, springConfig);
-  const smoothScale = useSpring(scale, springConfig);
-
   return (
     <motion.div
       ref={ref}
-      className="will-change-[transform,opacity]"
+      className="will-change-[transform,opacity] transition-[transform,opacity] duration-100 ease-out"
       style={{
-        opacity: smoothOpacity,
-        y: smoothY,
-        scale: smoothScale,
+        opacity,
+        y,
+        scale,
       }}
     >
       <div className="feature-card group h-full">
@@ -803,13 +792,9 @@ function ShowcaseVideoCard({
     return clean.toLowerCase().endsWith(".webm") ? null : src;
   });
 
+  // 클라이언트에서만 모바일 체크 (hydration 오류 방지)
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    setIsMobile(window.innerWidth < 768);
   }, []);
 
   useEffect(() => {
@@ -925,21 +910,15 @@ function ShowcaseVideoCard({
   // 모바일에서 스케일 애니메이션 추가 (2페이지 카드처럼)
   const scale = useTransform(scrollYProgress, [0, 0.5], [isMobile ? 0.9 : 1, 1]);
 
-  const springConfig = { stiffness: 300, damping: 50, restDelta: 0.001 };
-  const smoothOpacity = useSpring(opacity, springConfig);
-  const smoothX = useSpring(x, springConfig);
-  const smoothY = useSpring(y, springConfig);
-  const smoothScale = useSpring(scale, springConfig);
-
   return (
     <motion.div
       ref={ref}
-      className={`showcase-card ${className}`}
+      className={`showcase-card ${className} transition-[transform,opacity] duration-100 ease-out`}
       style={{
-        opacity: smoothOpacity,
-        x: smoothX,
-        y: smoothY,
-        scale: smoothScale,
+        opacity,
+        x,
+        y,
+        scale,
       }}
     >
       <div className="group relative h-full overflow-hidden rounded-2xl bg-white/5 border border-white/5 transition-colors duration-300 hover:border-white/10">

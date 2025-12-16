@@ -61,21 +61,15 @@ export function HeroScrollEffect({ children, className = "" }: HeroScrollEffectP
   const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [1, 0.8, 0.3]);
   const y = useTransform(scrollYProgress, [0, 1], [0, 100]);
 
-  // 스프링 설정 최적화 - 높은 damping으로 떨림 방지
-  const springConfig = { stiffness: 300, damping: 50, restDelta: 0.001 };
-  const smoothScale = useSpring(scale, springConfig);
-  const smoothOpacity = useSpring(opacity, springConfig);
-  const smoothY = useSpring(y, springConfig);
-
   return (
     <motion.div
       ref={ref}
       style={{
-        scale: smoothScale,
-        opacity: smoothOpacity,
-        y: smoothY,
+        scale,
+        opacity,
+        y,
       }}
-      className={`${className} will-change-[transform,opacity]`}
+      className={`${className} will-change-[transform,opacity] transition-[transform,opacity] duration-100 ease-out`}
     >
       {children}
     </motion.div>
@@ -132,19 +126,14 @@ export function BackgroundMorph({ children, className = "" }: BackgroundMorphPro
   // 그리드 opacity
   const gridOpacity = useTransform(scrollYProgress, [0, 0.5], [0.06, 0]);
 
-  // 스프링 설정 최적화 - 높은 damping으로 떨림 방지
-  const springConfig = { stiffness: 300, damping: 50, restDelta: 0.001 };
-  const smoothBlur = useSpring(blur, springConfig);
-  const smoothBgY = useSpring(bgY, springConfig);
-
   return (
     <div ref={ref} className={`relative ${className}`}>
       {/* 패럴랙스 배경 효과 */}
       <motion.div
-        className="absolute inset-0 z-0 pointer-events-none"
+        className="absolute inset-0 z-0 pointer-events-none transition-[transform,filter] duration-100 ease-out"
         style={{
-          y: smoothBgY,
-          filter: useTransform(smoothBlur, (v) => `blur(${v}px)`),
+          y: bgY,
+          filter: useTransform(blur, (v) => `blur(${v}px)`),
         }}
       >
         {/* 원형 그라디언트 효과 */}
@@ -193,17 +182,14 @@ export function FeatureSectionReveal({
   const y = useTransform(scrollYProgress, [0, 1], [100, 0]);
   const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [0, 0.5, 1]);
 
-  const smoothY = useSpring(y, { stiffness: 100, damping: 30 });
-  const smoothOpacity = useSpring(opacity, { stiffness: 100, damping: 30 });
-
   return (
     <motion.div
       ref={ref}
       style={{
-        y: smoothY,
-        opacity: smoothOpacity,
+        y,
+        opacity,
       }}
-      className={className}
+      className={`${className} transition-[transform,opacity] duration-150 ease-out`}
     >
       {children}
     </motion.div>
