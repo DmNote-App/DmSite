@@ -835,7 +835,7 @@ function ShowcaseVideoCard({
           observer.disconnect();
         }
       },
-      { threshold: 0.01, rootMargin: "1200px 0px" }
+      { threshold: 0.01, rootMargin: "400px 0px" }  // 1200px → 400px로 줄여서 더 늦게 로드
     );
 
     observer.observe(el);
