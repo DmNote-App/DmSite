@@ -65,11 +65,10 @@ export function LandingContent() {
       
       {/* 노이즈 오버레이 - 밴딩 방지 디더링 (정적 base64 노이즈, GPU 가속) */}
       <div 
-        className="fixed inset-0 z-[1] pointer-events-none opacity-[0.04] will-change-transform"
+        className="fixed inset-0 z-[1] pointer-events-none opacity-[0.04]"
         style={{
           backgroundImage: `url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwBAMAAAClLOS0AAAAElBMVEUAAAAAAAAAAAAAAAAAAAAAAADgKxmiAAAABnRSTlMCCgkGBAUmfekYAAAASklEQVQ4y2MgFjCCgCMYOIGBMxg4g4ELGLiAgSsYuIKBGxi4gYE7GLiDgQcYeICBJxh4goEXGHiBgTcYeIOBDxj4gIEvGPgSBQBU7hjnIPLcYAAAAABJRU5ErkJggg==")`,
           backgroundRepeat: 'repeat',
-          transform: 'translateZ(0)',
         }}
       />
 
@@ -81,7 +80,7 @@ export function LandingContent() {
           style={{ contain: "layout paint", minHeight: "100dvh" }}
         >
           {/* 배경 그라데이션 효과 - SVG로 밴딩 방지 */}
-          <svg className="absolute inset-0 w-full h-full z-0 pointer-events-none" preserveAspectRatio="xMidYMid slice" style={{ transform: 'translateZ(0)' }}>
+          <svg className="absolute inset-0 w-full h-full z-0 pointer-events-none" preserveAspectRatio="xMidYMid slice">
             <defs>
               {/* 중앙 상단 메인 글로우 - 보라 */}
               <radialGradient id="hero-glow-center" cx="50%" cy="0%" r="70%" fx="50%" fy="0%">
@@ -312,7 +311,6 @@ export function LandingContent() {
             className="absolute inset-0 w-full h-full overflow-visible pointer-events-none" 
             preserveAspectRatio="xMidYMid slice"
             style={{ 
-              transform: 'translateZ(0)',
               maskImage: 'linear-gradient(to bottom, transparent 0%, black 30%, black 100%)',
               WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 30%, black 100%)'
             }}
@@ -575,7 +573,6 @@ export function LandingContent() {
           <svg 
             className="absolute inset-0 w-full h-full overflow-visible pointer-events-none" 
             preserveAspectRatio="xMidYMid slice"
-            style={{ transform: 'translateZ(0)' }}
           >
             <defs>
               {/* Section 2에서 이어지는 좌측 상단 청록 글로우 */}
@@ -800,6 +797,7 @@ function ShowcaseVideoCard({
   const ref = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [shouldLoadVideo, setShouldLoadVideo] = useState(false);
   const [resolvedSrc, setResolvedSrc] = useState<string | null>(() => {
     const clean = src.split("?")[0]?.split("#")[0] ?? src;
     return clean.toLowerCase().endsWith(".webm") ? null : src;
@@ -833,9 +831,41 @@ function ShowcaseVideoCard({
 
   useEffect(() => {
     const el = ref.current;
+    if (!resolvedSrc) return;
+    if (!el) return;
+
+    if (shouldLoadVideo) return;
+
+    if (!("IntersectionObserver" in window)) {
+      setShouldLoadVideo(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (!entry) return;
+        if (entry.isIntersecting) {
+          setShouldLoadVideo(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.01, rootMargin: "1200px 0px" }
+    );
+
+    observer.observe(el);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [resolvedSrc, shouldLoadVideo]);
+
+  useEffect(() => {
+    const el = ref.current;
     const video = videoRef.current;
     if (!el || !video) return;
     if (!resolvedSrc) return;
+    if (!shouldLoadVideo) return;
 
     const pause = () => {
       try {
@@ -875,7 +905,7 @@ function ShowcaseVideoCard({
       observer.disconnect();
       pause();
     };
-  }, [resolvedSrc]);
+  }, [resolvedSrc, shouldLoadVideo]);
 
   const { scrollYProgress: selfScrollProgress } = useScroll({
     target: ref,
@@ -915,7 +945,7 @@ function ShowcaseVideoCard({
       <div className="group relative h-full overflow-hidden rounded-2xl bg-white/5 border border-white/5 transition-colors duration-300 hover:border-white/10">
         {/* Video Container */}
         <div className="absolute inset-0">
-          {resolvedSrc ? (
+          {resolvedSrc && shouldLoadVideo ? (
             <video
               ref={videoRef}
               src={resolvedSrc}
