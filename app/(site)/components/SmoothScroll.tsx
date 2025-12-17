@@ -1,51 +1,66 @@
 "use client";
 
-import { ReactNode, useEffect, useRef } from "react";
-import Lenis from "lenis";
+import { ReactNode, useEffect, useRef, useState } from "react";
 
 export default function SmoothScroll({ children }: { children: ReactNode }) {
-  const lenisRef = useRef<Lenis | null>(null);
+  const lenisRef = useRef<any>(null);
   const rafIdRef = useRef<number | null>(null);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isClient) return;
     if (typeof window === "undefined") return;
-    if (window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) return;
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches)
+      return;
 
-    // 이전 인스턴스 정리
-    if (lenisRef.current) {
-      lenisRef.current.destroy();
-      lenisRef.current = null;
-    }
-    if (rafIdRef.current) {
-      cancelAnimationFrame(rafIdRef.current);
-      rafIdRef.current = null;
-    }
+    let lenis: any = null;
 
-    const lenis = new Lenis({
-      duration: 1.0,
-      // 더 안정적인 easing - 끝에서 부드럽게 정지
-      easing: (t) => {
-        // easeOutQuart - 끝에서 떨림 없이 안정적으로 멈춤
-        return 1 - Math.pow(1 - t, 4);
-      },
-      lerp: 0.1, // 보간 값 - 너무 작으면 떨림 발생
-      orientation: "vertical",
-      gestureOrientation: "vertical",
-      smoothWheel: true,
-      wheelMultiplier: 1,
-      touchMultiplier: 2,
-    });
+    // 동적 import로 Lenis 로드 (SSR 안전)
+    const initLenis = async () => {
+      try {
+        const Lenis = (await import("lenis")).default;
 
-    lenisRef.current = lenis;
+        // 이전 인스턴스 정리
+        if (lenisRef.current) {
+          lenisRef.current.destroy();
+          lenisRef.current = null;
+        }
+        if (rafIdRef.current) {
+          cancelAnimationFrame(rafIdRef.current);
+          rafIdRef.current = null;
+        }
 
-    function raf(time: number) {
-      if (lenisRef.current) {
-        lenisRef.current.raf(time);
+        lenis = new Lenis({
+          duration: 1.0,
+          easing: (t: number) => 1 - Math.pow(1 - t, 4),
+          lerp: 0.1,
+          orientation: "vertical",
+          gestureOrientation: "vertical",
+          smoothWheel: true,
+          wheelMultiplier: 1,
+          touchMultiplier: 2,
+        });
+
+        lenisRef.current = lenis;
+
+        function raf(time: number) {
+          if (lenisRef.current) {
+            lenisRef.current.raf(time);
+          }
+          rafIdRef.current = requestAnimationFrame(raf);
+        }
+
+        rafIdRef.current = requestAnimationFrame(raf);
+      } catch (error) {
+        console.warn("Lenis initialization failed:", error);
       }
-      rafIdRef.current = requestAnimationFrame(raf);
-    }
+    };
 
-    rafIdRef.current = requestAnimationFrame(raf);
+    initLenis();
 
     return () => {
       if (rafIdRef.current) {
@@ -57,7 +72,7 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
         lenisRef.current = null;
       }
     };
-  }, []);
+  }, [isClient]);
 
   return <>{children}</>;
 }
