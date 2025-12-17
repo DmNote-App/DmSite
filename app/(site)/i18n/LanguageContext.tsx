@@ -45,13 +45,13 @@ function getInitialLocale(): Locale {
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>("ko");
-  const [isInitialized, setIsInitialized] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     // 클라이언트에서 초기 언어 설정
     const initialLocale = getInitialLocale();
     setLocaleState(initialLocale);
-    setIsInitialized(true);
   }, []);
 
   const setLocale = (newLocale: Locale) => {
@@ -59,21 +59,12 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(STORAGE_KEY, newLocale);
   };
 
-  const t = translations[locale];
-
-  // hydration mismatch 방지를 위해 초기화 전에는 기본값 사용
-  if (!isInitialized) {
-    return (
-      <LanguageContext.Provider
-        value={{ locale: "ko", setLocale, t: translations.ko }}
-      >
-        {children}
-      </LanguageContext.Provider>
-    );
-  }
+  // 항상 같은 구조의 Provider 반환 (hydration mismatch 방지)
+  const currentLocale = mounted ? locale : "ko";
+  const t = translations[currentLocale];
 
   return (
-    <LanguageContext.Provider value={{ locale, setLocale, t }}>
+    <LanguageContext.Provider value={{ locale: currentLocale, setLocale, t }}>
       {children}
     </LanguageContext.Provider>
   );
