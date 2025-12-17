@@ -4,7 +4,7 @@
     "build": "next build",
     "start": "next start",
     "postinstall": "patch-package",
-    "postbuild": "pagefind --site out --output-path out/_pagefind && cp CNAME out/CNAME"
+    "postbuild": "node -e \"if(!process.env.VERCEL){require('child_process').execSync('pagefind --site out --output-path out/_pagefind && cp CNAME out/CNAME',{stdio:'inherit'})}\""
   },
   "dependencies": {
     "framer-motion": "^12.23.26",
