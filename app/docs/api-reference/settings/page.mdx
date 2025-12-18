@@ -52,23 +52,23 @@ await dmn.settings.update({
   `update()`는 전달된 키만 업데이트합니다. 중첩 객체도 부분 병합됩니다.
 </Callout>
 
-### reset()
-
-모든 설정을 기본값으로 초기화합니다.
-
-```javascript
-await dmn.settings.reset();
-```
-
 ## 이벤트 구독
 
 ### onChanged(listener)
 
 설정 변경 이벤트를 구독합니다.
 
+```typescript
+interface SettingsDiff {
+  changed: Record<string, any>; // 변경된 설정
+  full: SettingsState; // 전체 설정
+}
+```
+
 ```javascript
-const unsub = dmn.settings.onChanged((settings) => {
-  console.log("설정 변경됨:", settings);
+const unsub = dmn.settings.onChanged(({ changed, full }) => {
+  console.log("변경된 설정:", changed);
+  console.log("전체 설정:", full);
 });
 
 // 구독 해제

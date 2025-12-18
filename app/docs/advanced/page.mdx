@@ -5,48 +5,53 @@ description: 레거시 API, 디버깅, 보안 및 고급 패턴
 
 # 고급 가이드
 
-## 레거시 스타일 플러그인
+## 명령형 스타일 플러그인
 
 `defineElement`가 권장되지만, 직접 DOM을 조작하는 방식도 여전히 지원됩니다.
 
 ### 직접 DOM 조작
 
 ```javascript
-// 루트 요소 가져오기
-const root = dmn.plugin.root;
+// @id my-legacy-plugin
+
+if (dmn.window.type !== "overlay") return;
 
 // 요소 생성 및 추가
 const panel = document.createElement("div");
 panel.className = "my-panel";
 panel.innerHTML = `<h1>Hello</h1>`;
-root.appendChild(panel);
+document.body.appendChild(panel);
 
 // 클린업 등록
-registerCleanup(() => {
+dmn.plugin.registerCleanup(() => {
   panel.remove();
 });
 ```
 
 <Callout type="warning">
-  직접 DOM 조작 시 반드시 `registerCleanup`으로 요소를 정리해야 합니다.
+  직접 DOM 조작 시 반드시 `dmn.plugin.registerCleanup`으로 요소를 정리해야
+  합니다.
 </Callout>
 
 ### 스타일 시트 직접 주입
 
 ```javascript
-const style = new CSSStyleSheet();
-style.replaceSync(`
+// @id style-injection
+
+if (dmn.window.type !== "overlay") return;
+
+const style = document.createElement("style");
+style.textContent = `
   .my-panel {
     background: rgba(0, 0, 0, 0.8);
     padding: 16px;
     border-radius: 8px;
   }
-`);
-document.adoptedStyleSheets.push(style);
+`;
+document.head.appendChild(style);
 
-registerCleanup(() => {
-  const idx = document.adoptedStyleSheets.indexOf(style);
-  if (idx >= 0) document.adoptedStyleSheets.splice(idx, 1);
+dmn.plugin.registerCleanup(() => {
+  style.remove();
 });
 ```
 
@@ -55,6 +60,8 @@ registerCleanup(() => {
 키 입력에 반응하는 로우 레벨 이벤트 처리가 필요할 때:
 
 ```javascript
+// @id event-bus-example
+
 // onKeyState - 등록된 키만
 const unsub1 = dmn.keys.onKeyState(({ key, state }) => {
   if (state === "DOWN") {
@@ -67,8 +74,10 @@ const unsub2 = dmn.keys.onRawInput(({ device, label, state }) => {
   console.log(`[${device}] ${label} ${state}`);
 });
 
-registerCleanup(unsub1);
-registerCleanup(unsub2);
+dmn.plugin.registerCleanup(() => {
+  unsub1();
+  unsub2();
+});
 ```
 
 ## 디버깅 팁
@@ -83,8 +92,7 @@ dmn.window.openDevtoolsAll();
 ### 상태 검사
 
 ```javascript
-// 플러그인 정보
-console.log("플러그인 ID:", dmn.plugin.id);
+// 현재 윈도우 타입
 console.log("윈도우 타입:", dmn.window.type);
 
 // 현재 설정
@@ -92,6 +100,9 @@ dmn.settings.get().then((s) => console.log("설정:", s));
 
 // 키 매핑
 dmn.keys.get().then((k) => console.log("키:", k));
+
+// 스토리지 키 목록
+dmn.plugin.storage.keys().then((keys) => console.log("저장된 키:", keys));
 ```
 
 ### 에러 추적
@@ -134,41 +145,48 @@ const data = await response.json();
 
 ## 성능 최적화
 
-### 불필요한 렌더링 방지
+### 상태 업데이트 최적화
+
+`defineElement`에서 상태 업데이트 시 `setState`를 사용합니다:
 
 ```javascript
-defineElement({
-  id: "optimized",
-  shouldRender(prevState, nextState) {
-    // 관련 상태만 비교
-    return prevState.count !== nextState.count;
+dmn.plugin.defineElement({
+  name: "Optimized Panel",
+
+  template: (state, settings, { html }) => html`
+    <div>Count: ${state.count ?? 0}</div>
+  `,
+
+  onMount: ({ setState }) => {
+    // 여러 값을 한 번에 업데이트
+    setState({
+      count: 0,
+      history: [],
+      lastUpdate: Date.now(),
+    });
   },
-  template: ({ count }) => html`<span>${count}</span>`,
 });
 ```
 
-### 배치 업데이트
+### 불필요한 렌더링 방지
+
+상태가 실제로 변경될 때만 `setState`를 호출하세요:
 
 ```javascript
-// 나쁜 예: 여러 번 렌더링
-ctx.state.a = 1;
-ctx.state.b = 2;
-ctx.state.c = 3;
+onMount: ({ setState, getSettings }) => {
+  let lastKps = 0;
 
-// 좋은 예: 한 번에 업데이트
-Object.assign(ctx.state, { a: 1, b: 2, c: 3 });
-```
+  const interval = setInterval(() => {
+    const newKps = calculateKps();
+    // 값이 변경되었을 때만 업데이트
+    if (newKps !== lastKps) {
+      lastKps = newKps;
+      setState({ kps: newKps });
+    }
+  }, 100);
 
-### 무거운 연산 분리
-
-```javascript
-onMount(ctx) {
-  // 무거운 초기화는 비동기로
-  setTimeout(async () => {
-    const data = await heavyComputation();
-    ctx.state.data = data;
-  }, 0);
-}
+  return () => clearInterval(interval);
+};
 ```
 
 ## 멀티 윈도우 패턴
@@ -208,11 +226,11 @@ dmn.bridge.on(SYNC_KEY, (state) => {
 });
 ```
 
-## 알려진 제한사항
+## 제한사항
 
 | 제한            | 설명                         |
 | --------------- | ---------------------------- |
-| Web Workers     | 현재 미지원                  |
+| Web Workers     | 미지원                       |
 | ES Modules      | 동적 import 제한적 지원      |
 | LocalStorage    | dmn.plugin.storage 사용 권장 |
 | 외부 라이브러리 | CDN에서 직접 로드 필요       |

@@ -9,63 +9,107 @@ description: 커스텀 CSS/JS 파일 관리 API
 
 커스텀 CSS 파일 관리 API입니다.
 
-### list()
+### get()
 
-등록된 CSS 파일 목록을 조회합니다.
+현재 CSS 설정을 조회합니다.
 
 ```javascript
-const files = await dmn.css.list();
-// [{ name: "custom.css", enabled: true }, ...]
+const css = await dmn.css.get();
+console.log("활성화:", css.use);
+console.log("내용:", css.content);
+console.log("경로:", css.path);
 ```
 
-### read(name)
+### getUse()
 
-CSS 파일 내용을 읽습니다.
+CSS 사용 여부만 조회합니다.
 
 ```javascript
-const content = await dmn.css.read("custom.css");
-console.log(content);
+const enabled = await dmn.css.getUse();
 ```
 
-### write(name, content)
+### toggle(enabled)
 
-CSS 파일을 저장합니다.
+CSS 사용 여부를 토글합니다.
 
 ```javascript
-await dmn.css.write(
-  "mytheme.css",
-  `
-  .key-container {
-    background: linear-gradient(135deg, #1a1a2e, #16213e);
+await dmn.css.toggle(true); // CSS 활성화
+await dmn.css.toggle(false); // CSS 비활성화
+```
+
+### load()
+
+외부 CSS 파일을 불러옵니다. 파일 선택 다이얼로그가 열립니다.
+
+```javascript
+const result = await dmn.css.load();
+if (result.success) {
+  console.log("불러온 경로:", result.path);
+  console.log("내용:", result.content);
+}
+```
+
+### setContent(content)
+
+CSS 내용을 직접 설정합니다.
+
+```javascript
+await dmn.css.setContent(`
+  [data-state="active"] {
+    --key-bg: #ff2b80;
+    --key-border: 2px solid #fff;
   }
-`
-);
+`);
 ```
 
-### enable(name) / disable(name)
+### reset()
 
-CSS 파일을 활성화/비활성화합니다.
+CSS를 기본값으로 초기화합니다.
 
 ```javascript
-await dmn.css.enable("mytheme.css");
-await dmn.css.disable("default.css");
+await dmn.css.reset();
 ```
 
-### remove(name)
-
-CSS 파일을 삭제합니다.
+### 이벤트 구독
 
 ```javascript
-await dmn.css.remove("unused.css");
+// CSS 활성화 상태 변경
+const unsub1 = dmn.css.onUse(({ enabled }) => {
+  console.log("CSS 활성화:", enabled);
+});
+
+// CSS 내용 변경
+const unsub2 = dmn.css.onContent((css) => {
+  console.log("CSS 변경됨:", css.content);
+});
 ```
 
-### onChanged(listener)
+### 탭별 CSS (css.tab)
 
-CSS 파일 변경 이벤트를 구독합니다.
+모드/탭별로 개별 CSS를 적용할 수 있습니다.
 
 ```javascript
-const unsub = dmn.css.onChanged((files) => {
-  console.log("CSS 파일 목록 변경:", files);
+// 모든 탭 CSS 조회
+const allTabCss = await dmn.css.tab.getAll();
+
+// 특정 탭 CSS 조회
+const tab4key = await dmn.css.tab.get("4key");
+
+// 탭 CSS 설정
+await dmn.css.tab.set("4key", {
+  use: true,
+  content: "[data-state='active'] { --key-bg: red; }",
+});
+
+// 탭 CSS 토글
+await dmn.css.tab.toggle("4key", true);
+
+// 탭 CSS 초기화
+await dmn.css.tab.clear("4key");
+
+// 변경 이벤트
+const unsub = dmn.css.tab.onChanged(({ tabId, css }) => {
+  console.log(`${tabId} CSS 변경:`, css);
 });
 ```
 
@@ -73,123 +117,80 @@ const unsub = dmn.css.onChanged((files) => {
 
 커스텀 JS(플러그인) 파일 관리 API입니다.
 
-### list()
+### get()
 
-등록된 JS 파일 목록을 조회합니다.
+현재 JS 플러그인 상태를 조회합니다.
 
 ```javascript
-const files = await dmn.js.list();
-// [{ name: "plugin.js", enabled: true }, ...]
+const js = await dmn.js.get();
+console.log("활성화:", js.use);
+console.log("플러그인 목록:", js.plugins);
 ```
 
-### read(name)
+### getUse()
 
-JS 파일 내용을 읽습니다.
+JS 플러그인 사용 여부만 조회합니다.
 
 ```javascript
-const content = await dmn.js.read("plugin.js");
+const enabled = await dmn.js.getUse();
 ```
 
-### write(name, content)
+### toggle(enabled)
 
-JS 파일을 저장합니다.
+JS 플러그인 사용 여부를 토글합니다.
 
 ```javascript
-await dmn.js.write(
-  "myplugin.js",
-  `
-  defineElement("myWidget", {
-    template: () => htm\`<div>Hello!</div>\`
-  });
-`
-);
+await dmn.js.toggle(true); // 플러그인 활성화
+await dmn.js.toggle(false); // 플러그인 비활성화
 ```
 
-### enable(name) / disable(name)
+### load()
 
-JS 파일을 활성화/비활성화합니다.
+외부 JS 파일을 불러옵니다. 파일 선택 다이얼로그가 열립니다.
 
 ```javascript
-await dmn.js.enable("myplugin.js");
-await dmn.js.disable("oldplugin.js");
+const result = await dmn.js.load();
+if (result.success) {
+  console.log("추가된 플러그인:", result.added);
+}
 ```
 
-### remove(name)
+### reload()
 
-JS 파일을 삭제합니다.
+모든 플러그인을 다시 로드합니다.
 
 ```javascript
-await dmn.js.remove("unused.js");
+const result = await dmn.js.reload();
+console.log("업데이트된 플러그인:", result.updated);
 ```
 
-### onChanged(listener)
+### remove(id)
 
-JS 파일 변경 이벤트를 구독합니다.
+특정 플러그인을 제거합니다.
 
 ```javascript
-const unsub = dmn.js.onChanged((files) => {
-  console.log("JS 파일 목록 변경:", files);
+await dmn.js.remove("my-plugin-id");
+```
+
+### setPluginEnabled(id, enabled)
+
+특정 플러그인의 활성화 상태를 변경합니다.
+
+```javascript
+await dmn.js.setPluginEnabled("kps", true); // 활성화
+await dmn.js.setPluginEnabled("kps", false); // 비활성화
+```
+
+### 이벤트 구독
+
+```javascript
+// JS 플러그인 활성화 상태 변경
+const unsub1 = dmn.js.onUse(({ enabled }) => {
+  console.log("JS 플러그인 활성화:", enabled);
+});
+
+// JS 플러그인 상태 변경
+const unsub2 = dmn.js.onState((js) => {
+  console.log("플러그인 목록:", js.plugins);
 });
 ```
-
-## 공통 패턴
-
-### 파일 목록 UI
-
-```javascript
-async function renderFileList(type) {
-  const api = type === "css" ? dmn.css : dmn.js;
-  const files = await api.list();
-
-  return files.map((f) => ({
-    name: f.name,
-    enabled: f.enabled,
-    toggle: () => (f.enabled ? api.disable(f.name) : api.enable(f.name)),
-    remove: () => api.remove(f.name),
-  }));
-}
-```
-
-### 파일 백업
-
-```javascript
-async function backupFiles() {
-  const cssFiles = await dmn.css.list();
-  const jsFiles = await dmn.js.list();
-
-  const backup = {
-    css: {},
-    js: {},
-    timestamp: Date.now(),
-  };
-
-  for (const f of cssFiles) {
-    backup.css[f.name] = {
-      content: await dmn.css.read(f.name),
-      enabled: f.enabled,
-    };
-  }
-
-  for (const f of jsFiles) {
-    backup.js[f.name] = {
-      content: await dmn.js.read(f.name),
-      enabled: f.enabled,
-    };
-  }
-
-  return backup;
-}
-```
-
-## 파일 저장 위치
-
-| 플랫폼  | 경로                                           |
-| ------- | ---------------------------------------------- |
-| Windows | `%APPDATA%/dmnote/custom/`                     |
-| macOS   | `~/Library/Application Support/dmnote/custom/` |
-| Linux   | `~/.config/dmnote/custom/`                     |
-
-<Callout type="info">
-  파일은 자동으로 저장됩니다. 외부 편집기로 수정한 경우 앱을 재시작하면
-  반영됩니다.
-</Callout>

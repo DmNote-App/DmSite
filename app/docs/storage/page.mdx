@@ -75,6 +75,24 @@ const allKeys = await dmn.plugin.storage.keys();
 console.log("저장된 키:", allKeys); // ['settings', 'position']
 ```
 
+### hasData(prefix)
+
+특정 접두사로 시작하는 데이터가 있는지 확인합니다.
+
+```javascript
+const hasSettings = await dmn.plugin.storage.hasData("settings");
+console.log("설정 데이터 존재:", hasSettings); // true 또는 false
+```
+
+### clearByPrefix(prefix)
+
+특정 접두사로 시작하는 모든 데이터를 삭제합니다.
+
+```javascript
+const deletedCount = await dmn.plugin.storage.clearByPrefix("cache-");
+console.log("삭제된 항목 수:", deletedCount);
+```
+
 ## 사용 패턴
 
 ### 설정 저장 및 복원
@@ -244,73 +262,60 @@ async function initSettings() {
 - **데이터 유지**: 나중에 같은 ID로 플러그인을 다시 설치하면 기존 데이터 사용
 - **데이터와 함께 삭제**: 해당 플러그인의 모든 스토리지 데이터 자동 삭제
 
-## 실전 예제: 위치 저장 플러그인
+## 실전 예제: 위치 저장 패널
 
 ```javascript
-// @id draggable-panel
+// @id position-save-panel
 
-if (dmn.window.type !== "main") return;
+dmn.plugin.defineElement({
+  name: "Position Save Panel",
+  maxInstances: 1,
 
-const STORAGE_KEY = "panel-position";
-const DEFAULT_POSITION = { x: 100, y: 100 };
+  messages: {
+    ko: {
+      "menu.create": "패널 생성",
+      "menu.delete": "패널 삭제",
+      "menu.reset": "위치 초기화",
+    },
+    en: {
+      "menu.create": "Create Panel",
+      "menu.delete": "Delete Panel",
+      "menu.reset": "Reset Position",
+    },
+  },
 
-async function createPanel() {
-  // 저장된 위치 복원
-  const savedPosition = await dmn.plugin.storage.get(STORAGE_KEY);
-  const position = savedPosition || DEFAULT_POSITION;
+  contextMenu: {
+    create: "menu.create",
+    delete: "menu.delete",
+    items: [
+      {
+        label: "menu.reset",
+        onClick: ({ actions }) => actions.resetPosition(),
+      },
+    ],
+  },
 
-  const elementId = dmn.ui.displayElement.add({
-    html: `<div style="
+  template: (state, settings, { html }) => html`
+    <div
+      style="
       background: rgba(0, 0, 0, 0.8);
       color: white;
       padding: 16px;
       border-radius: 8px;
-    ">드래그해서 이동하세요</div>`,
-    position,
-    draggable: true,
-    onPositionChange: async (newPos) => {
-      // 위치 변경 시 자동 저장
-      await dmn.plugin.storage.set(STORAGE_KEY, newPos);
-    },
-  });
+    "
+    >
+      드래그해서 이동하세요
+    </div>
+  `,
 
-  return elementId;
-}
-
-let panelId = null;
-
-// 그리드 메뉴 등록
-dmn.ui.contextMenu.addGridMenuItem({
-  id: "create-panel",
-  label: "패널 생성",
-  visible: () => !panelId,
-  onClick: async () => {
-    panelId = await createPanel();
+  onMount: ({ expose }) => {
+    expose({
+      resetPosition: async () => {
+        // 저장된 위치 삭제 (다음 생성 시 기본 위치 사용)
+        await dmn.plugin.storage.remove("position");
+        console.log("위치가 초기화되었습니다.");
+      },
+    });
   },
-});
-
-dmn.ui.contextMenu.addGridMenuItem({
-  id: "remove-panel",
-  label: "패널 삭제",
-  visible: () => !!panelId,
-  onClick: async () => {
-    dmn.ui.displayElement.remove(panelId);
-    panelId = null;
-  },
-});
-
-dmn.ui.contextMenu.addGridMenuItem({
-  id: "reset-position",
-  label: "위치 초기화",
-  visible: () => !!panelId,
-  onClick: async () => {
-    await dmn.plugin.storage.remove(STORAGE_KEY);
-    dmn.ui.displayElement.update(panelId, { position: DEFAULT_POSITION });
-  },
-});
-
-dmn.plugin.registerCleanup(() => {
-  dmn.ui.displayElement.clearMyElements();
-  dmn.ui.contextMenu.clearMyMenuItems();
 });
 ```

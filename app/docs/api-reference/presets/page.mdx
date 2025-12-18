@@ -5,178 +5,89 @@ description: 설정 프리셋 저장 및 불러오기 API
 
 # 프리셋 (presets)
 
-## 프리셋 목록
+프리셋 API를 사용하면 현재 설정을 파일로 저장하거나 불러올 수 있습니다.
 
-### list()
+## 프리셋 저장
 
-저장된 프리셋 목록을 조회합니다.
+### save()
+
+현재 설정을 프리셋 파일로 저장합니다. 파일 저장 다이얼로그가 열립니다.
 
 ```javascript
-const presets = await dmn.presets.list();
-// ["default", "gaming", "streaming", ...]
+const result = await dmn.presets.save();
+if (result.success) {
+  console.log("프리셋 저장 완료");
+} else {
+  console.error("저장 실패:", result.error);
+}
 ```
 
-## 프리셋 관리
+## 프리셋 불러오기
 
-### save(name, options?)
+### load()
 
-현재 설정을 프리셋으로 저장합니다.
-
-```javascript
-// 전체 설정 저장
-await dmn.presets.save("myPreset");
-
-// 특정 카테고리만 저장
-await dmn.presets.save("keyLayout", {
-  include: ["keys", "positions"],
-});
-```
-
-### load(name)
-
-프리셋을 불러와 설정에 적용합니다.
+프리셋 파일을 불러와 설정에 적용합니다. 파일 선택 다이얼로그가 열립니다.
 
 ```javascript
-await dmn.presets.load("gaming");
-```
-
-### remove(name)
-
-프리셋을 삭제합니다.
-
-```javascript
-await dmn.presets.remove("oldPreset");
-```
-
-### get(name)
-
-프리셋 내용을 조회합니다 (적용하지 않음).
-
-```javascript
-const preset = await dmn.presets.get("gaming");
-console.log("게이밍 프리셋 설정:", preset);
-```
-
-### rename(oldName, newName)
-
-프리셋 이름을 변경합니다.
-
-```javascript
-await dmn.presets.rename("myPreset", "myBetterPreset");
-```
-
-## 이벤트 구독
-
-### onChanged(listener)
-
-프리셋 목록 변경 이벤트를 구독합니다.
-
-```javascript
-const unsub = dmn.presets.onChanged((presets) => {
-  console.log("프리셋 목록:", presets);
-});
-```
-
-### onLoaded(listener)
-
-프리셋 로드 이벤트를 구독합니다.
-
-```javascript
-const unsub = dmn.presets.onLoaded((name) => {
-  console.log(`프리셋 '${name}' 로드됨`);
-});
+const result = await dmn.presets.load();
+if (result.success) {
+  console.log("프리셋 불러오기 완료");
+} else {
+  console.error("불러오기 실패:", result.error);
+}
 ```
 
 ## 사용 예제
 
-### 프리셋 선택기
+### 컨텍스트 메뉴에서 프리셋 관리
 
 ```javascript
-defineElement("presetSelector", {
-  template({ state }) {
-    return htm`
-      <select 
-        value=${state.current}
-        onChange=${(e) => dmn.presets.load(e.target.value)}
-      >
-        ${state.presets.map(
-          (p) => htm`
-          <option value=${p}>${p}</option>
-        `
-        )}
-      </select>
-    `;
-  },
+// @id preset-manager
 
-  async setup({ state }) {
-    state.presets = await dmn.presets.list();
-    state.current = "";
+if (dmn.window.type !== "main") return;
 
-    const unsub = dmn.presets.onLoaded((name) => {
-      state.current = name;
-    });
-
-    registerCleanup(unsub);
+// 프리셋 저장 메뉴
+dmn.ui.contextMenu.addGridMenuItem({
+  id: "save-preset",
+  label: "프리셋 저장",
+  onClick: async () => {
+    const result = await dmn.presets.save();
+    if (result.success) {
+      await dmn.ui.dialog.alert("프리셋이 저장되었습니다!");
+    }
   },
 });
-```
 
-### 퀵 세이브/로드
-
-```javascript
-// 컨텍스트 메뉴에 퀵 슬롯 추가
-dmn.ui.contextMenu.register({
-  label: "프리셋",
-  children: [
-    {
-      label: "슬롯 1 저장",
-      action: () => dmn.presets.save("quickSlot1"),
-    },
-    {
-      label: "슬롯 1 불러오기",
-      action: () => dmn.presets.load("quickSlot1"),
-    },
-    { separator: true },
-    {
-      label: "슬롯 2 저장",
-      action: () => dmn.presets.save("quickSlot2"),
-    },
-    {
-      label: "슬롯 2 불러오기",
-      action: () => dmn.presets.load("quickSlot2"),
-    },
-  ],
+// 프리셋 불러오기 메뉴
+dmn.ui.contextMenu.addGridMenuItem({
+  id: "load-preset",
+  label: "프리셋 불러오기",
+  onClick: async () => {
+    const confirmed = await dmn.ui.dialog.confirm(
+      "현재 설정이 덮어씌워집니다. 계속하시겠습니까?"
+    );
+    if (confirmed) {
+      const result = await dmn.presets.load();
+      if (result.success) {
+        await dmn.ui.dialog.alert("프리셋을 불러왔습니다!");
+      }
+    }
+  },
 });
-```
 
-### 조건부 프리셋 자동 로드
-
-```javascript
-// 시간대에 따른 프리셋 자동 적용
-async function autoLoadPreset() {
-  const hour = new Date().getHours();
-
-  if (hour >= 22 || hour < 6) {
-    await dmn.presets.load("nightMode");
-  } else if (hour >= 6 && hour < 12) {
-    await dmn.presets.load("morning");
-  } else {
-    await dmn.presets.load("default");
-  }
-}
-
-// 앱 시작 시 실행
-dmn.app.bootstrap(autoLoadPreset);
+dmn.plugin.registerCleanup(() => {
+  dmn.ui.contextMenu.clearMyMenuItems();
+});
 ```
 
 ## 프리셋에 포함되는 항목
 
-| 카테고리    | 설명                |
-| ----------- | ------------------- |
-| `settings`  | 모든 앱 설정        |
-| `keys`      | 키 레이아웃 및 설정 |
-| `positions` | 키 위치 정보        |
-| `overlay`   | 오버레이 위치/크기  |
+| 카테고리     | 설명           |
+| ------------ | -------------- |
+| `settings`   | 모든 앱 설정   |
+| `keys`       | 키 매핑 정보   |
+| `positions`  | 키 위치 정보   |
+| `customTabs` | 커스텀 탭 정보 |
 
 <Callout type="info">
   플러그인 설정(`dmn.plugin.storage`)은 프리셋에 포함되지 않습니다. 플러그인

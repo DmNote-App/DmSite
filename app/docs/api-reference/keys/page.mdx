@@ -97,6 +97,16 @@ const reset = await dmn.keys.resetAll();
 
 ## 카운터
 
+### setCounters(counters)
+
+모든 키의 카운트를 일괄 설정합니다.
+
+```javascript
+await dmn.keys.setCounters({
+  "4key": { KeyD: 100, KeyF: 200, KeyJ: 150, KeyK: 180 },
+});
+```
+
 ### resetCounters()
 
 모든 키의 누적 카운트를 초기화합니다.
@@ -111,6 +121,14 @@ await dmn.keys.resetCounters();
 
 ```javascript
 await dmn.keys.resetCountersMode("4key");
+```
+
+### resetSingleCounter(mode, key)
+
+특정 모드의 특정 키 카운트만 초기화합니다.
+
+```javascript
+await dmn.keys.resetSingleCounter("4key", "KeyD");
 ```
 
 ## 이벤트 구독

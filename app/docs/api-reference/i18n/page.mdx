@@ -12,17 +12,8 @@ description: 다국어 지원 및 로케일 API
 현재 앱 로케일을 조회합니다.
 
 ```javascript
-const locale = dmn.i18n.getLocale();
+const locale = await dmn.i18n.getLocale();
 console.log(locale); // "ko" 또는 "en"
-```
-
-### getSupportedLocales()
-
-지원되는 로케일 목록을 조회합니다.
-
-```javascript
-const locales = dmn.i18n.getSupportedLocales();
-// ["ko", "en"]
 ```
 
 ## 이벤트 구독
@@ -37,76 +28,76 @@ const unsub = dmn.i18n.onLocaleChange((locale) => {
   updateUI(locale);
 });
 
-registerCleanup(unsub);
+dmn.plugin.registerCleanup(unsub);
 ```
 
 ## 플러그인 다국어 지원
 
-### defineElement에서 다국어
+### defineElement에서 messages 사용
+
+`defineElement`는 `messages` 옵션과 `t()` 헬퍼를 통해 다국어를 지원합니다:
 
 ```javascript
-const messages = {
-  ko: {
-    title: "키보드 모니터",
-    count: "입력 횟수",
-    reset: "초기화",
-  },
-  en: {
-    title: "Keyboard Monitor",
-    count: "Key Count",
-    reset: "Reset",
-  },
-};
+// @id i18n-demo
 
-defineElement("i18nDemo", {
-  template({ state }) {
-    const t = messages[state.locale] || messages.en;
+dmn.plugin.defineElement({
+  name: "Keyboard Monitor",
 
-    return htm`
-      <div class="monitor">
-        <h3>${t.title}</h3>
-        <p>${t.count}: ${state.count}</p>
-        <button onClick=${() => (state.count = 0)}>
-          ${t.reset}
-        </button>
-      </div>
-    `;
+  messages: {
+    ko: {
+      "menu.create": "모니터 생성",
+      "menu.delete": "모니터 삭제",
+      title: "키보드 모니터",
+      count: "입력 횟수",
+    },
+    en: {
+      "menu.create": "Create Monitor",
+      "menu.delete": "Delete Monitor",
+      title: "Keyboard Monitor",
+      count: "Key Count",
+    },
   },
 
-  setup({ state }) {
-    state.locale = dmn.i18n.getLocale();
-    state.count = 0;
+  contextMenu: {
+    create: "menu.create",
+    delete: "menu.delete",
+  },
 
-    const unsub = dmn.i18n.onLocaleChange((locale) => {
-      state.locale = locale;
+  template: (state, settings, { html, t }) => html`
+    <div
+      style="background: rgba(0,0,0,0.8); color: #fff; padding: 16px; border-radius: 8px;"
+    >
+      <h3>${t("title")}</h3>
+      <p>${t("count")}: ${state.count ?? 0}</p>
+    </div>
+  `,
+
+  onMount: ({ setState, onHook, locale, t, onLocaleChange }) => {
+    console.log("현재 로케일:", locale);
+    console.log("번역:", t("title"));
+
+    let count = 0;
+    onHook("key", ({ state }) => {
+      if (state === "DOWN") {
+        count++;
+        setState({ count });
+      }
     });
 
-    registerCleanup(unsub);
+    // 로케일 변경 감지
+    onLocaleChange((newLocale) => {
+      console.log("로케일 변경됨:", newLocale);
+    });
   },
 });
 ```
 
-### 다국어 헬퍼 함수
+### 파라미터 치환
+
+메시지에 변수를 포함할 수 있습니다:
 
 ```javascript
-function createI18n(messages) {
-  let currentLocale = dmn.i18n.getLocale();
-
-  // 로케일 변경 감지
-  dmn.i18n.onLocaleChange((locale) => {
-    currentLocale = locale;
-  });
-
-  return function t(key, params = {}) {
-    const msg = messages[currentLocale]?.[key] || messages.en?.[key] || key;
-
-    // 간단한 변수 치환
-    return msg.replace(/\{(\w+)\}/g, (_, k) => params[k] ?? `{${k}}`);
-  };
-}
-
-// 사용
-const t = createI18n({
+messages: {
   ko: {
     greeting: "안녕하세요, {name}님!",
     keyCount: "총 {count}회 입력",
@@ -115,37 +106,13 @@ const t = createI18n({
     greeting: "Hello, {name}!",
     keyCount: "Total {count} inputs",
   },
-});
-
-console.log(t("greeting", { name: "사용자" }));
-// "안녕하세요, 사용자님!"
-```
-
-## 컨텍스트 메뉴 다국어
-
-```javascript
-const menuLabels = {
-  ko: {
-    settings: "설정",
-    reset: "초기화",
-    about: "정보",
-  },
-  en: {
-    settings: "Settings",
-    reset: "Reset",
-    about: "About",
-  },
-};
-
-function getLabel(key) {
-  const locale = dmn.i18n.getLocale();
-  return menuLabels[locale]?.[key] || menuLabels.en[key];
 }
 
-dmn.ui.contextMenu.register({
-  label: getLabel("settings"),
-  action: () => openSettings(),
-});
+// 템플릿에서 사용
+template: (state, settings, { html, t }) => html`
+  <div>${t("greeting", { name: "사용자" })}</div>
+  <div>${t("keyCount", { count: state.count })}</div>
+`
 ```
 
 ## 로케일별 포맷팅

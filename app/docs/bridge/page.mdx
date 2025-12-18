@@ -198,17 +198,29 @@ dmn.bridge.on("SHARED_DATA_UPDATE", (data) => {
 });
 ```
 
-## Display Element와 Bridge 연동
+## defineElement와 Bridge 연동
 
 ```javascript
-// @id bridge-panel
+// @id bridge-kps-panel
 
-if (dmn.window.type !== "main") return;
+dmn.plugin.defineElement({
+  name: "Bridge KPS Panel",
+  maxInstances: 1,
 
-const panel = dmn.ui.displayElement.add({
-  position: { x: 100, y: 100 },
-  state: { kps: 0, history: [] },
-  template: (state, { html }) => html`
+  messages: {
+    ko: { "menu.create": "KPS 패널 생성", "menu.delete": "KPS 패널 삭제" },
+    en: {
+      "menu.create": "Create KPS Panel",
+      "menu.delete": "Delete KPS Panel",
+    },
+  },
+
+  contextMenu: {
+    create: "menu.create",
+    delete: "menu.delete",
+  },
+
+  template: (state, settings, { html }) => html`
     <div
       style="
       background: rgba(0, 0, 0, 0.8);
@@ -217,36 +229,42 @@ const panel = dmn.ui.displayElement.add({
       border-radius: 8px;
     "
     >
-      <div style="font-size: 24px; font-weight: bold;">${state.kps} KPS</div>
+      <div style="font-size: 24px; font-weight: bold;">
+        ${state.kps ?? 0} KPS
+      </div>
       <div
         style="display: flex; gap: 2px; height: 30px; align-items: flex-end;"
       >
-        ${state.history.map(
+        ${(state.history ?? []).map(
           (v) => html`
             <div
               style="
-            flex: 1;
-            height: ${v}%;
-            background: #86EFAC;
-            border-radius: 2px;
-          "
+              flex: 1;
+              height: ${v}%;
+              background: #86EFAC;
+              border-radius: 2px;
+            "
             ></div>
           `
         )}
       </div>
     </div>
   `,
-});
 
-const unsub = dmn.bridge.on("KPS_UPDATE", ({ kps, max }) => {
-  const snapshot = panel.getState();
-  const history = [...snapshot.history, max ? (kps / max) * 100 : 0].slice(-20);
-  panel.setState({ kps, history });
-});
+  onMount: ({ setState }) => {
+    // 다른 플러그인에서 보낸 KPS 데이터 수신
+    const unsub = dmn.bridge.on("KPS_UPDATE", ({ kps, max }) => {
+      setState((prev) => {
+        const history = [
+          ...(prev.history ?? []),
+          max ? (kps / max) * 100 : 0,
+        ].slice(-20);
+        return { kps, history };
+      });
+    });
 
-dmn.plugin.registerCleanup(() => {
-  unsub();
-  panel.remove();
+    return () => unsub();
+  },
 });
 ```
 

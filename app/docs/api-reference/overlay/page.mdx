@@ -15,15 +15,15 @@ description: 오버레이 창 상태 조회 및 제어 API
 interface OverlayState {
   visible: boolean;
   locked: boolean;
-  bounds: { x: number; y: number; width: number; height: number };
-  anchor: { x: number; y: number };
+  anchor: string;
 }
 ```
 
 ```javascript
 const state = await dmn.overlay.get();
-console.log("위치:", state.bounds.x, state.bounds.y);
+console.log("표시 상태:", state.visible);
 console.log("잠금 상태:", state.locked);
+console.log("앵커:", state.anchor);
 ```
 
 ## 상태 제어
@@ -51,50 +51,75 @@ await dmn.overlay.setLock(false); // 잠금 해제
 앵커 포인트를 설정합니다.
 
 ```javascript
-await dmn.overlay.setAnchor({ x: 0.5, y: 0.5 }); // 중앙 기준
-await dmn.overlay.setAnchor({ x: 0, y: 0 }); // 좌상단 기준
-await dmn.overlay.setAnchor({ x: 1, y: 1 }); // 우하단 기준
+await dmn.overlay.setAnchor("top-left"); // 좌상단 기준
+await dmn.overlay.setAnchor("center"); // 중앙 기준
+await dmn.overlay.setAnchor("bottom-right"); // 우하단 기준
 ```
 
-### resize(size)
+### resize(payload)
 
 오버레이 크기를 변경합니다.
 
-```javascript
-await dmn.overlay.resize({ width: 800, height: 200 });
+```typescript
+interface ResizePayload {
+  width: number;
+  height: number;
+  anchor?: string;
+  contentTopOffset?: number;
+}
 ```
 
-### move(position)
-
-오버레이 위치를 변경합니다.
-
 ```javascript
-await dmn.overlay.move({ x: 100, y: 100 });
+const newBounds = await dmn.overlay.resize({
+  width: 800,
+  height: 200,
+});
+console.log("새 위치/크기:", newBounds);
 ```
 
 ## 이벤트 구독
 
-### onBoundsChanged(listener)
-
-위치/크기 변경 이벤트를 구독합니다.
-
-```javascript
-const unsub = dmn.overlay.onBoundsChanged((bounds) => {
-  console.log(`새 위치: ${bounds.x}, ${bounds.y}`);
-  console.log(`새 크기: ${bounds.width} x ${bounds.height}`);
-});
-
-// 정리 시 구독 해제
-registerCleanup(unsub);
-```
-
-### onVisibilityChanged(listener)
+### onVisibility(listener)
 
 표시 상태 변경 이벤트를 구독합니다.
 
 ```javascript
-const unsub = dmn.overlay.onVisibilityChanged((visible) => {
+const unsub = dmn.overlay.onVisibility(({ visible }) => {
   console.log(visible ? "오버레이 표시됨" : "오버레이 숨겨짐");
+});
+
+// 정리 시 구독 해제
+dmn.plugin.registerCleanup(unsub);
+```
+
+### onLock(listener)
+
+잠금 상태 변경 이벤트를 구독합니다.
+
+```javascript
+const unsub = dmn.overlay.onLock(({ locked }) => {
+  console.log(locked ? "잠금됨" : "잠금 해제됨");
+});
+```
+
+### onAnchor(listener)
+
+앵커 변경 이벤트를 구독합니다.
+
+```javascript
+const unsub = dmn.overlay.onAnchor(({ anchor }) => {
+  console.log("새 앵커:", anchor);
+});
+```
+
+### onResized(listener)
+
+크기 변경 이벤트를 구독합니다.
+
+```javascript
+const unsub = dmn.overlay.onResized((bounds) => {
+  console.log(`새 위치: ${bounds.x}, ${bounds.y}`);
+  console.log(`새 크기: ${bounds.width} x ${bounds.height}`);
 });
 ```
 
