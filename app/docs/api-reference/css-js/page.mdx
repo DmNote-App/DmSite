@@ -15,14 +15,13 @@ description: 커스텀 CSS/JS 파일 관리 API
 
 ```javascript
 const css = await dmn.css.get();
-console.log("활성화:", css.use);
 console.log("내용:", css.content);
 console.log("경로:", css.path);
 ```
 
 ### getUse()
 
-CSS 사용 여부만 조회합니다.
+CSS 사용 여부만 조회합니다. (설정의 `useCustomCSS` 값)
 
 ```javascript
 const enabled = await dmn.css.getUse();
@@ -95,6 +94,9 @@ const allTabCss = await dmn.css.tab.getAll();
 // 특정 탭 CSS 조회
 const tab4key = await dmn.css.tab.get("4key");
 
+// 탭 CSS 파일 불러오기
+const result = await dmn.css.tab.load("4key");
+
 // 탭 CSS 설정
 await dmn.css.tab.set("4key", {
   use: true,
@@ -123,13 +125,12 @@ const unsub = dmn.css.tab.onChanged(({ tabId, css }) => {
 
 ```javascript
 const js = await dmn.js.get();
-console.log("활성화:", js.use);
 console.log("플러그인 목록:", js.plugins);
 ```
 
 ### getUse()
 
-JS 플러그인 사용 여부만 조회합니다.
+JS 플러그인 사용 여부만 조회합니다. (설정의 `useCustomJS` 값)
 
 ```javascript
 const enabled = await dmn.js.getUse();

@@ -17,6 +17,7 @@ description: defineElement를 사용한 선언형 플러그인 개발 가이드
 | **자동 상태 동기화**     | 메인 ↔ 오버레이 간 상태 자동 동기화           |
 | **컨텍스트 메뉴 통합**   | 우클릭 메뉴 자동 생성                         |
 | **라이프사이클 관리**    | 탭 전환 시 자동 마운트/언마운트               |
+| **자유로운 리사이즈**    | 그리드에서 직접 크기를 조절 가능              |
 
 ## 기본 구조
 
@@ -29,6 +30,13 @@ dmn.plugin.defineElement({
 
   // 최대 인스턴스 개수 (선택사항, 0 = 무제한)
   maxInstances: 1,
+
+  // 그리드에서 크기 조절 가능 여부 (선택사항, 기본값: false)
+  resizable: true,
+
+  // 설정 변경 시 유지할 축 (선택사항, resizable이 true일 때만 적용, 기본값: "both")
+  // "width" | "height" | "both" | "none"
+  preserveAxis: "both",
 
   // 리사이즈 앵커 (선택사항, 기본값: "top-left")
   resizeAnchor: "center",
