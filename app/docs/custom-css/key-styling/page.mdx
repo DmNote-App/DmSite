@@ -123,14 +123,17 @@ description: CSS로 키의 모양과 상태 효과를 커스터마이징하는 �
 
 /* .special 클래스를 가진 키의 활성 상태 */
 .special[data-state="active"] {
-  --key-bg: linear-gradient(45deg, #ff2b80, #2ebef3);
+  --key-bg: transparent;
+  background: linear-gradient(45deg, #ff2b80, #2ebef3);
   --key-border: none;
   --key-text-color: #fff;
 }
 ```
 
 <Callout type="warning">
-  클래스명 입력 시 선택자 기호를 제외하고 이름만 입력하세요. - ✅ 올바름: `blue`
+  클래스명 입력 시 선택자 기호(`.`)를 제외하고 이름만 입력하세요.
+
+  - ✅ 올바름: `blue`
   - ❌ 잘못됨: `.blue`
 </Callout>
 
@@ -202,7 +205,8 @@ description: CSS로 키의 모양과 상태 효과를 커스터마이징하는 �
 
 ```css
 [data-state="active"] {
-  --key-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --key-bg: transparent;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 ```
 
@@ -233,3 +237,4 @@ description: CSS로 키의 모양과 상태 효과를 커스터마이징하는 �
   --key-bg: #ff2b80 !important;
 }
 ```
+

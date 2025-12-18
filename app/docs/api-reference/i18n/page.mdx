@@ -35,7 +35,7 @@ dmn.plugin.registerCleanup(unsub);
 
 ### defineElement에서 messages 사용
 
-`defineElement`는 `messages` 옵션과 `t()` 헬퍼를 통해 다국어를 지원합니다:
+`defineElement`는 `messages` 옵션과 `t()` 헬퍼를 통해 다국어를 지원합니다.
 
 ```javascript
 // @id i18n-demo
@@ -94,17 +94,17 @@ dmn.plugin.defineElement({
 
 ### 파라미터 치환
 
-메시지에 변수를 포함할 수 있습니다:
+메시지 문자열에서 `{{param}}` 형태로 파라미터를 치환할 수 있습니다.
 
 ```javascript
 messages: {
   ko: {
-    greeting: "안녕하세요, {name}님!",
-    keyCount: "총 {count}회 입력",
+    greeting: "안녕하세요, {{name}}님!",
+    keyCount: "총 {{count}}회 입력",
   },
   en: {
-    greeting: "Hello, {name}!",
-    keyCount: "Total {count} inputs",
+    greeting: "Hello, {{name}}!",
+    keyCount: "Total {{count}} inputs",
   },
 }
 
@@ -120,12 +120,12 @@ template: (state, settings, { html, t }) => html`
 ### 숫자 포맷
 
 ```javascript
-function formatNumber(num) {
-  const locale = dmn.i18n.getLocale();
+async function formatNumber(num) {
+  const locale = await dmn.i18n.getLocale();
   return new Intl.NumberFormat(locale).format(num);
 }
 
-console.log(formatNumber(1234567));
+console.log(await formatNumber(1234567));
 // ko: "1,234,567"
 // en: "1,234,567"
 ```
@@ -133,8 +133,8 @@ console.log(formatNumber(1234567));
 ### 날짜 포맷
 
 ```javascript
-function formatDate(date) {
-  const locale = dmn.i18n.getLocale();
+async function formatDate(date) {
+  const locale = await dmn.i18n.getLocale();
   return new Intl.DateTimeFormat(locale, {
     year: "numeric",
     month: "long",
@@ -142,7 +142,7 @@ function formatDate(date) {
   }).format(date);
 }
 
-console.log(formatDate(new Date()));
+console.log(await formatDate(new Date()));
 // ko: "2024년 12월 25일"
 // en: "December 25, 2024"
 ```
@@ -150,8 +150,8 @@ console.log(formatDate(new Date()));
 ### 상대 시간
 
 ```javascript
-function formatRelativeTime(date) {
-  const locale = dmn.i18n.getLocale();
+async function formatRelativeTime(date) {
+  const locale = await dmn.i18n.getLocale();
   const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
 
   const diff = date - Date.now();

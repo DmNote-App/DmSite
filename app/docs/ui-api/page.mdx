@@ -97,6 +97,11 @@ dmn.ui.contextMenu.clearMyMenuItems();
 
 ## Display Element
 
+<Callout type="warning">
+  `displayElement`는 저수준(Primitive) API로, 직접적인 사용을 권장하지 않습니다.
+  그리드와 오버레이에 커스텀 UI 요소를 추가하려면 선언형 방식인 `defineElement`
+  사용을 강력히 권장합니다.
+</Callout>
 그리드와 오버레이에 커스텀 UI 요소를 추가합니다.
 
 ### 기본 사용법
@@ -167,6 +172,7 @@ dmn.ui.displayElement.add({
 | 메서드                              | 설명                            |
 | ----------------------------------- | ------------------------------- |
 | `setState(updates)`                 | 상태 업데이트 (템플릿 리렌더링) |
+| `setData(updates)`                  | 상태 업데이트 (`setState` 별칭) |
 | `getState()`                        | 현재 상태 조회                  |
 | `setText(selector, text)`           | 요소 텍스트 설정                |
 | `setHTML(selector, html)`           | 요소 HTML 설정                  |

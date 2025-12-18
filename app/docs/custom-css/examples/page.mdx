@@ -271,13 +271,15 @@ description: DM Note에서 사용할 수 있는 다양한 CSS 스타일 예제
 }
 
 [data-state="inactive"] {
-  --key-bg: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+  --key-bg: transparent;
+  background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
   --key-border: 2px solid #3d3d3d;
   --key-text-color: #666;
 }
 
 [data-state="active"] {
-  --key-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --key-bg: transparent;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   --key-border: 2px solid #8b5cf6;
   --key-text-color: #fff;
   box-shadow: 0px 4px 15px rgba(102, 126, 234, 0.4);
@@ -285,7 +287,8 @@ description: DM Note에서 사용할 수 있는 다양한 CSS 스타일 예제
 
 /* 노란색 키 변형 */
 .gold[data-state="active"] {
-  --key-bg: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  --key-bg: transparent;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
   --key-border: 2px solid #f5576c;
   box-shadow: 0px 4px 15px rgba(245, 87, 108, 0.4);
 }
@@ -312,3 +315,4 @@ description: DM Note에서 사용할 수 있는 다양한 CSS 스타일 예제
 <Callout type="info">
   각 스타일을 기반으로 색상이나 수치를 조정하여 나만의 스타일을 만들어 보세요!
 </Callout>
+

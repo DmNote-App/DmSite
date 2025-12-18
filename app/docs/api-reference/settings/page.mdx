@@ -5,52 +5,85 @@ description: 앱 설정 조회, 변경, 구독 API
 
 # 설정 (settings)
 
-## 조회 및 수정
+`dmn.settings`는 앱 전역 설정을 조회/부분 업데이트하고, 변경 사항을 구독할 수 있습니다.
+
+## 조회
 
 ### get()
 
 전체 앱 설정을 조회합니다.
 
 ```typescript
-interface NoteSettings {
-  general: GeneralSettings;
-  display: DisplaySettings;
-  animation: AnimationSettings;
-  note: NoteSettings;
-  effects: EffectSettings;
-  appearance: AppearanceSettings;
+interface SettingsState {
+  hardwareAcceleration: boolean;
+  alwaysOnTop: boolean;
+  overlayLocked: boolean;
+  noteEffect: boolean;
+  noteSettings: NoteSettings;
+  angleMode: string;
+  language: string;
+  laboratoryEnabled: boolean;
+  developerModeEnabled: boolean;
+  backgroundColor: string;
+  useCustomCSS: boolean;
+  customCSS: { path: string | null; content: string };
+  useCustomJS: boolean;
+  customJS: { path: string | null; content: string; plugins: JsPlugin[] };
+  overlayResizeAnchor:
+    | "top-left"
+    | "top-right"
+    | "bottom-left"
+    | "bottom-right"
+    | "center";
+  keyCounterEnabled: boolean;
+  gridSettings: {
+    alignmentGuides: boolean;
+    spacingGuides: boolean;
+    sizeMatchGuides: boolean;
+  };
 }
 ```
 
 ```javascript
 const settings = await dmn.settings.get();
-console.log("현재 모드:", settings.general.defaultKeyMode);
+console.log("언어:", settings.language);
+console.log("항상 위:", settings.alwaysOnTop);
+console.log("오버레이 잠금:", settings.overlayLocked);
 ```
 
 <Callout type="info">
-  타입 정의의 상세 내용은 앱 소스의 `types/noteSettings.ts`를 참조하세요.
+  상세 타입은 앱 소스의 `src/types/settings.ts`, `src/types/noteSettings.ts`를 참조하세요.
 </Callout>
 
-### update(partial)
+## 수정
+
+### update(patch)
 
 설정을 부분 업데이트합니다.
 
 ```javascript
 // 단일 값 변경
 await dmn.settings.update({
-  general: { defaultKeyMode: "8key" },
+  language: "en",
 });
 
 // 여러 값 동시 변경
 await dmn.settings.update({
-  display: { showFps: true },
-  note: { tailEnabled: false },
+  alwaysOnTop: true,
+  backgroundColor: "transparent",
 });
 ```
 
-<Callout type="warning">
-  `update()`는 전달된 키만 업데이트합니다. 중첩 객체도 부분 병합됩니다.
+<Callout type="info">
+  중첩 객체도 부분 병합됩니다. (`noteSettings`, `customCSS`, `customJS`, `gridSettings`)
 </Callout>
+
+```javascript
+await dmn.settings.update({
+  noteEffect: true,
+  noteSettings: { speed: 15, reverse: true },
+});
+```
 
 ## 이벤트 구독
 
@@ -60,8 +93,8 @@ await dmn.settings.update({
 
 ```typescript
 interface SettingsDiff {
-  changed: Record<string, any>; // 변경된 설정
-  full: SettingsState; // 전체 설정
+  changed: Record<string, any>; // 변경된 설정(패치)
+  full: SettingsState; // 전체 설정(최신 스냅샷)
 }
 ```
 
@@ -80,11 +113,10 @@ unsub();
 ### 특정 설정 값 감시
 
 ```javascript
-// 리액티브하게 특정 설정 추적
 function watchSetting(path, callback) {
   let prev;
-  return dmn.settings.onChanged((settings) => {
-    const current = path.split(".").reduce((o, k) => o?.[k], settings);
+  return dmn.settings.onChanged(({ full }) => {
+    const current = path.split(".").reduce((o, k) => o?.[k], full);
     if (current !== prev) {
       prev = current;
       callback(current);
@@ -92,35 +124,21 @@ function watchSetting(path, callback) {
   });
 }
 
-const unsub = watchSetting("general.defaultKeyMode", (mode) => {
-  console.log("모드 변경:", mode);
+const unsub = watchSetting("language", (language) => {
+  console.log("언어 변경:", language);
 });
 ```
 
 ### 토글 헬퍼
 
 ```javascript
-async function toggleSetting(category, key) {
+async function toggleBooleanSetting(key) {
   const settings = await dmn.settings.get();
-  const current = settings[category]?.[key];
+  const current = settings[key];
   if (typeof current === "boolean") {
-    await dmn.settings.update({
-      [category]: { [key]: !current },
-    });
+    await dmn.settings.update({ [key]: !current });
   }
 }
 
-// 사용
-await toggleSetting("display", "showFps");
+await toggleBooleanSetting("alwaysOnTop");
 ```
-
-## 주요 설정 카테고리
-
-| 카테고리     | 설명                          |
-| ------------ | ----------------------------- |
-| `general`    | 언어, 기본 키 모드, 시작 옵션 |
-| `display`    | FPS 표시, 디버그 정보         |
-| `animation`  | 노트 애니메이션 설정          |
-| `note`       | 노트 길이, 테일, 이징         |
-| `effects`    | 시각 효과 옵션                |
-| `appearance` | 테마, 색상                    |

@@ -252,15 +252,13 @@ dmn.plugin.defineElement({
   `,
 
   onMount: ({ setState }) => {
+    let history = [];
+
     // 다른 플러그인에서 보낸 KPS 데이터 수신
     const unsub = dmn.bridge.on("KPS_UPDATE", ({ kps, max }) => {
-      setState((prev) => {
-        const history = [
-          ...(prev.history ?? []),
-          max ? (kps / max) * 100 : 0,
-        ].slice(-20);
-        return { kps, history };
-      });
+      const value = max ? (kps / max) * 100 : 0;
+      history = [...history, value].slice(-20);
+      setState({ kps, history });
     });
 
     return () => unsub();
@@ -300,3 +298,4 @@ dmn.plugin.registerCleanup(() => {
   unsub2();
 });
 ```
+

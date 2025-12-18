@@ -48,6 +48,10 @@ if (result.success) {
 }
 ```
 
+<Callout type="info">
+  커스텀 CSS가 활성화(`useCustomCSS = true`)된 상태에서 파일 경로가 설정돼 있으면, 파일 변경을 자동 감지하여 다시 적용합니다.
+</Callout>
+
 ### setContent(content)
 
 CSS 내용을 직접 설정합니다.
@@ -180,6 +184,25 @@ await dmn.js.remove("my-plugin-id");
 ```javascript
 await dmn.js.setPluginEnabled("kps", true); // 활성화
 await dmn.js.setPluginEnabled("kps", false); // 비활성화
+```
+
+### setContent(content)
+
+JS 파일 내용을 직접 설정합니다.
+
+```javascript
+await dmn.js.setContent(`// @id: inline-plugin
+
+console.log("hello from inline plugin");
+`);
+```
+
+### reset()
+
+JS 설정(경로/내용/플러그인 목록)을 기본값으로 초기화합니다.
+
+```javascript
+await dmn.js.reset();
 ```
 
 ### 이벤트 구독
