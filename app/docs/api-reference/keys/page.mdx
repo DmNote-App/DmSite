@@ -48,7 +48,14 @@ interface KeyPosition {
   count: number;
   noteColor: string | { type: "gradient"; top: string; bottom: string };
   noteOpacity: number;
+  noteEffectEnabled: boolean;
+  noteGlowEnabled: boolean;
+  noteGlowSize: number;
+  noteGlowOpacity: number;
+  noteGlowColor?: string | { type: "gradient"; top: string; bottom: string };
+  noteAutoYCorrection: boolean;
   className?: string;
+  zIndex?: number;
   counter: KeyCounterSettings;
 }
 ```

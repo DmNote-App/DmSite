@@ -366,6 +366,37 @@ dmn.ui.displayElement.add({
 });
 ```
 
+## Color Picker
+
+색상 선택기를 표시합니다.
+
+```javascript
+dmn.ui.pickColor({
+  initialColor: "#ff0000",
+  onColorChange: (color) => {
+    console.log("색상 변경 중:", color);
+  },
+  onColorChangeComplete: (color) => {
+    console.log("색상 선택 완료:", color);
+  },
+  // 선택적 옵션
+  position: { x: 100, y: 100 }, // 직접 위치 지정
+  referenceElement: document.getElementById("my-button"), // 요소 기준 위치
+});
+```
+
+### 옵션
+
+| 속성                    | 타입            | 설명                                        |
+| ----------------------- | --------------- | ------------------------------------------- |
+| `initialColor`          | string          | 초기 색상 (HEX)                             |
+| `onColorChange`         | (color) => void | 색상이 변경될 때마다 호출                   |
+| `onColorChangeComplete` | (color) => void | 색상 선택이 완료되었을 때 호출              |
+| `onClose`               | () => void      | 색상 선택기가 닫힐 때 호출                  |
+| `position`              | \{ x, y \}      | 표시 위치 (referenceElement가 없을 때 사용) |
+| `referenceElement`      | HTMLElement     | 이 요소를 기준으로 위치 설정                |
+| `id`                    | string          | 고유 ID (중복 방지용)                       |
+
 ## 실전 예제: 설정 패널
 
 ```javascript

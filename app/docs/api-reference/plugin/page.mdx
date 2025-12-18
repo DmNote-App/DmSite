@@ -63,6 +63,23 @@ interface PluginDefinition {
   maxInstances?: number;
 
   /**
+   * 그리드에서 크기 조절 가능 여부
+   * @default false
+   */
+  resizable?: boolean;
+
+  /**
+   * 설정 변경 시 유지할 축
+   * resizable이 true일 때만 적용됨
+   * - 'width': 가로 크기 유지, 세로는 콘텐츠 따라감
+   * - 'height': 세로 크기 유지, 가로는 콘텐츠 따라감
+   * - 'both': 둘 다 유지 (기본값)
+   * - 'none': 둘 다 콘텐츠 따라감
+   * @default 'both'
+   */
+  preserveAxis?: "width" | "height" | "both" | "none";
+
+  /**
    * 리사이즈 앵커 (크기 변경 시 기준점)
    * @default "top-left"
    */
