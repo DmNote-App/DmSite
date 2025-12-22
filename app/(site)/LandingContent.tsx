@@ -10,17 +10,24 @@ import {
 } from "./components/SectionTransitions";
 import { Parallax, ScrollFade } from "./components/ScrollAnimations";
 
-export function LandingContent() {
+// 로딩 플레이스홀더 컴포넌트
+function LoadingPlaceholder() {
+  return (
+    <div className="dark">
+      <div
+        className="fixed inset-0 z-0 pointer-events-none"
+        style={{ backgroundColor: "#08080a" }}
+      />
+      <div className="min-h-screen" />
+    </div>
+  );
+}
+
+// 메인 콘텐츠 컴포넌트 (모든 훅이 여기서 실행)
+function LandingContentInner() {
   const { t } = useLanguage();
   const heroRef = useRef<HTMLDivElement>(null);
   const featuresRef = useRef<HTMLDivElement>(null);
-
-  // 클라이언트 마운트 상태 확인 (hydration 불일치 방지)
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // 전체 페이지 스크롤 진행률
   const { scrollYProgress } = useScroll();
@@ -66,19 +73,6 @@ export function LandingContent() {
   const featuresScale = useTransform(featuresExitProgress, [0, 0.8], [1, 0.9]);
   const smoothFeaturesOpacity = useSpring(featuresOpacity, springConfig);
   const smoothFeaturesScale = useSpring(featuresScale, springConfig);
-
-  // SSR/SSG에서는 빈 배경만 보여주고 클라이언트에서 전체 렌더링
-  if (!mounted) {
-    return (
-      <div className="dark">
-        <div
-          className="fixed inset-0 z-0 pointer-events-none"
-          style={{ backgroundColor: "#08080a" }}
-        />
-        <div className="min-h-screen" />
-      </div>
-    );
-  }
 
   return (
     <div className="dark">
@@ -1057,4 +1051,21 @@ function ShowcaseVideoCard({
       </div>
     </motion.div>
   );
+}
+
+// 메인 export 컴포넌트 - 클라이언트 마운트 후에만 Inner 렌더링
+export function LandingContent() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // SSR/SSG에서는 로딩 플레이스홀더만 보여줌
+  if (!mounted) {
+    return <LoadingPlaceholder />;
+  }
+
+  // 클라이언트에서 마운트된 후 실제 콘텐츠 렌더링
+  return <LandingContentInner />;
 }
