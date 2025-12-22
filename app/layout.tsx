@@ -1,4 +1,6 @@
 import "./globals.css";
+import "nextra-theme-docs/style.css";
+import { Head } from "nextra/components";
 import { baseMetadata, baseViewport, siteConfig } from "./seo.config";
 
 export const metadata = baseMetadata;
@@ -31,7 +33,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko" dir="ltr" suppressHydrationWarning>
-      <head>
+      <Head>
         {/* Google Tag Manager */}
         <script
           dangerouslySetInnerHTML={{
@@ -43,12 +45,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           }}
         />
         {/* End Google Tag Manager */}
-        <meta name="naver-site-verification" content="b249cc8c4fa1792f5e3b50b6a8e4ee6ebca3fd2d" />
+        <meta
+          name="naver-site-verification"
+          content="b249cc8c4fa1792f5e3b50b6a8e4ee6ebca3fd2d"
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-      </head>
+      </Head>
       <body>
         {/* Google Tag Manager (noscript) */}
         <noscript>

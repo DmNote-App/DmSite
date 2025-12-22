@@ -77,45 +77,6 @@ code, pre, .font-mono {
   font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace !important;
 }
 
-@layer base {
-  /* Custom global styles if needed */
-}
-
-/* Nextra 모바일 메뉴 배경색 수정 (Tailwind v4 충돌 해결) */
-/* --nextra-bg 변수가 RGB 값 (예: 17,17,17)으로 정의되어 있음 */
-.nextra-mobile-nav {
-  background-color: rgb(250, 250, 250) !important;
-}
-
-.dark .nextra-mobile-nav,
-:is(.dark) .nextra-mobile-nav,
-html.dark .nextra-mobile-nav {
-  background-color: rgb(17, 17, 17) !important;
-}
-
-/* Nextra 사이드바 푸터 배경색 수정 (Tailwind v4 충돌 해결) */
-.nextra-sidebar-footer {
-  background-color: rgb(250, 250, 250) !important;
-}
-
-.dark .nextra-sidebar-footer,
-:is(.dark) .nextra-sidebar-footer,
-html.dark .nextra-sidebar-footer {
-  background-color: rgb(17, 17, 17) !important;
-}
-
-html {
-  scrollbar-gutter: stable;
-  /* 스크롤 성능 최적화 */
-  scroll-behavior: auto;
-}
-
-/* 스크롤 중 GPU 가속 및 성능 최적화 */
-body {
-  /* 레이아웃 리플로우 최소화 */
-  overflow-x: hidden;
-}
-
 /* Docs footer padding: match landing page (py-6) */
 .dm-docs-footer {
   padding-top: 1.5rem !important;
