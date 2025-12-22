@@ -2,9 +2,9 @@
   "scripts": {
     "dev": "next --turbopack",
     "build": "next build",
-    "start": "next start",
+    "start": "npx serve@latest out",
     "postinstall": "patch-package",
-    "postbuild": "node -e \"if(!process.env.VERCEL){require('child_process').execSync('pagefind --site out --output-path out/_pagefind && cp CNAME out/CNAME',{stdio:'inherit'})}\""
+    "postbuild": "node -e \"if(!process.env.VERCEL){require('child_process').execSync('pagefind --site out --output-path out/_pagefind && copy CNAME out\\\\CNAME',{stdio:'inherit',shell:true})}\""
   },
   "dependencies": {
     "framer-motion": "^12.23.26",
