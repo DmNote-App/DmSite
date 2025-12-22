@@ -15,6 +15,13 @@ export function LandingContent() {
   const heroRef = useRef<HTMLDivElement>(null);
   const featuresRef = useRef<HTMLDivElement>(null);
 
+  // 클라이언트 마운트 상태 확인 (hydration 불일치 방지)
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // 전체 페이지 스크롤 진행률
   const { scrollYProgress } = useScroll();
 
@@ -38,7 +45,11 @@ export function LandingContent() {
 
   // 배경 효과 애니메이션 값 - useTransform만 사용하여 성능 최적화
   const gridOpacity = useTransform(heroScrollProgress, [0, 0.5], [0.06, 0]);
-  const heroOpacity = useTransform(heroScrollProgress, [0, 0.5, 0.8], [1, 0.6, 0]);
+  const heroOpacity = useTransform(
+    heroScrollProgress,
+    [0, 0.5, 0.8],
+    [1, 0.6, 0]
+  );
   const heroScale = useTransform(heroScrollProgress, [0, 0.8], [1, 0.9]);
 
   // 스프링 설정 - Hero/Features 메인 애니메이션만 적용 (반복 컴포넌트는 제외)
@@ -47,10 +58,27 @@ export function LandingContent() {
   const smoothHeroScale = useSpring(heroScale, springConfig);
 
   // Features 섹션 퇴장 애니메이션 값 (2페이지 → 3페이지)
-  const featuresOpacity = useTransform(featuresExitProgress, [0, 0.5, 0.8], [1, 0.6, 0]);
+  const featuresOpacity = useTransform(
+    featuresExitProgress,
+    [0, 0.5, 0.8],
+    [1, 0.6, 0]
+  );
   const featuresScale = useTransform(featuresExitProgress, [0, 0.8], [1, 0.9]);
   const smoothFeaturesOpacity = useSpring(featuresOpacity, springConfig);
   const smoothFeaturesScale = useSpring(featuresScale, springConfig);
+
+  // SSR/SSG에서는 빈 배경만 보여주고 클라이언트에서 전체 렌더링
+  if (!mounted) {
+    return (
+      <div className="dark">
+        <div
+          className="fixed inset-0 z-0 pointer-events-none"
+          style={{ backgroundColor: "#08080a" }}
+        />
+        <div className="min-h-screen" />
+      </div>
+    );
+  }
 
   return (
     <div className="dark">
@@ -58,17 +86,17 @@ export function LandingContent() {
       <ScrollProgressBar />
 
       {/* 단일 고정 배경 */}
-      <div 
+      <div
         className="fixed inset-0 z-0 pointer-events-none"
         style={{ backgroundColor: "#08080a" }}
       />
-      
+
       {/* 노이즈 오버레이 - 밴딩 방지 디더링 (정적 base64 노이즈, GPU 가속) */}
-      <div 
+      <div
         className="fixed inset-0 z-[1] pointer-events-none opacity-[0.04]"
         style={{
           backgroundImage: `url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwBAMAAAClLOS0AAAAElBMVEUAAAAAAAAAAAAAAAAAAAAAAADgKxmiAAAABnRSTlMCCgkGBAUmfekYAAAASklEQVQ4y2MgFjCCgCMYOIGBMxg4g4ELGLiAgSsYuIKBGxi4gYE7GLiDgQcYeICBJxh4goEXGHiBgTcYeIOBDxj4gIEvGPgSBQBU7hjnIPLcYAAAAABJRU5ErkJggg==")`,
-          backgroundRepeat: 'repeat',
+          backgroundRepeat: "repeat",
         }}
       />
 
@@ -80,22 +108,46 @@ export function LandingContent() {
           style={{ contain: "layout paint", minHeight: "100dvh" }}
         >
           {/* 배경 그라데이션 효과 - SVG로 밴딩 방지 */}
-          <svg className="absolute inset-0 w-full h-full z-0 pointer-events-none" preserveAspectRatio="xMidYMid slice">
+          <svg
+            className="absolute inset-0 w-full h-full z-0 pointer-events-none"
+            preserveAspectRatio="xMidYMid slice"
+          >
             <defs>
               {/* 중앙 상단 메인 글로우 - 보라 */}
-              <radialGradient id="hero-glow-center" cx="50%" cy="0%" r="70%" fx="50%" fy="0%">
+              <radialGradient
+                id="hero-glow-center"
+                cx="50%"
+                cy="0%"
+                r="70%"
+                fx="50%"
+                fy="0%"
+              >
                 <stop offset="0%" stopColor="#818cf8" stopOpacity="0.15" />
                 <stop offset="50%" stopColor="#818cf8" stopOpacity="0.06" />
                 <stop offset="100%" stopColor="#818cf8" stopOpacity="0" />
               </radialGradient>
               {/* 좌측 청록 */}
-              <radialGradient id="hero-glow-left" cx="0%" cy="30%" r="60%" fx="0%" fy="30%">
+              <radialGradient
+                id="hero-glow-left"
+                cx="0%"
+                cy="30%"
+                r="60%"
+                fx="0%"
+                fy="30%"
+              >
                 <stop offset="0%" stopColor="#22d3ee" stopOpacity="0.12" />
                 <stop offset="50%" stopColor="#22d3ee" stopOpacity="0.04" />
                 <stop offset="100%" stopColor="#22d3ee" stopOpacity="0" />
               </radialGradient>
               {/* 우측 핑크 */}
-              <radialGradient id="hero-glow-right" cx="100%" cy="30%" r="60%" fx="100%" fy="30%">
+              <radialGradient
+                id="hero-glow-right"
+                cx="100%"
+                cy="30%"
+                r="60%"
+                fx="100%"
+                fy="30%"
+              >
                 <stop offset="0%" stopColor="#f472b6" stopOpacity="0.10" />
                 <stop offset="50%" stopColor="#f472b6" stopOpacity="0.03" />
                 <stop offset="100%" stopColor="#f472b6" stopOpacity="0" />
@@ -282,7 +334,9 @@ export function LandingContent() {
               animate={{ y: [0, 8, 0] }}
               transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
             >
-              <span className="text-[10px] md:text-xs uppercase tracking-widest">Scroll</span>
+              <span className="text-[10px] md:text-xs uppercase tracking-widest">
+                Scroll
+              </span>
               <svg
                 className="w-4 h-4 md:w-5 md:h-5"
                 fill="none"
@@ -307,23 +361,39 @@ export function LandingContent() {
           style={{ minHeight: "100dvh" }}
         >
           {/* 배경 글로우 효과 - SVG로 밴딩 방지 + CSS mask로 상단 페이드 (성능 최적화) */}
-          <svg 
-            className="absolute inset-0 w-full h-full overflow-visible pointer-events-none" 
+          <svg
+            className="absolute inset-0 w-full h-full overflow-visible pointer-events-none"
             preserveAspectRatio="xMidYMid slice"
-            style={{ 
-              maskImage: 'linear-gradient(to bottom, transparent 0%, black 30%, black 100%)',
-              WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 30%, black 100%)'
+            style={{
+              maskImage:
+                "linear-gradient(to bottom, transparent 0%, black 30%, black 100%)",
+              WebkitMaskImage:
+                "linear-gradient(to bottom, transparent 0%, black 30%, black 100%)",
             }}
           >
             <defs>
               {/* 우측 보라 글로우 - 위치를 더 아래로 조정 */}
-              <radialGradient id="features-glow-right" cx="110%" cy="40%" r="50%" fx="110%" fy="40%">
+              <radialGradient
+                id="features-glow-right"
+                cx="110%"
+                cy="40%"
+                r="50%"
+                fx="110%"
+                fy="40%"
+              >
                 <stop offset="0%" stopColor="#818cf8" stopOpacity="0.08" />
                 <stop offset="60%" stopColor="#818cf8" stopOpacity="0.02" />
                 <stop offset="100%" stopColor="#818cf8" stopOpacity="0" />
               </radialGradient>
               {/* 좌측 하단 청록 글로우 */}
-              <radialGradient id="features-glow-left" cx="-10%" cy="90%" r="40%" fx="-10%" fy="90%">
+              <radialGradient
+                id="features-glow-left"
+                cx="-10%"
+                cy="90%"
+                r="40%"
+                fx="-10%"
+                fy="90%"
+              >
                 <stop offset="0%" stopColor="#22d3ee" stopOpacity="0.08" />
                 <stop offset="60%" stopColor="#22d3ee" stopOpacity="0.02" />
                 <stop offset="100%" stopColor="#22d3ee" stopOpacity="0" />
@@ -333,7 +403,7 @@ export function LandingContent() {
             <rect width="100%" height="100%" fill="url(#features-glow-left)" />
           </svg>
 
-          <motion.div 
+          <motion.div
             className="max-w-7xl mx-auto relative z-10 will-change-[transform,opacity]"
             style={{
               opacity: smoothFeaturesOpacity,
@@ -570,26 +640,48 @@ export function LandingContent() {
         {/* Section 3: Showcase Section */}
         <section className="relative py-32 px-6 overflow-hidden">
           {/* 배경 글로우 효과 */}
-          <svg 
-            className="absolute inset-0 w-full h-full overflow-visible pointer-events-none" 
+          <svg
+            className="absolute inset-0 w-full h-full overflow-visible pointer-events-none"
             preserveAspectRatio="xMidYMid slice"
           >
             <defs>
               {/* Section 2에서 이어지는 좌측 상단 청록 글로우 */}
-              <radialGradient id="showcase-glow-top-left" cx="-10%" cy="-10%" r="40%" fx="-10%" fy="-10%">
+              <radialGradient
+                id="showcase-glow-top-left"
+                cx="-10%"
+                cy="-10%"
+                r="40%"
+                fx="-10%"
+                fy="-10%"
+              >
                 <stop offset="0%" stopColor="#22d3ee" stopOpacity="0.08" />
                 <stop offset="60%" stopColor="#22d3ee" stopOpacity="0.02" />
                 <stop offset="100%" stopColor="#22d3ee" stopOpacity="0" />
               </radialGradient>
 
-              <radialGradient id="showcase-glow-center" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+              <radialGradient
+                id="showcase-glow-center"
+                cx="50%"
+                cy="50%"
+                r="50%"
+                fx="50%"
+                fy="50%"
+              >
                 <stop offset="0%" stopColor="#c084fc" stopOpacity="0.08" />
                 <stop offset="60%" stopColor="#c084fc" stopOpacity="0.02" />
                 <stop offset="100%" stopColor="#c084fc" stopOpacity="0" />
               </radialGradient>
             </defs>
-            <rect width="100%" height="100%" fill="url(#showcase-glow-top-left)" />
-            <rect width="100%" height="100%" fill="url(#showcase-glow-center)" />
+            <rect
+              width="100%"
+              height="100%"
+              fill="url(#showcase-glow-top-left)"
+            />
+            <rect
+              width="100%"
+              height="100%"
+              fill="url(#showcase-glow-center)"
+            />
           </svg>
 
           <div className="max-w-7xl mx-auto relative z-10">
@@ -634,12 +726,12 @@ export function LandingContent() {
 function ShowcaseGrid({ t }: { t: any }) {
   const gridRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
-  
+
   // 클라이언트에서만 모바일 체크 (hydration 오류 방지)
   useEffect(() => {
     setIsMobile(window.innerWidth < 768);
   }, []);
-  
+
   // 그리드 전체의 스크롤 진행률
   const { scrollYProgress } = useScroll({
     target: gridRef,
@@ -751,9 +843,7 @@ function FeatureCard({
       }}
     >
       <div className="feature-card group h-full">
-        <div
-          className={`feature-icon ${iconBg} ${iconColor} ${iconHoverBg}`}
-        >
+        <div className={`feature-icon ${iconBg} ${iconColor} ${iconHoverBg}`}>
           {icon}
         </div>
         <h3 className="text-xl font-semibold mb-3 text-white">{title}</h3>
@@ -835,7 +925,7 @@ function ShowcaseVideoCard({
           observer.disconnect();
         }
       },
-      { threshold: 0.01, rootMargin: "400px 0px" }  // 1200px → 400px로 줄여서 더 늦게 로드
+      { threshold: 0.01, rootMargin: "400px 0px" } // 1200px → 400px로 줄여서 더 늦게 로드
     );
 
     observer.observe(el);
@@ -855,15 +945,13 @@ function ShowcaseVideoCard({
     const pause = () => {
       try {
         video.pause();
-      } catch {
-      }
+      } catch {}
     };
 
     const play = async () => {
       try {
         await video.play();
-      } catch {
-      }
+      } catch {}
     };
 
     if (!("IntersectionObserver" in window)) {
@@ -902,13 +990,17 @@ function ShowcaseVideoCard({
 
   const opacity = useTransform(scrollYProgress, [0, 0.5], [0, 1]);
   // 모바일에서는 좌우 애니메이션 제거 (2페이지 카드처럼 아래에서 위로만)
-  const xOffset = isMobile ? 0 : (direction === "left" ? -60 : 60);
+  const xOffset = isMobile ? 0 : direction === "left" ? -60 : 60;
   const x = useTransform(scrollYProgress, [0, 0.5], [xOffset, 0]);
   // 모바일에서는 y 애니메이션 추가 (2페이지 FeatureCard처럼), PC에서는 대각선 효과
   const yOffset = isMobile ? 60 : 40;
   const y = useTransform(scrollYProgress, [0, 0.5], [yOffset, 0]);
   // 모바일에서 스케일 애니메이션 추가 (2페이지 카드처럼)
-  const scale = useTransform(scrollYProgress, [0, 0.5], [isMobile ? 0.9 : 1, 1]);
+  const scale = useTransform(
+    scrollYProgress,
+    [0, 0.5],
+    [isMobile ? 0.9 : 1, 1]
+  );
 
   return (
     <motion.div
@@ -933,7 +1025,11 @@ function ShowcaseVideoCard({
               muted
               playsInline
               className="w-full h-full object-cover"
-              style={videoScale !== 1 ? { transform: `scale(${videoScale})` } : undefined}
+              style={
+                videoScale !== 1
+                  ? { transform: `scale(${videoScale})` }
+                  : undefined
+              }
               onError={() => setResolvedSrc(null)}
             />
           ) : (
@@ -942,13 +1038,19 @@ function ShowcaseVideoCard({
           {/* Gradient Overlay for Text Readability */}
           <div className="absolute inset-0 bg-gradient-to-t from-[#08080a] via-[#08080a]/40 to-transparent opacity-95" />
         </div>
-        
+
         {/* Content - 모바일 패딩 및 텍스트 크기 조정 */}
         <div className="relative h-full flex flex-col justify-end p-4 sm:p-6 z-10">
-          <h3 key={title} className="text-lg sm:text-xl font-bold text-white mb-1 sm:mb-2">
+          <h3
+            key={title}
+            className="text-lg sm:text-xl font-bold text-white mb-1 sm:mb-2"
+          >
             {title}
           </h3>
-          <p key={description} className="text-xs sm:text-sm text-gray-400 font-medium leading-relaxed line-clamp-2 sm:line-clamp-none">
+          <p
+            key={description}
+            className="text-xs sm:text-sm text-gray-400 font-medium leading-relaxed line-clamp-2 sm:line-clamp-none"
+          >
             {description}
           </p>
         </div>
