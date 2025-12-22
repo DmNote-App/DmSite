@@ -4,7 +4,7 @@
     "build": "next build",
     "start": "npx serve@latest out",
     "postinstall": "patch-package",
-    "postbuild": "node -e \"const cmd = process.platform === 'win32' ? 'pagefind --site out --output-path out/_pagefind && copy CNAME out\\\\CNAME' : 'pagefind --site out --output-path out/_pagefind && cp CNAME out/CNAME'; require('child_process').execSync(cmd, {stdio:'inherit', shell:true})\""
+    "postbuild": "node scripts/postbuild.js"
   },
   "dependencies": {
     "framer-motion": "^12.23.26",
