@@ -3,7 +3,7 @@ import { Banner, Head } from "nextra/components";
 import { getPageMap } from "nextra/page-map";
 import "nextra-theme-docs/style.css";
 import { docsMetadata } from "../seo.config";
-import EditLinkFixer from "./components/EditLink";
+import EditLinkFixer from "@/app/components/EditLink";
 
 export const metadata = docsMetadata;
 
