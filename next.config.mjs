@@ -12,11 +12,11 @@ export default withNextra({
       beforeFiles: [
         {
           source: "/recap",
-          destination: "https://dm-recap.vercel.app/recap",
+          destination: "https://dm-recap.vercel.app/",
         },
         {
           source: "/recap/:path*",
-          destination: "https://dm-recap.vercel.app/recap/:path*",
+          destination: "https://dm-recap.vercel.app/:path*",
         },
       ],
     };
