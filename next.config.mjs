@@ -10,22 +10,6 @@ export default withNextra({
   async rewrites() {
     return {
       beforeFiles: [
-        // nickname 쿼리가 있으면 결과 페이지로
-        {
-          source: "/recap",
-          has: [{ type: "query", key: "nickname" }],
-          destination: "https://dm-recap.vercel.app/recap",
-        },
-        // 쿼리 없으면 메인 페이지로
-        {
-          source: "/recap",
-          destination: "https://dm-recap.vercel.app/",
-        },
-        // API 프록시 추가
-        {
-          source: "/recap/api/:path*",
-          destination: "https://dm-recap.vercel.app/api/:path*",
-        },
         // 정적 자산 프록시
         {
           source: "/recap/_next/:path*",
@@ -38,6 +22,20 @@ export default withNextra({
         {
           source: "/recap/fonts/:path*",
           destination: "https://dm-recap.vercel.app/fonts/:path*",
+        },
+        {
+          source: "/recap/api/:path*",
+          destination: "https://dm-recap.vercel.app/api/:path*",
+        },
+        // 페이지 라우팅
+        {
+          source: "/recap",
+          has: [{ type: "query", key: "nickname" }],
+          destination: "https://dm-recap.vercel.app/recap",
+        },
+        {
+          source: "/recap",
+          destination: "https://dm-recap.vercel.app/",
         },
       ],
     };
