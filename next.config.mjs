@@ -7,18 +7,4 @@ export default withNextra({
   images: {
     unoptimized: true,
   },
-  async rewrites() {
-    return {
-      beforeFiles: [
-        {
-          source: "/recap",
-          destination: "https://dm-recap.vercel.app/recap",
-        },
-        {
-          source: "/recap/:path*",
-          destination: "https://dm-recap.vercel.app/recap/:path*",
-        },
-      ],
-    };
-  },
 });

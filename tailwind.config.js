@@ -8,10 +8,10 @@ module.exports = {
   theme: {
     extend: {
       screens: {
-        'viewer': '950px', // Custom breakpoint for key viewer visibility
+        viewer: "950px", // Custom breakpoint for key viewer visibility
       },
       fontFamily: {
-        sans: ["Pretendard", "sans-serif"],
+        sans: ["Pretendard JP", "Pretendard", "sans-serif"],
       },
       colors: {
         primary: "#1A191E",
@@ -21,6 +21,7 @@ module.exports = {
           active: "#2A2A30",
         },
         brand: {
+          DEFAULT: "rgb(var(--brand) / <alpha-value>)",
           50: "#f0f9ff",
           100: "#e0f2fe",
           200: "#bae6fd",
@@ -32,6 +33,24 @@ module.exports = {
           800: "#075985",
           900: "#0c4a6e",
           950: "#082f49",
+        },
+        "brand-strong": "rgb(var(--brand-strong) / <alpha-value>)",
+        canvas: "rgb(var(--canvas) / <alpha-value>)",
+        surface: "rgb(var(--surface) / <alpha-value>)",
+        "surface-muted": "rgb(var(--surface-muted) / <alpha-value>)",
+        "surface-hover": "rgb(var(--surface-hover) / <alpha-value>)",
+        "surface-border": "rgb(var(--surface-border) / <alpha-value>)",
+        grey: {
+          50: "rgb(var(--grey-50) / <alpha-value>)",
+          100: "rgb(var(--grey-100) / <alpha-value>)",
+          200: "rgb(var(--grey-200) / <alpha-value>)",
+          300: "rgb(var(--grey-300) / <alpha-value>)",
+          400: "rgb(var(--grey-400) / <alpha-value>)",
+          500: "rgb(var(--grey-500) / <alpha-value>)",
+          600: "rgb(var(--grey-600) / <alpha-value>)",
+          700: "rgb(var(--grey-700) / <alpha-value>)",
+          800: "rgb(var(--grey-800) / <alpha-value>)",
+          900: "rgb(var(--grey-900) / <alpha-value>)",
         },
         accent: {
           500: "#8b5cf6",

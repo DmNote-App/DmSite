@@ -1,0 +1,309 @@
+body.recap-mode {
+  --font-body: 'Pretendard JP', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+
+  /* Custom Color Palette */
+  --grey-50: 249 250 251;
+  --grey-100: 242 244 246;
+  /* Background */
+  --grey-200: 229 232 235;
+  --grey-300: 209 214 219;
+  --grey-400: 176 184 193;
+  --grey-500: 139 149 161;
+  /* Subtext */
+  --grey-600: 107 118 132;
+  --grey-700: 78 89 104;
+  --grey-800: 51 61 75;
+  /* Secondary Text */
+  --grey-900: 25 31 40;
+  /* Primary Text */
+
+  --brand: 49 130 246;
+  --brand-strong: 27 100 218;
+  /* Primary Action */
+  --brand-light: 232 243 255;
+
+  --canvas: 242 244 246;
+  --surface: 255 255 255;
+  --surface-muted: 249 250 251;
+  --surface-hover: 252 252 252;
+  --surface-border: 229 232 235;
+
+  --chip-blue-bg: 219 234 254;
+  --chip-blue-text: 37 99 235;
+
+  --hero-blob-a: 191 219 254;
+  --hero-blob-b: 199 210 254;
+  --hero-blob-opacity: 0.35;
+
+  --skeleton-base: 242 244 246;
+  --skeleton-highlight: 255 255 255;
+
+  --video-placeholder: 26 26 26;
+  --progress-sheen: rgba(255, 255, 255, 0.45);
+
+  --shadow-glass: 0 0 24px rgba(0, 0, 0, 0.04);
+  --shadow-card: 0 0 16px rgba(0, 0, 50, 0.02);
+  --shadow-card-hover: 0 0 20px rgba(0, 0, 50, 0.04);
+}
+
+html[data-recap] {
+  color-scheme: light;
+}
+
+html[data-recap].theme-switching *,
+html[data-recap].theme-switching *::before,
+html[data-recap].theme-switching *::after {
+  transition: none !important;
+}
+
+html[data-recap].dark {
+  color-scheme: dark;
+}
+
+html[data-recap].dark body.recap-mode {
+  /* Dark Mode Palette - Modern Clean Slate (Neutral & Premium) */
+  --grey-50: 20 21 22;
+  /* Darkest elements (Insets) */
+  --grey-100: 45 46 48;
+  /* Button/Input backgrounds */
+  --grey-200: 60 62 66;
+  /* Borders / Hover states */
+  --grey-300: 110 114 120;
+  /* Placeholders (Brightened from ~100) */
+  --grey-400: 170 176 184;
+  /* Icons, Muted text (Significant brighten) */
+  --grey-500: 205 210 218;
+  /* Tertiary text (Much brighter) */
+  --grey-600: 228 232 236;
+  /* Secondary Text (Close to white) */
+  --grey-700: 242 244 246;
+  /* Primary-adjacent text */
+  --grey-800: 249 251 253;
+  /* High contrast text */
+  --grey-900: 255 255 255;
+  /* Pure White */
+
+  --brand: 66 133 244;
+  /* Adjusted slightly for dark mode vibrancy */
+  --brand-strong: 90 165 250;
+  --brand-light: 32 40 54;
+  /* Muted Blue Background */
+
+  --canvas: 18 19 21;
+  /* Soft Black */
+  --surface: 32 33 36;
+  /* Card Background (Darker than buttons) */
+  --surface-muted: 25 26 29;
+  --surface-hover: 42 43 46;
+  --surface-border: 52 54 58;
+
+  --chip-blue-bg: 28 48 79;
+  /* Deeper, less saturated blue for chips */
+  --chip-blue-text: 191 219 254;
+
+  --hero-blob-a: 59 130 246;
+  --hero-blob-b: 99 102 241;
+  --hero-blob-opacity: 0.12;
+
+  --skeleton-base: 32 33 36;
+  --skeleton-highlight: 48 50 54;
+
+  --video-placeholder: 24 25 28;
+  --progress-sheen: rgba(255, 255, 255, 0.32);
+
+  --shadow-glass: 0 0 30px rgba(0, 0, 0, 0.4);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.3);
+  --shadow-card-hover: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+.progress-shimmer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    transparent 20%,
+    var(--progress-sheen) 50%,
+    transparent 80%,
+    transparent 100%
+  );
+  will-change: transform;
+  transform: translate3d(-100%, 0, 0);
+  animation: progress-sheen 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.progress-shimmer--cinematic {
+  animation-duration: 1.4s;
+}
+
+@keyframes progress-sheen {
+  0% {
+    transform: translate3d(-100%, 0, 0);
+  }
+
+  100% {
+    transform: translate3d(100%, 0, 0);
+  }
+}
+
+html[data-recap],
+body.recap-mode {
+  height: 100%;
+}
+
+body.recap-mode {
+  background-color: rgb(var(--canvas)) !important;
+  color: rgb(var(--grey-900)) !important;
+  font-family: var(--font-body) !important;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+}
+
+body.recap-mode * {
+  font-family: var(--font-body) !important;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--grey-300)) transparent;
+}
+
+body.recap-mode code,
+body.recap-mode pre,
+body.recap-mode .font-mono {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace !important;
+}
+
+body.recap-mode .recap-hero-bg {
+  background-image: radial-gradient(
+      50vw 50vw at 10% 10%,
+      rgb(var(--hero-blob-a) / var(--hero-blob-opacity)),
+      transparent 70%
+    ),
+    radial-gradient(
+      40vw 40vw at 90% 30%,
+      rgb(var(--hero-blob-b) / var(--hero-blob-opacity)),
+      transparent 70%
+    );
+  background-repeat: no-repeat;
+}
+
+/* Custom Scrollbar */
+body.recap-mode ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+body.recap-mode ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+body.recap-mode ::-webkit-scrollbar-thumb {
+  background: rgb(var(--grey-300));
+  border-radius: 10px;
+}
+
+body.recap-mode ::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--grey-400));
+}
+
+.recap-root.capture-mode {
+  padding: 0 !important;
+  box-sizing: border-box;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  font-synthesis: none;
+  white-space: nowrap;
+}
+
+.recap-root.capture-mode *,
+.recap-root.capture-mode *::before,
+.recap-root.capture-mode *::after {
+  animation: none !important;
+  transition: none !important;
+  caret-color: transparent;
+  white-space: nowrap !important;
+}
+
+.recap-root.capture-mode .recap-container {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  max-width: none !important;
+  padding-left: 40px !important;
+  padding-right: 40px !important;
+}
+
+.recap-root.capture-mode .recap-header {
+  display: none !important;
+}
+
+.recap-root.capture-mode .recap-title {
+  padding-top: 40px !important;
+}
+
+.recap-root.capture-mode .recap-footer {
+  padding-top: 20px !important;
+  padding-bottom: 20px !important;
+}
+
+.recap-footer--capture {
+  display: none;
+}
+
+.recap-root.capture-mode .recap-footer--page {
+  display: none !important;
+}
+
+.recap-root.capture-mode .recap-footer--capture {
+  display: block !important;
+}
+
+/* Align spacing with desktop variants during capture. */
+.recap-root.capture-mode .px-6.md\:px-0 {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+/* Force desktop typography for responsive headings during capture. */
+.recap-root.capture-mode .md\:text-5xl {
+  font-size: 3rem !important;
+}
+
+.recap-root.capture-mode .md\:leading-\[1\.1\] {
+  line-height: 1.1 !important;
+}
+
+/* Force desktop card rounding during capture. */
+.recap-root.capture-mode .ui-card {
+  border-radius: 24px !important;
+}
+
+/* Force desktop grid layout during capture, regardless of viewport size. */
+.recap-root.capture-mode .sm\:grid-cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+.recap-root.capture-mode .md\:grid-cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+.recap-root.capture-mode .md\:grid-cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+.recap-root.capture-mode .lg\:grid-cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+.recap-root.capture-mode .md\:col-span-2 {
+  grid-column: span 2 / span 2 !important;
+}
+
+.recap-root.capture-mode .md\:col-span-3 {
+  grid-column: span 3 / span 3 !important;
+}
+
+.word-keep {
+  word-break: keep-all;
+}
