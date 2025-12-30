@@ -2,7 +2,7 @@
   "scripts": {
     "dev": "next --turbopack",
     "build": "next build",
-    "start": "npx serve@latest out",
+    "start": "next start",
     "postinstall": "patch-package",
     "postbuild": "node scripts/postbuild.js"
   },
