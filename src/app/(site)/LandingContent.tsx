@@ -7,8 +7,8 @@ import {
   ScrollProgressBar,
   HeroScrollEffect,
   FeatureSectionReveal,
-} from "./components/SectionTransitions";
-import { Parallax, ScrollFade } from "./components/ScrollAnimations";
+} from "@/components/SectionTransitions";
+import { Parallax, ScrollFade } from "@/components/ScrollAnimations";
 
 // 로딩 플레이스홀더 컴포넌트
 function LoadingPlaceholder() {

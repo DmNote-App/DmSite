@@ -2,6 +2,7 @@ import "./globals.css";
 import "nextra-theme-docs/style.css";
 import { Head } from "nextra/components";
 import { baseMetadata, baseViewport, siteConfig } from "./seo.config";
+import AppProviders from "@/providers/AppProviders";
 
 export const metadata = baseMetadata;
 export const viewport = baseViewport;
@@ -65,7 +66,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           />
         </noscript>
         {/* End Google Tag Manager (noscript) */}
-        {children}
+        <AppProviders>{children}</AppProviders>
       </body>
     </html>
   );

@@ -31,14 +31,14 @@ jobs:
           fi
           
           # sed로 버전 업데이트 (v숫자.숫자.숫자 패턴 매칭)
-          sed -i "s/v[0-9]\+\.[0-9]\+\.[0-9]\+ Available Now/${VERSION} Available Now/g" app/(site)/page.tsx
+          sed -i "s/v[0-9]\+\.[0-9]\+\.[0-9]\+ Available Now/${VERSION} Available Now/g" src/app/(site)/page.tsx
           
           echo "Updated to version: $VERSION"
 
       - name: Check for changes
         id: check_changes
         run: |
-          if git diff --quiet app/(site)/page.tsx; then
+          if git diff --quiet src/app/(site)/page.tsx; then
             echo "changed=false" >> $GITHUB_OUTPUT
           else
             echo "changed=true" >> $GITHUB_OUTPUT
@@ -49,6 +49,6 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add app/(site)/page.tsx
+          git add src/app/(site)/page.tsx
           git commit -m "chore: update version badge to ${{ steps.get_version.outputs.version }}"
           git push

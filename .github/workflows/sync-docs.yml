@@ -32,20 +32,20 @@ jobs:
             docs/plugin
           sparse-checkout-cone-mode: false
 
-      - name: Sync docs/plugin to app/docs
+      - name: Sync docs/plugin to src/app/docs
         run: |
           # layout.jsx 백업 (Nextra에서 필요한 파일)
-          if [ -f "dmsite/app/docs/layout.jsx" ]; then
-            cp dmsite/app/docs/layout.jsx /tmp/layout.jsx.bak
+          if [ -f "dmsite/src/app/docs/layout.jsx" ]; then
+            cp dmsite/src/app/docs/layout.jsx /tmp/layout.jsx.bak
             echo "📦 layout.jsx 백업 완료"
           fi
 
-          # 기존 app/docs 내용 삭제 (동기화를 위해)
-          rm -rf dmsite/app/docs/*
+          # 기존 src/app/docs 내용 삭제 (동기화를 위해)
+          rm -rf dmsite/src/app/docs/*
 
-          # DmNote의 docs/plugin 내용을 DmSite의 app/docs로 복사
+          # DmNote의 docs/plugin 내용을 DmSite의 src/app/docs로 복사
           if [ -d "dmnote/docs/plugin" ]; then
-            cp -r dmnote/docs/plugin/* dmsite/app/docs/
+            cp -r dmnote/docs/plugin/* dmsite/src/app/docs/
             echo "✅ 문서 동기화 완료"
           else
             echo "⚠️ dmnote/docs/plugin 폴더가 존재하지 않습니다"
@@ -54,7 +54,7 @@ jobs:
 
           # layout.jsx 복원
           if [ -f "/tmp/layout.jsx.bak" ]; then
-            cp /tmp/layout.jsx.bak dmsite/app/docs/layout.jsx
+            cp /tmp/layout.jsx.bak dmsite/src/app/docs/layout.jsx
             echo "📦 layout.jsx 복원 완료"
           fi
 
