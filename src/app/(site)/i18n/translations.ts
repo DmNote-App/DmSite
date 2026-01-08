@@ -6,7 +6,7 @@ export const translations = {
       documentation: "Docs",
     },
     hero: {
-      available: "v1.4.1 Available Now",
+      available: "vnull Available Now",
       title: "Custom",
       titleHighlight: "Key Viewer",
       description: "게이머를 위한 커스텀 키뷰어",
@@ -97,7 +97,7 @@ export const translations = {
       documentation: "Docs",
     },
     hero: {
-      available: "v1.4.1 Available Now",
+      available: "vnull Available Now",
       title: "Custom",
       titleHighlight: "Key Viewer",
       description: "Custom Key Viewer for Gamers",
