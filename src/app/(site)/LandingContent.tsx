@@ -13,10 +13,10 @@ import { Parallax, ScrollFade } from "@/components/ScrollAnimations";
 // 로딩 플레이스홀더 컴포넌트
 function LoadingPlaceholder() {
   return (
-    <div className="dark">
+    <div className="dark recap-hero-bg">
       <div
         className="fixed inset-0 z-0 pointer-events-none"
-        style={{ backgroundColor: "#08080a" }}
+        style={{ backgroundColor: "rgb(var(--canvas))" }}
       />
       <div className="min-h-screen" />
     </div>
@@ -51,7 +51,6 @@ function LandingContentInner() {
   });
 
   // 배경 효과 애니메이션 값 - useTransform만 사용하여 성능 최적화
-  const gridOpacity = useTransform(heroScrollProgress, [0, 0.5], [0.06, 0]);
   const heroOpacity = useTransform(
     heroScrollProgress,
     [0, 0.5, 0.8],
@@ -79,20 +78,12 @@ function LandingContentInner() {
       {/* 스크롤 진행 표시기 */}
       <ScrollProgressBar />
 
-      {/* 단일 고정 배경 */}
+      {/* 단일 고정 배경 - CSS 변수 기반 */}
       <div
         className="fixed inset-0 z-0 pointer-events-none"
-        style={{ backgroundColor: "#08080a" }}
+        style={{ backgroundColor: "rgb(var(--canvas))" }}
       />
 
-      {/* 노이즈 오버레이 - 밴딩 방지 디더링 (정적 base64 노이즈, GPU 가속) */}
-      <div
-        className="fixed inset-0 z-[1] pointer-events-none opacity-[0.04]"
-        style={{
-          backgroundImage: `url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwBAMAAAClLOS0AAAAElBMVEUAAAAAAAAAAAAAAAAAAAAAAADgKxmiAAAABnRSTlMCCgkGBAUmfekYAAAASklEQVQ4y2MgFjCCgCMYOIGBMxg4g4ELGLiAgSsYuIKBGxi4gYE7GLiDgQcYeICBJxh4goEXGHiBgTcYeIOBDxj4gIEvGPgSBQBU7hjnIPLcYAAAAABJRU5ErkJggg==")`,
-          backgroundRepeat: "repeat",
-        }}
-      />
 
       <div className="relative z-10 text-white font-sans overflow-x-hidden w-full selection:bg-accent-500 selection:text-white">
         {/* Hero Section with Background Effects */}
@@ -101,72 +92,8 @@ function LandingContentInner() {
           className="relative overflow-hidden isolate"
           style={{ contain: "layout paint", minHeight: "100dvh" }}
         >
-          {/* 배경 그라데이션 효과 - SVG로 밴딩 방지 */}
-          <svg
-            className="absolute inset-0 w-full h-full z-0 pointer-events-none"
-            preserveAspectRatio="xMidYMid slice"
-          >
-            <defs>
-              {/* 중앙 상단 메인 글로우 - 보라 */}
-              <radialGradient
-                id="hero-glow-center"
-                cx="50%"
-                cy="0%"
-                r="70%"
-                fx="50%"
-                fy="0%"
-              >
-                <stop offset="0%" stopColor="#818cf8" stopOpacity="0.15" />
-                <stop offset="50%" stopColor="#818cf8" stopOpacity="0.06" />
-                <stop offset="100%" stopColor="#818cf8" stopOpacity="0" />
-              </radialGradient>
-              {/* 좌측 청록 */}
-              <radialGradient
-                id="hero-glow-left"
-                cx="0%"
-                cy="30%"
-                r="60%"
-                fx="0%"
-                fy="30%"
-              >
-                <stop offset="0%" stopColor="#22d3ee" stopOpacity="0.12" />
-                <stop offset="50%" stopColor="#22d3ee" stopOpacity="0.04" />
-                <stop offset="100%" stopColor="#22d3ee" stopOpacity="0" />
-              </radialGradient>
-              {/* 우측 핑크 */}
-              <radialGradient
-                id="hero-glow-right"
-                cx="100%"
-                cy="30%"
-                r="60%"
-                fx="100%"
-                fy="30%"
-              >
-                <stop offset="0%" stopColor="#f472b6" stopOpacity="0.10" />
-                <stop offset="50%" stopColor="#f472b6" stopOpacity="0.03" />
-                <stop offset="100%" stopColor="#f472b6" stopOpacity="0" />
-              </radialGradient>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#hero-glow-center)" />
-            <rect width="100%" height="100%" fill="url(#hero-glow-left)" />
-            <rect width="100%" height="100%" fill="url(#hero-glow-right)" />
-          </svg>
-
-          {/* Grid Pattern with Radial Fade - 스크롤 시 페이드 아웃 */}
-          <motion.div
-            className="absolute inset-0 z-0 pointer-events-none will-change-opacity"
-            style={{
-              backgroundImage:
-                "linear-gradient(#ffffff 1px, transparent 1px), linear-gradient(90deg, #ffffff 1px, transparent 1px)",
-              backgroundSize: "50px 50px",
-              maskImage:
-                "radial-gradient(ellipse 60% 60% at 50% 50%, black 20%, transparent 70%)",
-              WebkitMaskImage:
-                "radial-gradient(ellipse 60% 60% at 50% 50%, black 20%, transparent 70%)",
-              opacity: gridOpacity,
-              contain: "strict",
-            }}
-          />
+          {/* Recap Style Background Blobs - 다크모드용 */}
+          <div className="absolute inset-0 z-0 pointer-events-none recap-hero-bg" />
 
           {/* Main Content - 스크롤 시 스케일 다운 + 페이드 아웃 */}
           <motion.main
@@ -191,7 +118,7 @@ function LandingContentInner() {
                         {t.hero.titleHighlight}
                       </span>
                     </h1>
-                    <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto font-light leading-relaxed">
+                    <p className="text-lg md:text-xl text-grey-500 max-w-2xl mx-auto font-light leading-relaxed">
                       {t.hero.description}
                       <br />
                       {t.hero.descriptionSub}
@@ -205,7 +132,7 @@ function LandingContentInner() {
                       href="https://github.com/DmNote-App/DmNote/releases/latest"
                       target="_blank"
                       rel="noreferrer"
-                      className="group relative w-full sm:w-40 h-14 bg-white text-black rounded-xl font-bold text-lg overflow-hidden flex items-center justify-center gap-2 hover:scale-105 hover:bg-gray-100 transition duration-300"
+                      className="ui-btn w-full sm:w-44 h-14 gap-2"
                     >
                       <svg
                         className="w-5 h-5"
@@ -227,7 +154,7 @@ function LandingContentInner() {
                       href="https://github.com/DmNote-App/DmNote/releases"
                       target="_blank"
                       rel="noreferrer"
-                      className="glass-effect w-full sm:w-40 h-14 rounded-xl font-medium text-gray-300 border border-white/10 hover:bg-white/10 hover:text-white transition hover:border-white/20 flex items-center justify-center"
+                      className="ui-btn-secondary w-full sm:w-44 h-14"
                     >
                       {t.hero.release}
                     </a>
@@ -310,7 +237,7 @@ function LandingContentInner() {
             style={{ opacity: smoothHeroOpacity }}
           >
             <motion.div
-              className="flex flex-col items-center gap-1 md:gap-2 text-gray-500"
+              className="flex flex-col items-center gap-1 md:gap-2 text-grey-400"
               animate={{ y: [0, 8, 0] }}
               transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
             >
@@ -405,7 +332,7 @@ function LandingContentInner() {
                     {t.features.titleHighlight}
                   </span>
                 </h2>
-                <p className="text-lg text-gray-400 max-w-2xl mx-auto">
+                <p className="text-lg text-grey-500 max-w-2xl mx-auto">
                   {t.features.description}
                   <br />
                   {t.features.descriptionSub}
@@ -678,7 +605,7 @@ function LandingContentInner() {
                   </span>
                   {t.showcase.titleSuffix}
                 </h2>
-                <p className="text-lg text-gray-400 max-w-2xl mx-auto">
+                <p className="text-lg text-grey-500 max-w-2xl mx-auto">
                   {t.showcase.description}
                 </p>
               </div>
@@ -772,7 +699,7 @@ function TechStackIcon({
 }) {
   return (
     <motion.div
-      className="flex items-center gap-2 text-gray-500 transition-colors duration-300 cursor-default"
+      className="flex items-center gap-2 text-grey-400 cursor-default"
       title={name}
       whileHover={{ scale: 1.1, color: hoverColor }}
       transition={{ type: "tween", duration: 0.2, ease: "easeOut" }}
@@ -822,12 +749,12 @@ function FeatureCard({
         scale,
       }}
     >
-      <div className="feature-card group h-full">
+      <div className="ui-card group h-full">
         <div className={`feature-icon ${iconBg} ${iconColor} ${iconHoverBg}`}>
           {icon}
         </div>
-        <h3 className="text-xl font-semibold mb-3 text-white">{title}</h3>
-        <p className="text-gray-400 leading-relaxed text-sm">{description}</p>
+        <h3 className="text-xl font-semibold mb-3" style={{ color: "rgb(var(--grey-900))" }}>{title}</h3>
+        <p className="leading-relaxed text-sm" style={{ color: "rgb(var(--grey-600))" }}>{description}</p>
       </div>
     </motion.div>
   );
@@ -925,13 +852,13 @@ function ShowcaseVideoCard({
     const pause = () => {
       try {
         video.pause();
-      } catch {}
+      } catch { }
     };
 
     const play = async () => {
       try {
         await video.play();
-      } catch {}
+      } catch { }
     };
 
     if (!("IntersectionObserver" in window)) {
@@ -993,7 +920,7 @@ function ShowcaseVideoCard({
         scale,
       }}
     >
-      <div className="group relative h-full overflow-hidden rounded-2xl bg-white/5 border border-white/5 transition-colors duration-300 hover:border-white/10">
+      <div className="showcase-card-inner group relative h-full overflow-hidden rounded-2xl border transition-colors duration-300" style={{ backgroundColor: "rgb(var(--surface) / 0.4)", borderColor: "rgb(var(--surface-border) / 0.3)" }}>
         {/* Video Container */}
         <div className="absolute inset-0">
           {resolvedSrc && shouldLoadVideo ? (
@@ -1029,7 +956,7 @@ function ShowcaseVideoCard({
           </h3>
           <p
             key={description}
-            className="text-xs sm:text-sm text-gray-400 font-medium leading-relaxed line-clamp-2 sm:line-clamp-none"
+            className="text-xs sm:text-sm text-grey-500 font-medium leading-relaxed line-clamp-2 sm:line-clamp-none"
           >
             {description}
           </p>

@@ -1,12 +1,87 @@
 "use client";
 
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { ReactNode, useEffect, useLayoutEffect, useRef, useState } from "react";
 
 export default function SmoothScroll({ children }: { children: ReactNode }) {
   const lenisRef = useRef<any>(null);
   const rafIdRef = useRef<number | null>(null);
   const [isClient, setIsClient] = useState(false);
   const [lenisReady, setLenisReady] = useState(false);
+
+  useLayoutEffect(() => {
+    if (typeof window === "undefined") return;
+    const root = document.documentElement;
+    // 다크 모드 스크롤바 색상 (사이트 홈은 항상 다크 테마)
+    const darkGrey300 = "110 114 120";
+    const darkGrey400 = "170 176 184";
+
+    const applySiteScrollbarTheme = () => {
+      // 사이트 홈은 항상 다크 테마 스크롤바를 사용 (하드코딩)
+      // docs에서 라이트 모드로 전환 후 돌아와도 항상 다크 스크롤바 유지
+      const thumb = `rgb(${darkGrey300})`;
+      const thumbHover = `rgb(${darkGrey400})`;
+
+      // html.dark 클래스 추가 - docs 라이트 모드에서 제거된 경우 복원
+      // 이렇게 하면 globals.css의 html.dark 스크롤바 스타일이 적용됨
+      if (!root.classList.contains("dark")) {
+        root.classList.add("dark");
+      }
+      if (root.getAttribute("data-site-theme") !== "dark") {
+        root.setAttribute("data-site-theme", "dark");
+      }
+      if (document.body?.getAttribute("data-site-theme") !== "dark") {
+        document.body?.setAttribute("data-site-theme", "dark");
+      }
+      if (root.style.getPropertyValue("--scrollbar-thumb") !== thumb) {
+        root.style.setProperty("--scrollbar-thumb", thumb);
+      }
+      if (root.style.getPropertyValue("--scrollbar-thumb-hover") !== thumbHover) {
+        root.style.setProperty("--scrollbar-thumb-hover", thumbHover);
+      }
+      if (root.style.getPropertyValue("color-scheme") !== "dark") {
+        root.style.setProperty("color-scheme", "dark");
+      }
+    };
+
+    applySiteScrollbarTheme();
+
+    const ua = window.navigator.userAgent;
+    const isWebKit =
+      /AppleWebKit/i.test(ua) && !/Chrome|Chromium|Edg|OPR/i.test(ua);
+    if (isWebKit) {
+      root.classList.add("webkit");
+    }
+
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.type !== "attributes") continue;
+        if (
+          mutation.attributeName === "class" ||
+          mutation.attributeName === "style" ||
+          mutation.attributeName === "data-theme"
+        ) {
+          applySiteScrollbarTheme();
+          break;
+        }
+      }
+    });
+    observer.observe(root, {
+      attributes: true,
+      attributeFilter: ["class", "style", "data-theme"],
+    });
+
+    return () => {
+      observer.disconnect();
+      root.classList.remove("webkit");
+      root.removeAttribute("data-site-theme");
+      if (document.body) {
+        document.body.removeAttribute("data-site-theme");
+      }
+      root.style.removeProperty("--scrollbar-thumb");
+      root.style.removeProperty("--scrollbar-thumb-hover");
+      root.style.removeProperty("color-scheme");
+    };
+  }, []);
 
   useEffect(() => {
     setIsClient(true);

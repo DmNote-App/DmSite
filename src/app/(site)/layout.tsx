@@ -9,11 +9,13 @@ import "./site.css";
 export default function SiteLayout({ children }: { children: ReactNode }) {
   return (
     <LanguageProvider>
-      <SmoothScroll>
-        <ScrollRestorationScript />
-        <Navbar />
-        {children}
-      </SmoothScroll>
+      <div className="site-theme dark min-h-screen bg-canvas text-grey-900">
+        <SmoothScroll>
+          <ScrollRestorationScript />
+          <Navbar />
+          {children}
+        </SmoothScroll>
+      </div>
     </LanguageProvider>
   );
 }

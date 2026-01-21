@@ -1,3 +1,298 @@
+/* =============================================
+   v-archive-recap-2025 Design System (site only)
+   ============================================= */
+
+.site-theme {
+  --font-body: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+
+  /* Grey Palette - Light Mode */
+  --grey-50: 249 250 251;
+  --grey-100: 242 244 246;
+  --grey-200: 229 232 235;
+  --grey-300: 209 214 219;
+  --grey-400: 176 184 193;
+  --grey-500: 139 149 161;
+  --grey-600: 107 118 132;
+  --grey-700: 78 89 104;
+  --grey-800: 51 61 75;
+  --grey-900: 25 31 40;
+
+  /* Brand Colors */
+  --brand: 49 130 246;
+  --brand-strong: 27 100 218;
+  --brand-light: 232 243 255;
+
+  /* Semantic Surface Colors */
+  --canvas: 242 244 246;
+  --surface: 255 255 255;
+  --surface-muted: 249 250 251;
+  --surface-hover: 252 252 252;
+  --surface-border: 229 232 235;
+
+  /* Accent Chips */
+  --chip-blue-bg: 219 234 254;
+  --chip-blue-text: 37 99 235;
+
+  /* Hero Background Blobs */
+  --hero-blob-a: 191 219 254;
+  --hero-blob-b: 199 210 254;
+  --hero-blob-opacity: 0.35;
+
+  /* Skeleton Loading */
+  --skeleton-base: 242 244 246;
+  --skeleton-highlight: 255 255 255;
+
+  /* Shadows */
+  --shadow-glass: 0 0 24px rgba(0, 0, 0, 0.04);
+  --shadow-card: 0 0 16px rgba(0, 0, 50, 0.02);
+  --shadow-card-hover: 0 0 20px rgba(0, 0, 50, 0.04);
+
+  /* Progress Shimmer */
+  --progress-sheen: rgba(255, 255, 255, 0.45);
+
+  /* Scrollbar */
+  --scrollbar-thumb: rgb(var(--grey-300));
+  --scrollbar-thumb-hover: rgb(var(--grey-400));
+
+  color-scheme: light;
+}
+
+.site-theme.dark {
+  /* Dark Mode Palette - Modern Clean Slate (Neutral & Premium) */
+  --grey-50: 20 21 22;
+  --grey-100: 45 46 48;
+  --grey-200: 60 62 66;
+  --grey-300: 110 114 120;
+  --grey-400: 170 176 184;
+  --grey-500: 205 210 218;
+  --grey-600: 228 232 236;
+  --grey-700: 242 244 246;
+  --grey-800: 249 251 253;
+  --grey-900: 255 255 255;
+
+  --brand: 66 133 244;
+  --brand-strong: 90 165 250;
+  --brand-light: 32 40 54;
+
+  --canvas: 18 19 21;
+  --surface: 32 33 36;
+  --surface-muted: 25 26 29;
+  --surface-hover: 42 43 46;
+  --surface-border: 52 54 58;
+
+  --chip-blue-bg: 28 48 79;
+  --chip-blue-text: 191 219 254;
+
+  --hero-blob-a: 59 130 246;
+  --hero-blob-b: 99 102 241;
+  --hero-blob-opacity: 0.12;
+
+  --skeleton-base: 32 33 36;
+  --skeleton-highlight: 48 50 54;
+
+  --progress-sheen: rgba(255, 255, 255, 0.32);
+
+  --shadow-glass: 0 0 30px rgba(0, 0, 0, 0.4);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.3);
+  --shadow-card-hover: 0 8px 30px rgba(0, 0, 0, 0.4);
+
+  /* Scrollbar */
+  --scrollbar-thumb: rgb(var(--grey-300));
+  --scrollbar-thumb-hover: rgb(var(--grey-400));
+
+  color-scheme: dark;
+}
+
+/* WebKit performance tweaks */
+.webkit .site-theme .site-navbar {
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  background-color: rgb(var(--surface) / 0.85);
+  contain: paint;
+}
+
+.webkit .site-theme .showcase-card-inner,
+.webkit .site-theme .showcase-card-inner video {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* =============================================
+   v-archive-recap-2025 UI Components
+   ============================================= */
+
+/* Hero Background with Gradient Blobs */
+.recap-hero-bg {
+  background-image:
+    radial-gradient(50vw 50vw at 10% 10%,
+      rgb(var(--hero-blob-a) / var(--hero-blob-opacity)),
+      transparent 70%),
+    radial-gradient(40vw 40vw at 90% 30%,
+      rgb(var(--hero-blob-b) / var(--hero-blob-opacity)),
+      transparent 70%);
+  background-repeat: no-repeat;
+}
+
+/* Glass Card */
+.glass-card {
+  border-radius: 1.5rem;
+  border: 1px solid rgb(var(--surface-border) / 0.8);
+  background: rgb(var(--surface) / 0.7);
+  padding: 1.5rem;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-glass);
+}
+
+.glass-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+/* Solid UI Card */
+.ui-card {
+  border-radius: 1.5rem;
+  border: 1px solid rgb(var(--surface-border) / 0.3);
+  background: rgb(var(--surface));
+  padding: 1.5rem;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  box-shadow: var(--shadow-card);
+}
+
+.ui-card:hover {
+  box-shadow: var(--shadow-card-hover);
+}
+
+/* UI Input */
+.ui-input {
+  width: 100%;
+  border-radius: 1rem;
+  border: none;
+  background-color: rgb(var(--grey-100));
+  padding: 1rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: rgb(var(--grey-900));
+  transition: all 0.2s ease;
+}
+
+.ui-input::placeholder {
+  color: rgb(var(--grey-500));
+}
+
+.ui-input:hover {
+  background-color: rgb(var(--grey-200));
+}
+
+.ui-input:focus {
+  background-color: rgb(var(--surface));
+  outline: none;
+  box-shadow: 0 0 0 3px rgb(var(--brand) / 0.2);
+}
+
+/* UI Button */
+.ui-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1rem;
+  background-color: rgb(var(--brand));
+  padding: 1rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: white;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.ui-btn:hover {
+  background-color: rgb(var(--brand-strong));
+}
+
+.ui-btn:active {
+  transform: scale(0.95);
+}
+
+.ui-btn:disabled {
+  background-color: rgb(var(--grey-300));
+  cursor: not-allowed;
+}
+
+/* UI Secondary Button */
+.ui-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1rem;
+  background-color: rgb(var(--grey-100));
+  padding: 1rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgb(var(--grey-700));
+  border: 1px solid rgb(var(--grey-200));
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ui-btn-secondary:hover {
+  background-color: rgb(var(--grey-200));
+  color: rgb(var(--grey-900));
+  border-color: rgb(var(--grey-300));
+}
+
+/* Chip Blue */
+.chip-blue {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background-color: rgb(var(--chip-blue-bg));
+  color: rgb(var(--chip-blue-text));
+}
+
+/* Section Title */
+.section-title {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: rgb(var(--grey-900));
+  margin-bottom: 1rem;
+}
+
+/* Progress Shimmer Animation */
+.progress-shimmer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg,
+      transparent 0%,
+      transparent 20%,
+      var(--progress-sheen) 50%,
+      transparent 80%,
+      transparent 100%);
+  will-change: transform;
+  transform: translate3d(-100%, 0, 0);
+  animation: progress-sheen 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes progress-sheen {
+  0% {
+    transform: translate3d(-100%, 0, 0);
+  }
+
+  100% {
+    transform: translate3d(100%, 0, 0);
+  }
+}
+
+/* =============================================
+   Site-Specific Fonts
+   ============================================= */
+
 @font-face {
   font-family: 'KimJeongCheolHandwriting';
   src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2302_01@1.0/KimjungchulScript-Light.woff2') format('woff2');
@@ -26,48 +321,56 @@
   font-weight: 100;
   font-display: swap;
 }
+
 @font-face {
   font-family: 'Suit';
   src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_suit@1.0/SUIT-ExtraLight.woff2') format('woff2');
   font-weight: 200;
   font-display: swap;
 }
+
 @font-face {
   font-family: 'Suit';
   src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_suit@1.0/SUIT-Light.woff2') format('woff2');
   font-weight: 300;
   font-display: swap;
 }
+
 @font-face {
   font-family: 'Suit';
   src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_suit@1.0/SUIT-Regular.woff2') format('woff2');
   font-weight: 400;
   font-display: swap;
 }
+
 @font-face {
   font-family: 'Suit';
   src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_suit@1.0/SUIT-Medium.woff2') format('woff2');
   font-weight: 500;
   font-display: swap;
 }
+
 @font-face {
   font-family: 'Suit';
   src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_suit@1.0/SUIT-SemiBold.woff2') format('woff2');
   font-weight: 600;
   font-display: swap;
 }
+
 @font-face {
   font-family: 'Suit';
   src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_suit@1.0/SUIT-Bold.woff2') format('woff2');
   font-weight: 700;
   font-display: swap;
 }
+
 @font-face {
   font-family: 'Suit';
   src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_suit@1.0/SUIT-ExtraBold.woff2') format('woff2');
   font-weight: 800;
   font-display: swap;
 }
+
 @font-face {
   font-family: 'Suit';
   src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_suit@1.0/SUIT-Heavy.woff2') format('woff2');
@@ -80,11 +383,9 @@
 }
 
 /* Viewer grid background (restored) */
+/* Viewer grid background removed per user request */
 .grid-bg {
-  background-image:
-    linear-gradient(to right, rgb(25, 25, 28) 1px, transparent 1px),
-    linear-gradient(to bottom, rgb(25, 25, 28) 1px, transparent 1px);
-  background-size: 5px 5px;
+  display: none;
 }
 
 /* Animation Utilities */
@@ -98,6 +399,7 @@
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -105,8 +407,13 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .animate-fade-in {
@@ -118,7 +425,7 @@
   mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
 }
 
-.gradient-text {
+.site-theme .gradient-text {
   position: relative;
   display: inline-block;
   font-family: 'KimJeongCheolHandwriting', sans-serif !important;
@@ -136,7 +443,7 @@
   line-height: 1.5;
 }
 
-.gradient-text::after {
+.site-theme .gradient-text::after {
   content: attr(data-text);
   position: absolute;
   left: 0;
@@ -160,8 +467,8 @@
 
 /* 스크롤 중 그라데이션 blur 효과 일시정지로 성능 향상 */
 @media (prefers-reduced-motion: reduce) {
-  .gradient-text,
-  .gradient-text::after {
+  .site-theme .gradient-text,
+  .site-theme .gradient-text::after {
     animation: none;
   }
 }
@@ -170,6 +477,7 @@
   0% {
     background-position: 0% 50%;
   }
+
   100% {
     background-position: 200% 50%;
   }
@@ -214,12 +522,12 @@
 .feature-card {
   position: relative;
   padding: 2rem;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 1rem;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
-              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-              border-color 0.3s ease;
+  background: rgb(var(--surface) / 0.5);
+  border: 1px solid rgb(var(--surface-border) / 0.3);
+  border-radius: 1.25rem;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.3s ease;
   overflow: hidden;
 }
 
@@ -227,21 +535,21 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.01));
+  background: linear-gradient(135deg, rgb(var(--surface) / 0.3), transparent);
   opacity: 0;
   transition: opacity 0.3s ease;
   z-index: 0;
 }
 
-.feature-card > * {
+.feature-card>* {
   position: relative;
   z-index: 1;
 }
 
 .feature-card:hover {
-  border-color: rgba(255, 255, 255, 0.1);
-  transform: translateY(-4px);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  border-color: rgb(var(--surface-border) / 0.5);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card-hover);
 }
 
 .feature-card:hover::before {
@@ -287,6 +595,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -328,9 +637,12 @@
 
 /* 스크롤 유도 애니메이션 */
 @keyframes scrollBounce {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(10px);
   }
@@ -345,7 +657,7 @@
   opacity: 0;
   transform: translateY(60px) scale(0.9);
   transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
-              transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .feature-card-reveal.visible {
@@ -355,10 +667,13 @@
 
 /* 배경 글로우 효과 애니메이션 */
 @keyframes glowPulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 0.05;
     transform: scale(1);
   }
+
   50% {
     opacity: 0.1;
     transform: scale(1.05);
@@ -402,7 +717,7 @@
   .showcase-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .showcase-card-large,
   .showcase-card-medium,
   .showcase-card-small {
@@ -413,20 +728,21 @@
 @media (min-width: 1024px) {
   .showcase-grid {
     grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(2, 300px); /* 고정 높이로 변경하여 비율 유지 */
+    grid-template-rows: repeat(2, 300px);
+    /* 고정 높이로 변경하여 비율 유지 */
     gap: 1.5rem;
   }
-  
+
   .showcase-card-large {
     grid-column: span 2;
     grid-row: span 2;
   }
-  
+
   .showcase-card-medium {
     grid-column: span 2;
     grid-row: span 1;
   }
-  
+
   .showcase-card-small {
     grid-column: span 1;
     grid-row: span 1;
@@ -441,4 +757,21 @@
 
 /* Inner card styles are now handled by Tailwind classes in the component */
 
+/* =============================================
+   Site Scrollbar Override (홈 페이지 전용)
+   - docs에서 라이트 모드 전환 후에도 다크 스크롤바 유지
+   ============================================= */
+.site-theme::-webkit-scrollbar-thumb,
+.site-theme *::-webkit-scrollbar-thumb {
+  background-color: rgb(110 114 120) !important;
+}
 
+.site-theme::-webkit-scrollbar-thumb:hover,
+.site-theme *::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(170 176 184) !important;
+}
+
+.site-theme,
+.site-theme * {
+  scrollbar-color: rgb(110 114 120) transparent !important;
+}
