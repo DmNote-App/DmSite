@@ -180,21 +180,7 @@ function LandingContentInner() {
             {/* Text Content */}
             <div className="w-full text-center space-y-8 md:space-y-10 max-w-4xl mx-auto z-20 flex flex-col justify-center">
               <div className="space-y-8">
-                <ScrollFade delay={0.1} distance={30}>
-                  <a
-                    href="https://github.com/DmNote-App/DmNote/releases/latest"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md hover:bg-white/10 transition-colors"
-                  >
-                    <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                    <span className="text-xs font-medium text-gray-300 tracking-wide uppercase">
-                      {t.hero.available}
-                    </span>
-                  </a>
-                </ScrollFade>
-
-                <ScrollFade delay={0.2} distance={40}>
+                <ScrollFade delay={0.1} distance={40}>
                   <div className="space-y-4">
                     <h1 className="text-5xl md:text-7xl font-bold tracking-tight leading-tight">
                       {t.hero.title} <br className="md:hidden" />
@@ -213,7 +199,7 @@ function LandingContentInner() {
                   </div>
                 </ScrollFade>
 
-                <ScrollFade delay={0.3} distance={50}>
+                <ScrollFade delay={0.2} distance={50}>
                   <div className="flex flex-col sm:flex-row items-center gap-4 justify-center">
                     <a
                       href="https://github.com/DmNote-App/DmNote/releases/latest"
@@ -249,7 +235,7 @@ function LandingContentInner() {
                 </ScrollFade>
 
                 {/* Tech Stack */}
-                <ScrollFade delay={0.4} distance={60}>
+                <ScrollFade delay={0.3} distance={60}>
                   <div className="flex items-center justify-center gap-6 pt-4">
                     <TechStackIcon
                       name="React"

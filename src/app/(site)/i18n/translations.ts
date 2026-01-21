@@ -6,7 +6,6 @@ export const translations = {
       documentation: "Docs",
     },
     hero: {
-      available: "vnull Available Now",
       title: "Custom",
       titleHighlight: "Key Viewer",
       description: "게이머를 위한 커스텀 키뷰어",
@@ -97,7 +96,6 @@ export const translations = {
       documentation: "Docs",
     },
     hero: {
-      available: "vnull Available Now",
       title: "Custom",
       titleHighlight: "Key Viewer",
       description: "Custom Key Viewer for Gamers",
@@ -189,7 +187,6 @@ export const translations = {
 export type Translations = {
   nav: { documentation: string };
   hero: {
-    available: string;
     title: string;
     titleHighlight: string;
     description: string;
