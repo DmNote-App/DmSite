@@ -97,7 +97,7 @@ function LandingContentInner() {
 
           {/* Main Content - 스크롤 시 스케일 다운 + 페이드 아웃 */}
           <motion.main
-            className="relative z-10 flex flex-col items-center justify-center max-w-7xl mx-auto px-[30px] sm:px-6 pt-16 pb-24 will-change-[transform,opacity]"
+            className="relative z-10 flex flex-col items-center justify-center max-w-7xl mx-auto px-[30px] sm:px-6 pt-16 pb-16 will-change-[transform,opacity]"
             style={{
               opacity: smoothHeroOpacity,
               scale: smoothHeroScale,
