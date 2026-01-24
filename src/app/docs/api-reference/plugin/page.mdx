@@ -102,6 +102,12 @@ interface PluginDefinition {
     items?: PluginDefinitionContextMenuItem[];
   };
 
+  /**
+   * 설정 UI 표시 방식
+   * @default "panel"
+   */
+  settingsUI?: "panel" | "modal";
+
   /** 설정 스키마 */
   settings?: Record<string, PluginSettingSchema>;
 

@@ -36,6 +36,9 @@ const pluginSettings = dmn.plugin.defineSettings({
       default: "dark",
       label: "테마",
     },
+    sectionDivider: {
+      type: "divider",
+    },
     enabled: {
       type: "boolean",
       default: true,
@@ -44,6 +47,8 @@ const pluginSettings = dmn.plugin.defineSettings({
   },
 });
 
+`type: "divider"`는 설정 패널/모달에 구분선만 추가합니다.
+
 // 설정값 조회
 const current = pluginSettings.get();
 console.log("API Key:", current.apiKey);
@@ -51,7 +56,7 @@ console.log("API Key:", current.apiKey);
 // 설정값 변경
 await pluginSettings.set({ theme: "light" });
 
-// 설정 다이얼로그 열기
+// 설정 패널 열기 (기본: 속성 패널)
 const confirmed = await pluginSettings.open();
 if (confirmed) {
   console.log("설정 저장됨!");
@@ -70,6 +75,9 @@ interface PluginSettingsDefinition {
   // 다국어 메시지 (선택)
   messages?: Record<string, Record<string, string>>;
 
+  // 설정 UI 표시 방식 (선택, 기본값: "panel")
+  settingsUI?: "panel" | "modal";
+
   // 설정 변경 시 호출되는 콜백 (선택)
   onChange?: (newSettings, oldSettings) => void;
 }
@@ -81,7 +89,7 @@ interface PluginSettingsDefinition {
 | --------------------- | ----------------------- |
 | `get()`               | 현재 설정값 조회        |
 | `set(updates)`        | 설정값 변경 (자동 저장) |
-| `open()`              | 설정 다이얼로그 열기    |
+| `open()`              | 설정 패널 열기 (기본: 속성 패널) |
 | `reset()`             | 기본값으로 초기화       |
 | `subscribe(listener)` | 설정 변경 구독          |
 
@@ -317,7 +325,7 @@ dmn.plugin.registerCleanup(() => {
 
 | 기능                  | 설명                                            |
 | --------------------- | ----------------------------------------------- |
-| **UI 자동 생성**      | settings 스키마 기반 다이얼로그 자동 생성       |
+| **UI 자동 생성**      | settings 스키마 기반 속성 패널/모달 자동 생성   |
 | **Storage 자동 관리** | `plugin.storage`에 자동 저장/복원               |
 | **다국어 지원**       | messages와 연동                                 |
 | **타입별 컴포넌트**   | boolean→체크박스, color→컬러피커 등 자동 매핑   |
