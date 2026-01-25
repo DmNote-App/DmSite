@@ -7,16 +7,18 @@ export default function EditLinkFixer() {
   const pathname = usePathname();
 
   useEffect(() => {
-    // pathname에서 /docs/ 이후의 경로를 추출하고 page.mdx를 붙임
-    let cleanPath = pathname.replace(/^\/docs\/?/, "") || "page.mdx";
-    if (cleanPath && !cleanPath.endsWith(".mdx")) {
-      cleanPath += "/page.mdx";
-    }
-    if (cleanPath === "/") {
-      cleanPath = "page.mdx";
+    const match = pathname.match(/^\/(ko|en)\/docs(?:\/(.*))?\/?$/);
+    if (!match) return;
+
+    const lang = match[1];
+    const rest = (match[2] ?? "").replace(/^\/+|\/+$/g, "");
+
+    let cleanPath = "page.mdx";
+    if (rest) {
+      cleanPath = rest.endsWith(".mdx") ? rest : `${rest}/page.mdx`;
     }
 
-    const newHref = `https://github.com/DmNote-App/DmNote/tree/master/docs/plugin/${cleanPath}`;
+    const newHref = `https://github.com/DmNote-App/DmNote/tree/master/docs/content/${lang}/${cleanPath}`;
 
     // Nextra의 "Edit this page" 링크를 찾아 href를 수정합니다.
     const links = document.querySelectorAll("a");

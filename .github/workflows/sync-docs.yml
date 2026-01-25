@@ -8,7 +8,7 @@ on:
   # 수동 실행 가능
   workflow_dispatch:
 
-  # 원본 레포에서 트리거 (docs/plugin 변경 시)
+  # 원본 레포에서 트리거 (docs/content 변경 시)
   repository_dispatch:
     types: [docs-updated]
 
@@ -29,33 +29,51 @@ jobs:
           repository: DmNote-App/DmNote
           path: dmnote
           sparse-checkout: |
-            docs/plugin
+            docs/content
           sparse-checkout-cone-mode: false
 
-      - name: Sync docs/plugin to src/app/docs
+      - name: Sync docs/content to src/content
         run: |
-          # layout.jsx 백업 (Nextra에서 필요한 파일)
-          if [ -f "dmsite/src/app/docs/layout.jsx" ]; then
-            cp dmsite/src/app/docs/layout.jsx /tmp/layout.jsx.bak
-            echo "📦 layout.jsx 백업 완료"
+          # 기존 src/content 내용 삭제 (동기화를 위해, README는 유지)
+          if [ -f "dmsite/src/content/README.md" ]; then
+            cp dmsite/src/content/README.md /tmp/README.md.bak
+            echo "📦 README.md 백업 완료"
           fi
 
-          # 기존 src/app/docs 내용 삭제 (동기화를 위해)
-          rm -rf dmsite/src/app/docs/*
+          rm -rf dmsite/src/content/*
 
-          # DmNote의 docs/plugin 내용을 DmSite의 src/app/docs로 복사
-          if [ -d "dmnote/docs/plugin" ]; then
-            cp -r dmnote/docs/plugin/* dmsite/src/app/docs/
-            echo "✅ 문서 동기화 완료"
+          # 디렉토리 구조 생성
+          mkdir -p dmsite/src/content/ko
+          mkdir -p dmsite/src/content/en
+
+          # DmNote의 docs/content/{ko,en}/* → DmSite의 src/content/{ko,en}/*
+          if [ -d "dmnote/docs/content/ko" ]; then
+            cp -r dmnote/docs/content/ko/* dmsite/src/content/ko/
+            echo "✅ 한국어 문서 동기화 완료"
           else
-            echo "⚠️ dmnote/docs/plugin 폴더가 존재하지 않습니다"
+            echo "⚠️ dmnote/docs/content/ko 폴더가 존재하지 않습니다"
             exit 1
           fi
 
-          # layout.jsx 복원
-          if [ -f "/tmp/layout.jsx.bak" ]; then
-            cp /tmp/layout.jsx.bak dmsite/src/app/docs/layout.jsx
-            echo "📦 layout.jsx 복원 완료"
+          if [ -d "dmnote/docs/content/en" ]; then
+            cp -r dmnote/docs/content/en/* dmsite/src/content/en/
+            echo "✅ 영어 문서 동기화 완료"
+          else
+            echo "⚠️ dmnote/docs/content/en 폴더가 존재하지 않습니다"
+            exit 1
+          fi
+
+          # Nextra content directory 컨벤션: page.mdx → index.mdx
+          # (DmNote는 app-router 스타일(page.mdx)로 관리, DmSite는 content-dir 스타일(index.mdx)로 렌더링)
+          find dmsite/src/content -type f -name 'page.mdx' -print0 | while IFS= read -r -d '' file; do
+            dir="$(dirname "$file")"
+            mv "$file" "$dir/index.mdx"
+          done
+
+          # README 복원
+          if [ -f "/tmp/README.md.bak" ]; then
+            cp /tmp/README.md.bak dmsite/src/content/README.md
+            echo "📦 README.md 복원 완료"
           fi
 
       - name: Check for changes
