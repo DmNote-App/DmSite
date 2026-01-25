@@ -1,0 +1,126 @@
+---
+title: Settings API
+description: dmn.settings API reference
+---
+
+# Settings API
+
+Access and modify app settings.
+
+## Get Settings
+
+### `dmn.settings.get(): Promise<Settings>`
+
+Returns current app settings.
+
+```javascript
+const settings = await dmn.settings.get();
+console.log(settings.theme);
+console.log(settings.opacity);
+```
+
+### `dmn.settings.getValue(key): Promise<any>`
+
+Returns specific setting value.
+
+```javascript
+const opacity = await dmn.settings.getValue("opacity");
+console.log(opacity); // e.g., 0.8
+```
+
+---
+
+## Set Settings
+
+### `dmn.settings.set(settings: Partial<Settings>): Promise<void>`
+
+Updates settings. Pass only changed values.
+
+```javascript
+await dmn.settings.set({
+  opacity: 0.9,
+  showLabels: true,
+});
+```
+
+---
+
+## Change Events
+
+### `dmn.settings.onChanged(callback): Unsubscribe`
+
+Subscribes to settings changes.
+
+```typescript
+interface SettingsChangedEvent {
+  changed: Partial<Settings>; // only changed fields
+  full: Settings; // full settings object
+}
+
+const unsub = dmn.settings.onChanged(({ changed, full }) => {
+  console.log("Changed fields:", changed);
+  console.log("Full settings:", full);
+});
+```
+
+---
+
+## Main Settings
+
+| Key               | Type      | Description           |
+| ----------------- | --------- | --------------------- |
+| `theme`           | `string`  | Current theme name    |
+| `opacity`         | `number`  | Overlay opacity (0~1) |
+| `showLabels`      | `boolean` | Show key labels       |
+| `showCounter`     | `boolean` | Show key counter      |
+| `keySize`         | `number`  | Key size              |
+| `keyGap`          | `number`  | Gap between keys      |
+| `counterFontSize` | `number`  | Counter font size     |
+| `labelFontSize`   | `number`  | Label font size       |
+
+---
+
+## Example Usage
+
+```javascript
+// Opacity control panel
+dmn.plugin.defineElement({
+  name: "Opacity Control",
+  maxInstances: 1,
+
+  template: (state, settings, { html }) => {
+    const opacity = state.opacity ?? 1;
+    return html`
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <button
+          @click=${() =>
+            dmn.settings.set({ opacity: Math.max(0, opacity - 0.1) })}
+        >
+          -
+        </button>
+        <span>${(opacity * 100).toFixed(0)}%</span>
+        <button
+          @click=${() =>
+            dmn.settings.set({ opacity: Math.min(1, opacity + 0.1) })}
+        >
+          +
+        </button>
+      </div>
+    `;
+  },
+
+  onMount: ({ setState }) => {
+    // Initial value
+    dmn.settings.get().then((s) => {
+      setState({ opacity: s.opacity });
+    });
+
+    // Watch changes
+    const unsub = dmn.settings.onChanged(({ full }) => {
+      setState({ opacity: full.opacity });
+    });
+
+    return () => unsub();
+  },
+});
+```

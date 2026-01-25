@@ -1,0 +1,214 @@
+---
+title: CSS Examples
+description: Various CSS style examples for DM Note
+---
+
+# CSS Examples
+
+Here are various CSS style examples. Copy and use the style you like, or modify as needed.
+
+## Neon Sign Style
+
+Cyberpunk style with glowing border effects on transparent background.
+
+```css
+/* Neon Sign Style */
+
+[data-state="inactive"],
+[data-state="active"] {
+  --key-radius: 6px;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+[data-state="inactive"] {
+  --key-bg: transparent;
+  --key-border: 3px solid #474244;
+  --key-text-color: #474244;
+}
+
+[data-state="active"] {
+  --key-bg: transparent;
+  --key-border: 3px solid #ff2b80;
+  --key-text-color: #ff2b80;
+  text-shadow: 0px 0px 3px #ff2b80;
+  box-shadow:
+    0px 0px 4px #b3245d,
+    0px 0px 4px #b3245d;
+}
+
+/* Blue key variant */
+.blue[data-state="active"] {
+  --key-bg: transparent;
+  --key-border: 3px solid #2ebef3;
+  --key-text-color: #2ebef3;
+  text-shadow: 0px 0px 3px #2ebef3;
+  box-shadow:
+    0px 0px 4px #2b8eff,
+    0px 0px 4px #2b8eff;
+}
+
+/* Counter style */
+.counter {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.counter[data-counter-state="inactive"] {
+  --counter-color: #474244;
+}
+
+.counter[data-counter-state="active"] {
+  --counter-color: #ff2b80;
+  text-shadow: 0px 0px 3px #ff2b80;
+}
+
+.blue .counter[data-counter-state="active"] {
+  --counter-color: #2ebef3;
+  text-shadow: 0px 0px 3px #2ebef3;
+}
+```
+
+---
+
+## Pastel 3D Style
+
+Soft pastel colors with dimensional press effect.
+
+```css
+/* Pastel 3D Style */
+
+[data-state="inactive"],
+[data-state="active"] {
+  --key-radius: 20px;
+  font-size: 16px;
+  font-weight: 700;
+  touch-action: manipulation;
+  transition: 0.13s ease-in-out;
+  cursor: pointer;
+}
+
+[data-state="inactive"] {
+  --key-bg: #ffd4e5;
+  --key-border: 2px solid #e8b4c8;
+  --key-text-color: #8b5a6b;
+  box-shadow:
+    0px 4px 0px #d9a0b8,
+    0px 6px 12px rgba(217, 160, 184, 0.3);
+}
+
+[data-state="active"] {
+  --key-bg: #ffc4dd;
+  --key-border: 2px solid #e8b4c8;
+  --key-text-color: #8b5a6b;
+  box-shadow:
+    0px 0px 0px #d9a0b8,
+    0px 2px 8px rgba(217, 160, 184, 0.2);
+  --key-offset-x: 0px;
+  --key-offset-y: 4px;
+}
+
+/* Counter style */
+.counter {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.counter[data-counter-state="inactive"] {
+  --counter-color: #c9a0b8;
+}
+
+.counter[data-counter-state="active"] {
+  --counter-color: #8b5a6b;
+}
+```
+
+---
+
+## Minimal Flat Style
+
+Clean and simple flat design style.
+
+```css
+/* Minimal Flat Style */
+
+[data-state="inactive"],
+[data-state="active"] {
+  --key-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  transition: 0.05s ease-out;
+}
+
+[data-state="inactive"] {
+  --key-bg: #f5f5f5;
+  --key-border: none;
+  --key-text-color: #333;
+}
+
+[data-state="active"] {
+  --key-bg: #333;
+  --key-border: none;
+  --key-text-color: #fff;
+}
+
+/* Counter style */
+.counter {
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.counter[data-counter-state="inactive"] {
+  --counter-color: #999;
+}
+
+.counter[data-counter-state="active"] {
+  --counter-color: #333;
+}
+```
+
+---
+
+## Dark Glass Style
+
+Dark theme style with translucent glass effect.
+
+```css
+/* Dark Glass Style */
+
+[data-state="inactive"],
+[data-state="active"] {
+  --key-radius: 12px;
+  font-size: 18px;
+  font-weight: 600;
+  transition: 0.15s ease;
+  backdrop-filter: blur(10px);
+}
+
+[data-state="inactive"] {
+  --key-bg: rgba(255, 255, 255, 0.1);
+  --key-border: 1px solid rgba(255, 255, 255, 0.2);
+  --key-text-color: rgba(255, 255, 255, 0.6);
+}
+
+[data-state="active"] {
+  --key-bg: rgba(255, 255, 255, 0.25);
+  --key-border: 1px solid rgba(255, 255, 255, 0.4);
+  --key-text-color: #fff;
+  box-shadow: 0px 0px 20px rgba(255, 255, 255, 0.1);
+}
+
+/* Counter style */
+.counter {
+  font-size: 14px;
+}
+
+.counter[data-counter-state="inactive"] {
+  --counter-color: rgba(255, 255, 255, 0.4);
+}
+
+.counter[data-counter-state="active"] {
+  --counter-color: #fff;
+}
+```

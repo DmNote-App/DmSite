@@ -1,0 +1,211 @@
+---
+title: UI API
+description: Context Menu, Display Element, Dialog, Components API
+---
+
+# UI API
+
+Extend the app's UI through `dmn.ui`.
+
+<Callout type="warning">
+  UI API is **only available in main window**. Calling from overlay shows a
+  warning and does nothing.
+</Callout>
+
+## Context Menu
+
+### Key Menu (addKeyMenuItem)
+
+Add items to the menu shown when right-clicking a key.
+
+```javascript
+const menuId = dmn.ui.contextMenu.addKeyMenuItem({
+  id: "copy-keycode",
+  label: "Copy Key Code",
+  onClick: (context) => {
+    navigator.clipboard.writeText(context.keyCode);
+  },
+});
+```
+
+**Context Object:**
+
+| Property   | Type        | Description             |
+| ---------- | ----------- | ----------------------- |
+| `keyCode`  | string      | Key code (e.g., "KeyD") |
+| `index`    | number      | Key index               |
+| `position` | KeyPosition | Key position info       |
+| `mode`     | string      | Current key mode        |
+
+### Grid Menu (addGridMenuItem)
+
+Add items to the menu shown when right-clicking empty grid space.
+
+```javascript
+dmn.ui.contextMenu.addGridMenuItem({
+  id: "add-timer",
+  label: "Add Timer",
+  onClick: (context) => {
+    createTimer(context.position);
+  },
+});
+```
+
+**Context Object:**
+
+| Property   | Type         | Description                       |
+| ---------- | ------------ | --------------------------------- |
+| `position` | \{ dx, dy \} | Click position (grid coordinates) |
+| `mode`     | string       | Current key mode                  |
+
+### Menu Item Options
+
+```javascript
+{
+  id: "my-menu",           // Unique ID within plugin
+  label: "Menu Item",      // Display text
+  position: "bottom",      // "top" | "bottom" (default: bottom)
+
+  // Conditional visibility
+  visible: (context) => context.mode === "4key",
+
+  // Conditional disable
+  disabled: (context) => context.position.count === 0,
+
+  // Click handler
+  onClick: async (context) => {
+    // ...
+  },
+}
+```
+
+### Menu Management
+
+```javascript
+// Update menu
+dmn.ui.contextMenu.updateMenuItem(menuId, {
+  label: "New Label",
+  disabled: true,
+});
+
+// Remove specific menu
+dmn.ui.contextMenu.removeMenuItem(menuId);
+
+// Remove all menus from this plugin
+dmn.ui.contextMenu.clearMyMenuItems();
+```
+
+## Display Element
+
+<Callout type="warning">
+  `displayElement` is a low-level (primitive) API, not recommended for direct
+  use. For adding custom UI elements to grid and overlay, strongly recommend
+  using the declarative `defineElement` approach.
+</Callout>
+
+Add custom UI elements to grid and overlay.
+
+### Basic Usage
+
+```javascript
+const panel = dmn.ui.displayElement.add({
+  html: `<div style="background: #000; color: #fff; padding: 16px;">
+    Hello!
+  </div>`,
+  position: { x: 100, y: 100 },
+  draggable: true,
+});
+
+// Remove
+panel.remove();
+```
+
+### State-based Template
+
+```javascript
+const panel = dmn.ui.displayElement.add({
+  position: { x: 100, y: 100 },
+  state: { value: 0, history: [] },
+  template: (state, { html }) => html`
+    <div style="background: #000; color: #fff; padding: 16px;">
+      <strong>${state.value}</strong>
+      <div style="display: flex; gap: 2px;">
+        ${state.history.map(
+          (v) => html`
+            <span
+              style="width: 4px; height: ${v}px; background: #86EFAC;"
+            ></span>
+          `,
+        )}
+      </div>
+    </div>
+  `,
+});
+
+// State update → auto re-render
+panel.setState({ value: 42, history: [10, 20, 30] });
+```
+
+### Event Handlers
+
+```javascript
+dmn.ui.displayElement.add({
+  html: `<div>Click me</div>`,
+  position: { x: 100, y: 100 },
+
+  // Direct function (recommended)
+  onClick: async () => {
+    console.log("Clicked!");
+  },
+
+  onPositionChange: async (pos) => {
+    await dmn.plugin.storage.set("position", pos);
+  },
+
+  onDelete: async () => {
+    console.log("Deleted!");
+  },
+});
+```
+
+### Instance Methods
+
+| Method                              | Description                         |
+| ----------------------------------- | ----------------------------------- |
+| `setState(updates)`                 | Update state (re-renders template)  |
+| `setData(updates)`                  | Update state (`setState` alias)     |
+| `getState()`                        | Get current state                   |
+| `setText(selector, text)`           | Set element text                    |
+| `setHTML(selector, html)`           | Set element HTML                    |
+| `setStyle(selector, styles)`        | Apply styles                        |
+| `addClass(selector, ...classes)`    | Add classes                         |
+| `removeClass(selector, ...classes)` | Remove classes                      |
+| `toggleClass(selector, className)`  | Toggle class                        |
+| `query(selector)`                   | Find element (including Shadow DOM) |
+| `update(config)`                    | Update metadata                     |
+| `remove()`                          | Remove element                      |
+
+## Dialog
+
+Modal dialogs for user interaction.
+
+### alert
+
+Show simple alert.
+
+```javascript
+await dmn.ui.dialog.alert("Saved!");
+
+await dmn.ui.dialog.alert("Task complete", { confirmText: "OK" });
+```
+
+### confirm
+
+Show confirm/cancel dialog.
+
+```javascript
+const ok = await dmn.ui.dialog.confirm("Proceed?");
+if (ok) {
+  // Confirm clicked
+}
+```

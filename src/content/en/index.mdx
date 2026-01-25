@@ -1,0 +1,99 @@
+---
+title: DM Note Documentation
+sidebarTitle: Introduction
+description: Official documentation for DM Note key viewer program
+---
+
+# DM Note Documentation
+
+**DM Note** is a key viewer program designed for rhythm games like DJMAX RESPECT V.
+With simple settings, you can visually display key inputs during streaming or gameplay video production.
+
+## Documentation Structure
+
+### 📖 Basic Guide
+
+Guides you through the basic usage of the program.
+
+<Cards>
+  <Cards.Card
+    title="Program Guide"
+    href="/docs/guide"
+    description="Installation, key mapping, settings, and basic usage"
+  />
+  <Cards.Card
+    title="Custom CSS"
+    href="/docs/custom-css"
+    description="Customizing key and counter styles"
+  />
+</Cards>
+
+### 🔌 Plugin System
+
+DM Note provides a **plugin system** that allows you to inject user-written JavaScript at runtime.
+This enables you to extend app functionality and implement advanced features like real-time statistics panels.
+
+<Callout type="warning">
+  **Security Warning**: Plugins have full access to internal APIs and DOM. Never
+  run untrusted scripts.
+</Callout>
+
+## Core Concepts
+
+### Two Windows
+
+DM Note runs plugins in two independent windows.
+
+| Window      | Role                            | Plugin Usage                        |
+| ----------- | ------------------------------- | ----------------------------------- |
+| **Main**    | Settings UI, key map editing    | UI extensions, settings panels      |
+| **Overlay** | Key visualization, note effects | Real-time stats, key input handling |
+
+```javascript
+// Check window type
+if (dmn.window.type === "overlay") {
+  // Code that runs only in overlay
+}
+
+if (dmn.window.type === "main") {
+  // Code that runs only in main window
+}
+```
+
+### Plugin Development Methods
+
+DM Note provides two methods for writing plugins.
+
+#### 1. Declarative API (Recommended)
+
+Using `defineElement` allows you to define UI declaratively without complex DOM manipulation.
+
+```javascript
+// @id kps-panel
+
+dmn.plugin.defineElement({
+  name: "KPS Panel",
+  settings: {
+    textColor: { type: "color", default: "#FFFFFF", label: "Text Color" },
+  },
+  template: (state, settings, { html }) => html`
+    <div style="color: ${settings.textColor};">KPS: ${state.kps ?? 0}</div>
+  `,
+  onMount: ({ setState, onHook }) => {
+    const timestamps = [];
+    onHook("key", ({ state }) => {
+      if (state === "DOWN") timestamps.push(Date.now());
+    });
+
+    const interval = setInterval(() => {
+      const now = Date.now();
+      const recent = timestamps.filter((t) => t > now - 1000);
+      timestamps.length = 0;
+      timestamps.push(...recent);
+      setState({ kps: timestamps.length });
+    }, 100);
+
+    return () => clearInterval(interval);
+  },
+});
+```

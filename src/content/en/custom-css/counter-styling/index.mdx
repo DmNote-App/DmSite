@@ -1,0 +1,203 @@
+---
+title: Counter Styling
+description: How to customize key counter appearance and effects with CSS
+---
+
+# Counter Styling
+
+This guide explains how to customize key counter appearance using CSS.
+
+## Basic Structure
+
+Counters indicate their state through the `.counter` class and `data-counter-state` attribute:
+
+- `data-counter-state="inactive"`: Key not pressed
+- `data-counter-state="active"`: Key being pressed
+
+## Global Counter Styles
+
+Set styles that apply to all counters:
+
+```css
+.counter {
+  /* Font style */
+  font-size: 24px;
+  font-weight: 700;
+
+  /* Font family */
+  font-family: "Roboto Mono", monospace;
+}
+```
+
+## CSS Variables
+
+Counters support the following CSS variables:
+
+| Variable                 | Description            | Default       |
+| ------------------------ | ---------------------- | ------------- |
+| `--counter-color`        | Text color             | `#FFFFFF`     |
+| `--counter-stroke-color` | Text outline color     | `transparent` |
+| `--counter-stroke-width` | Text outline thickness | `0px`         |
+
+## Inactive State Style
+
+Counter style when the key is not pressed:
+
+```css
+.counter[data-counter-state="inactive"] {
+  /* Text color */
+  --counter-color: #474244;
+
+  /* Disable outline */
+  --counter-stroke-color: transparent;
+}
+```
+
+## Active State Style
+
+Counter style when the key is being pressed:
+
+```css
+.counter[data-counter-state="active"] {
+  /* Text color */
+  --counter-color: #ff2b80;
+
+  /* Outline */
+  --counter-stroke-color: transparent;
+
+  /* Glow effect */
+  text-shadow: 0px 0px 3px #ff2b80;
+}
+```
+
+## Specific Key Counter Styles
+
+Combine class selectors to style counters of specific keys differently.
+
+### Example: Blue Key Counter
+
+```css
+/* Counter for keys with .blue class - inactive state */
+.blue .counter[data-counter-state="inactive"] {
+  --counter-color: #1a4a5c;
+}
+
+/* Counter for keys with .blue class - active state */
+.blue .counter[data-counter-state="active"] {
+  --counter-color: #2ebef3;
+  --counter-stroke-color: transparent;
+  text-shadow: 0px 0px 3px #2ebef3;
+}
+```
+
+<Callout type="info">
+  Using class combinations allows you to match key and counter colors for a
+  unified design.
+</Callout>
+
+## Style Examples
+
+### Neon Glow Style
+
+```css
+.counter {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.counter[data-counter-state="inactive"] {
+  --counter-color: #333;
+}
+
+.counter[data-counter-state="active"] {
+  --counter-color: #00ff88;
+  text-shadow:
+    0px 0px 2px #00ff88,
+    0px 0px 4px #00ff88,
+    0px 0px 8px #00ff88;
+}
+```
+
+### Outline Style
+
+```css
+.counter {
+  font-size: 28px;
+  font-weight: 900;
+}
+
+.counter[data-counter-state="inactive"] {
+  --counter-color: #fff;
+  --counter-stroke-color: #333;
+  --counter-stroke-width: 2px;
+}
+
+.counter[data-counter-state="active"] {
+  --counter-color: #fff;
+  --counter-stroke-color: #ff2b80;
+  --counter-stroke-width: 2px;
+}
+```
+
+### Minimal Style
+
+```css
+.counter {
+  font-size: 14px;
+  font-weight: 400;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.counter[data-counter-state="inactive"] {
+  --counter-color: #999;
+}
+
+.counter[data-counter-state="active"] {
+  --counter-color: #333;
+}
+```
+
+### Rainbow Gradient Style
+
+```css
+.counter[data-counter-state="active"] {
+  background: linear-gradient(
+    45deg,
+    #ff2b80,
+    #ff8c00,
+    #ffee00,
+    #00ff88,
+    #00bfff,
+    #8b5cf6
+  );
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: rainbow 2s ease infinite;
+}
+
+@keyframes rainbow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+```
+
+## Matching Key and Counter Colors
+
+Example of keeping key and counter colors consistent:
+
+```css
+/* Base key - pink theme */
+[data-state="active"] {
+  --key-border: 3px solid #ff2b80;
+  --key-text-color: #ff2b80;
+  text-shadow: 0px 0px 3px #ff2b80;
+}
+```

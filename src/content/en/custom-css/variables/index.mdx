@@ -1,0 +1,174 @@
+---
+title: CSS Variable Reference
+description: Complete list of CSS variables available in DM Note
+---
+
+# CSS Variable Reference
+
+This page lists all CSS variables available for styling in DM Note.
+
+## Key Style Variables
+
+CSS variables applied to key elements. Use with `[data-state="inactive"]` or `[data-state="active"]` selectors.
+
+| Variable           | Description              | Type       | Example                  |
+| ------------------ | ------------------------ | ---------- | ------------------------ |
+| `--key-radius`     | Corner roundness         | `<length>` | `8px`, `50%`             |
+| `--key-bg`         | Background color         | `<color>`  | `#ff2b80`                |
+| `--key-border`     | Border style             | `<border>` | `2px solid #fff`, `none` |
+| `--key-text-color` | Text color               | `<color>`  | `#ffffff`                |
+| `--key-offset-x`   | X offset in active state | `<length>` | `0px`, `2px`             |
+| `--key-offset-y`   | Y offset in active state | `<length>` | `4px`                    |
+
+<Callout type="info">
+  `--key-bg` is applied as `background-color`. To use gradients, specify
+  `background` or `background-image` directly and set `--key-bg: transparent;`
+  if needed.
+</Callout>
+
+### Usage Example
+
+```css
+[data-state="inactive"] {
+  --key-radius: 8px;
+  --key-bg: #2a2a2a;
+  --key-border: 2px solid #444;
+  --key-text-color: #888;
+}
+
+[data-state="active"] {
+  --key-radius: 8px;
+  --key-bg: #ff2b80;
+  --key-border: 2px solid #ff2b80;
+  --key-text-color: #fff;
+  --key-offset-x: 0px;
+  --key-offset-y: 4px;
+}
+```
+
+## Counter Style Variables
+
+CSS variables applied to counter elements. Use with `.counter[data-counter-state="..."]` selectors.
+
+| Variable                 | Description            | Type       | Example                  |
+| ------------------------ | ---------------------- | ---------- | ------------------------ |
+| `--counter-color`        | Counter text color     | `<color>`  | `#ffffff`                |
+| `--counter-stroke-color` | Text outline color     | `<color>`  | `#000000`, `transparent` |
+| `--counter-stroke-width` | Text outline thickness | `<length>` | `1px`, `2px`             |
+
+### Usage Example
+
+```css
+.counter[data-counter-state="inactive"] {
+  --counter-color: #666;
+  --counter-stroke-color: transparent;
+  --counter-stroke-width: 0px;
+}
+
+.counter[data-counter-state="active"] {
+  --counter-color: #ff2b80;
+  --counter-stroke-color: #fff;
+  --counter-stroke-width: 1px;
+}
+```
+
+## Selector Reference
+
+### Key Selectors
+
+| Selector                                         | Description                              |
+| ------------------------------------------------ | ---------------------------------------- |
+| `[data-state="inactive"]`                        | All inactive keys                        |
+| `[data-state="active"]`                          | All active keys                          |
+| `[data-state="inactive"], [data-state="active"]` | All keys in all states                   |
+| `.classname[data-state="active"]`                | Active state of keys with specific class |
+
+### Counter Selectors
+
+| Selector                                           | Description                         |
+| -------------------------------------------------- | ----------------------------------- |
+| `.counter`                                         | All counters                        |
+| `.counter[data-counter-state="inactive"]`          | Inactive counters                   |
+| `.counter[data-counter-state="active"]`            | Active counters                     |
+| `.classname .counter[data-counter-state="active"]` | Counter of keys with specific class |
+
+## Standard CSS Properties
+
+In addition to CSS variables, you can freely use the following standard CSS properties:
+
+### Commonly Used Properties
+
+```css
+[data-state="active"] {
+  /* Shadow effect */
+  box-shadow: 0px 0px 8px #ff2b80;
+
+  /* Text shadow */
+  text-shadow: 0px 0px 4px #ff2b80;
+
+  /* Transition */
+  transition: all 0.1s ease-in-out;
+
+  /* Font style */
+  font-size: 24px;
+  font-weight: 700;
+  font-family: "Roboto", sans-serif;
+
+  /* Transform */
+  transform: scale(1.05);
+
+  /* Filter */
+  filter: brightness(1.2);
+}
+```
+
+## Notes
+
+### Using !important
+
+Use `!important` if some styles are not being applied:
+
+```css
+[data-state="active"] {
+  --key-bg: #ff2b80 !important;
+  box-shadow: 0px 0px 8px #ff2b80 !important;
+}
+```
+
+### Browser Compatibility
+
+DM Note runs on Chromium-based WebView2, supporting most modern CSS features:
+
+- CSS Variables (Custom Properties) ✅
+- CSS Grid / Flexbox ✅
+- CSS Animations / Transitions ✅
+- CSS Filters ✅
+- backdrop-filter ✅
+- mix-blend-mode ✅
+
+<Callout type="warning">
+  `backdrop-filter` does not work when the overlay background is transparent.
+</Callout>
+
+### Inheritance and Specificity
+
+1. Global styles are applied first.
+2. Class selectors override global styles.
+3. More specific selectors take precedence.
+
+```css
+/* Priority: 1 (lowest) */
+[data-state="active"] {
+  --key-bg: red;
+}
+
+/* Priority: 2 */
+.blue[data-state="active"] {
+  --key-bg: blue;
+}
+
+/* Priority: 3 (highest) */
+.blue.special[data-state="active"] {
+  --key-bg: purple;
+}
+```

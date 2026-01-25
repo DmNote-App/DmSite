@@ -1,0 +1,96 @@
+---
+title: i18n API
+description: dmn.i18n API reference
+---
+
+# i18n API
+
+Internationalization support for the application.
+
+## Language Operations
+
+### `dmn.i18n.getLanguage(): Promise<string>`
+
+Returns current app language.
+
+```javascript
+const lang = await dmn.i18n.getLanguage();
+console.log(lang); // 'ko' | 'en' | 'ja' | ...
+```
+
+### `dmn.i18n.setLanguage(lang: string): Promise<void>`
+
+Sets app language.
+
+```javascript
+await dmn.i18n.setLanguage("en");
+```
+
+### `dmn.i18n.getSupportedLanguages(): Promise<string[]>`
+
+Returns list of supported languages.
+
+```javascript
+const langs = await dmn.i18n.getSupportedLanguages();
+console.log(langs); // ['ko', 'en', 'ja', ...]
+```
+
+---
+
+## Translation
+
+### `dmn.i18n.t(key: string): Promise<string>`
+
+Returns translation for a key.
+
+```javascript
+const text = await dmn.i18n.t("settings.theme");
+console.log(text); // 'Theme' or '테마'
+```
+
+---
+
+## Change Events
+
+### `dmn.i18n.onLanguageChanged(callback): Unsubscribe`
+
+Subscribes to language changes.
+
+```typescript
+interface LanguageEvent {
+  language: string;
+}
+
+const unsub = dmn.i18n.onLanguageChanged(({ language }) => {
+  console.log("Language changed to:", language);
+});
+```
+
+---
+
+## Plugin i18n
+
+For plugin-specific translations, use `defineSettings`:
+
+```javascript
+dmn.plugin.defineElement({
+  name: "Localized Panel",
+
+  messages: {
+    ko: {
+      greeting: "안녕하세요",
+      "settings.size": "크기",
+    },
+    en: {
+      greeting: "Hello",
+      "settings.size": "Size",
+    },
+  },
+
+  template: (state, settings, { html, t }) => html`
+    <div>${t("greeting")}</div>
+  `,
+});
+```
+
+The `t` function in template automatically uses the correct language based on app settings.

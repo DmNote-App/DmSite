@@ -1,0 +1,109 @@
+---
+title: CSS/JS API
+description: dmn.css, dmn.js API reference
+---
+
+# CSS / JS API
+
+Manage custom CSS and JavaScript plugins.
+
+## dmn.css
+
+### `dmn.css.get(): Promise<string>`
+
+Returns current custom CSS code.
+
+```javascript
+const css = await dmn.css.get();
+console.log(css);
+```
+
+### `dmn.css.set(css: string): Promise<void>`
+
+Sets custom CSS code.
+
+```javascript
+await dmn.css.set(`
+  .key {
+    background: linear-gradient(45deg, #ff6b6b, #feca57);
+    border-radius: 8px;
+  }
+`);
+```
+
+### `dmn.css.onChanged(callback): Unsubscribe`
+
+Subscribes to CSS changes.
+
+```javascript
+const unsub = dmn.css.onChanged((css) => {
+  console.log("CSS updated:", css);
+});
+```
+
+---
+
+## dmn.js
+
+### `dmn.js.get(): Promise<string>`
+
+Returns current JavaScript plugin code.
+
+```javascript
+const js = await dmn.js.get();
+console.log(js);
+```
+
+### `dmn.js.set(js: string): Promise<void>`
+
+Sets JavaScript plugin code.
+
+```javascript
+await dmn.js.set(`
+  // @id my-plugin
+  dmn.plugin.defineElement({
+    name: "My Plugin",
+    template: (state, settings, { html }) => html\`<div>Hello</div>\`,
+  });
+`);
+```
+
+### `dmn.js.onChanged(callback): Unsubscribe`
+
+Subscribes to JS changes.
+
+```javascript
+const unsub = dmn.js.onChanged((js) => {
+  console.log("JS updated:", js);
+});
+```
+
+---
+
+## Example Usage
+
+```javascript
+// CSS editor (main window)
+if (dmn.window.type === "main") {
+  const cssEditor = document.createElement("textarea");
+  cssEditor.style.cssText =
+    "width: 100%; height: 200px; font-family: monospace;";
+
+  // Load current CSS
+  dmn.css.get().then((css) => {
+    cssEditor.value = css;
+  });
+
+  // Watch changes
+  dmn.css.onChanged((css) => {
+    cssEditor.value = css;
+  });
+
+  // Save button
+  const saveBtn = document.createElement("button");
+  saveBtn.textContent = "Save";
+  saveBtn.onclick = () => {
+    dmn.css.set(cssEditor.value);
+  };
+}
+```

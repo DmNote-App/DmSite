@@ -1,0 +1,83 @@
+---
+title: Overlay API
+description: dmn.overlay API reference
+---
+
+# Overlay API
+
+Control overlay window state.
+
+## Overlay Control
+
+### `dmn.overlay.show(): Promise<void>`
+
+Shows the overlay window.
+
+```javascript
+await dmn.overlay.show();
+```
+
+### `dmn.overlay.hide(): Promise<void>`
+
+Hides the overlay window.
+
+```javascript
+await dmn.overlay.hide();
+```
+
+### `dmn.overlay.toggle(): Promise<void>`
+
+Toggles overlay visibility.
+
+```javascript
+await dmn.overlay.toggle();
+```
+
+### `dmn.overlay.reset(): Promise<void>`
+
+Resets overlay position and size.
+
+```javascript
+await dmn.overlay.reset();
+```
+
+---
+
+## Visibility Events
+
+### `dmn.overlay.onVisibilityChanged(callback): Unsubscribe`
+
+Subscribes to overlay visibility changes.
+
+```typescript
+interface VisibilityEvent {
+  visible: boolean;
+}
+
+const unsub = dmn.overlay.onVisibilityChanged(({ visible }) => {
+  console.log(visible ? "Shown" : "Hidden");
+});
+```
+
+---
+
+## Example Usage
+
+```javascript
+// Overlay control panel (for main window)
+if (dmn.window.type === "main") {
+  dmn.plugin.defineElement({
+    name: "Overlay Controls",
+    maxInstances: 1,
+
+    template: (state, settings, { html }) => html`
+      <div style="display: flex; gap: 8px;">
+        <button @click=${() => dmn.overlay.show()}>Show</button>
+        <button @click=${() => dmn.overlay.hide()}>Hide</button>
+        <button @click=${() => dmn.overlay.toggle()}>Toggle</button>
+        <button @click=${() => dmn.overlay.reset()}>Reset</button>
+      </div>
+    `,
+  });
+}
+```

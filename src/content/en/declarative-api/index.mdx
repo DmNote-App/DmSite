@@ -1,0 +1,262 @@
+---
+title: Declarative API
+description: Guide to declarative plugin development using defineElement
+---
+
+# Declarative API (defineElement)
+
+`dmn.plugin.defineElement` is an API that lets you define plugin UI declaratively without complex DOM manipulation.
+
+## Key Benefits
+
+| Feature                      | Description                                                          |
+| ---------------------------- | -------------------------------------------------------------------- |
+| **Automatic settings UI**    | Just define settings schema, panel (default) or modal auto-generated |
+| **Instance state isolation** | Create multiple panels from the same plugin                          |
+| **Tab-based isolation**      | Panels only appear in the tab they were created                      |
+| **Automatic state sync**     | Main ↔ Overlay state auto-synchronized                               |
+| **Context menu integration** | Right-click menu auto-generated                                      |
+| **Lifecycle management**     | Auto mount/unmount on tab switch                                     |
+| **Free resize**              | Resize directly in the grid                                          |
+
+## Basic Structure
+
+```javascript
+// @id my-plugin
+
+dmn.plugin.defineElement({
+  // Plugin name (shown in context menu)
+  name: "My Plugin",
+
+  // Max instances (optional, 0 = unlimited)
+  maxInstances: 1,
+
+  // Enable grid resize (optional, default: false)
+  resizable: true,
+
+  // Axis to preserve on settings change (optional, only when resizable is true, default: "both")
+  // "width" | "height" | "both" | "none"
+  preserveAxis: "both",
+
+  // Resize anchor (optional, default: "top-left")
+  resizeAnchor: "center",
+
+  // Context menu settings
+  contextMenu: {
+    create: "Create Panel",
+    delete: "Delete Panel",
+    items: [
+      /* custom menu items */
+    ],
+  },
+
+  // Settings UI mode (optional, default: "panel")
+  // "panel" | "modal"
+  settingsUI: "panel",
+
+  // Settings schema (auto UI generation)
+  settings: {
+    /* settings definition */
+  },
+
+  // i18n messages
+  messages: {
+    /* translation data */
+  },
+
+  // Main window preview state
+  previewState: {
+    /* initial state for preview */
+  },
+
+  // HTML template function
+  template: (state, settings, helpers) => {
+    /* return template */
+  },
+
+  // Overlay mount logic
+  onMount: (context) => {
+    /* initialization logic */
+    return () => {
+      /* cleanup */
+    };
+  },
+});
+```
+
+## Settings Schema
+
+Define settings schema to auto-generate settings UI. Default is property panel;
+use `settingsUI: "modal"` for modal style.
+
+### Supported Types
+
+```javascript
+settings: {
+  // String
+  nickname: {
+    type: "string",
+    default: "",
+    label: "Nickname",
+    placeholder: "Enter value",  // optional
+  },
+
+  // Number
+  fontSize: {
+    type: "number",
+    default: 14,
+    label: "Font Size",
+    min: 8,      // optional
+    max: 48,     // optional
+    step: 2,     // optional
+  },
+
+  // Boolean (toggle)
+  showGraph: {
+    type: "boolean",
+    default: true,
+    label: "Show Graph",
+  },
+
+  // Divider
+  sectionDivider: {
+    type: "divider",
+  },
+
+  // Color
+  textColor: {
+    type: "color",
+    default: "#FFFFFF",
+    label: "Text Color",
+  },
+
+  // Select (dropdown)
+  theme: {
+    type: "select",
+    default: "dark",
+    label: "Theme",
+    options: [
+      { label: "Dark", value: "dark" },
+      { label: "Light", value: "light" },
+    ],
+  },
+},
+```
+
+`type: "divider"` adds only a divider in the settings UI without needing `default` or `label`.
+
+### Accessing Settings
+
+```javascript
+// In template
+template: (state, settings, { html }) => html`
+  <div style="color: ${settings.textColor};">
+    ${settings.showGraph ? html`<div class="graph">...</div>` : ""}
+  </div>
+`,
+
+// In onMount
+onMount: ({ getSettings }) => {
+  const settings = getSettings();
+  console.log("Current settings:", settings);
+},
+```
+
+## Resize Anchor (resizeAnchor)
+
+Sets the anchor position when element size changes. Default is `"top-left"`.
+
+### Supported Anchor Positions (9 directions)
+
+| Value           | Description        |
+| --------------- | ------------------ |
+| `top-left`      | Top-left (default) |
+| `top-center`    | Top center         |
+| `top-right`     | Top-right          |
+| `center-left`   | Center-left        |
+| `center`        | Center             |
+| `center-right`  | Center-right       |
+| `bottom-left`   | Bottom-left        |
+| `bottom-center` | Bottom center      |
+| `bottom-right`  | Bottom-right       |
+
+### Definition Level Setting
+
+Define default anchor for all instances:
+
+```javascript
+dmn.plugin.defineElement({
+  name: "Centered Panel",
+  resizeAnchor: "center", // Default anchor for all instances
+  // ...
+});
+```
+
+### Dynamic Anchor Change (onMount)
+
+Use `setAnchor()` and `getAnchor()` in `onMount` to dynamically change anchor:
+
+```javascript
+dmn.plugin.defineElement({
+  name: "Dynamic Anchor Panel",
+
+  onMount: ({ setAnchor, getAnchor }) => {
+    // Check current anchor
+    console.log("Current anchor:", getAnchor()); // "top-left"
+
+    // Change anchor to center
+    setAnchor("center");
+
+    // Change anchor based on condition
+    const settings = getSettings();
+    if (settings.expandFromCenter) {
+      setAnchor("center");
+    } else {
+      setAnchor("top-left");
+    }
+  },
+});
+```
+
+## Resize Settings (resizable, preserveAxis)
+
+Use `resizable` option to let users resize elements directly in the grid.
+
+### resizable
+
+Set `resizable: true` to show 8-direction resize handles:
+
+```javascript
+dmn.plugin.defineElement({
+  name: "Resizable Panel",
+  resizable: true, // Enable grid resize
+  // ...
+});
+```
+
+<Callout type="warning">
+  **Responsive design required**: When using `resizable`, plugin internal
+  elements must be responsive. Use relative units (`%`, `flex`, `fr`, etc.)
+  instead of fixed sizes (px), and apply `width: 100%; height: 100%` to root
+  element. Otherwise, internal content won't adjust to container size on resize.
+</Callout>
+
+### preserveAxis
+
+Specifies which size axis to preserve when settings change. Only applies when `resizable: true`.
+
+| Value    | Description                                |
+| -------- | ------------------------------------------ |
+| `both`   | Preserve both width and height (default)   |
+| `width`  | Preserve width, adjust height to content   |
+| `height` | Preserve height, adjust width to content   |
+| `none`   | Fit both to content (resets resize effect) |
+
+```javascript
+dmn.plugin.defineElement({
+  name: "KPS Panel",
+  resizable: true,
+  preserveAxis: "width", // Preserve width on settings change
+  // ...
+});
+```

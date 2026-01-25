@@ -1,0 +1,200 @@
+---
+title: Advanced Guide
+description: Legacy API, debugging, security, and advanced patterns
+---
+
+# Advanced Guide
+
+## Imperative Style Plugins
+
+While `defineElement` is recommended, direct DOM manipulation is still supported.
+
+### Direct DOM Manipulation
+
+```javascript
+// @id my-legacy-plugin
+
+if (dmn.window.type !== "overlay") return;
+
+// Create and append element
+const panel = document.createElement("div");
+panel.className = "my-panel";
+panel.innerHTML = `<h1>Hello</h1>`;
+document.body.appendChild(panel);
+
+// Register cleanup
+dmn.plugin.registerCleanup(() => {
+  panel.remove();
+});
+```
+
+<Callout type="warning">
+  When directly manipulating DOM, you must clean up elements with
+  `dmn.plugin.registerCleanup`.
+</Callout>
+
+### Direct Style Sheet Injection
+
+```javascript
+// @id style-injection
+
+if (dmn.window.type !== "overlay") return;
+
+const style = document.createElement("style");
+style.textContent = `
+  .my-panel {
+    background: rgba(0, 0, 0, 0.8);
+    padding: 16px;
+    border-radius: 8px;
+  }
+`;
+document.head.appendChild(style);
+
+dmn.plugin.registerCleanup(() => {
+  style.remove();
+});
+```
+
+## Event Bus Usage
+
+For low-level event handling that reacts to key inputs:
+
+```javascript
+// @id event-bus-example
+
+// onKeyState - Only registered keys
+const unsub1 = dmn.keys.onKeyState(({ key, state }) => {
+  if (state === "DOWN") {
+    console.log(`Key ${key} pressed`);
+  }
+});
+
+// onRawInput - All inputs (keyboard + mouse)
+const unsub2 = dmn.keys.onRawInput(({ device, label, state }) => {
+  console.log(`[${device}] ${label} ${state}`);
+});
+
+dmn.plugin.registerCleanup(() => {
+  unsub1();
+  unsub2();
+});
+```
+
+## Debugging Tips
+
+### Opening DevTools
+
+```javascript
+// Open DevTools for all windows
+dmn.window.openDevtoolsAll();
+```
+
+### State Inspection
+
+```javascript
+// Current window type
+console.log("Window type:", dmn.window.type);
+
+// Current settings
+dmn.settings.get().then((s) => console.log("Settings:", s));
+
+// Key mapping
+dmn.keys.get().then((k) => console.log("Keys:", k));
+
+// Storage key list
+dmn.plugin.storage.keys().then((keys) => console.log("Stored keys:", keys));
+```
+
+### Error Tracking
+
+```javascript
+// Global error handler
+window.addEventListener("error", (e) => {
+  console.error("Plugin error:", e.error);
+});
+
+window.addEventListener("unhandledrejection", (e) => {
+  console.error("Unhandled promise:", e.reason);
+});
+```
+
+## Security Considerations
+
+### No Sandboxing
+
+Plugins run with the same privileges as the app:
+
+- Full access to all dmn.\* APIs
+- Full access to DOM
+- Can make external network requests
+
+<Callout type="error">
+  Never run untrusted code. Always review plugin code before use.
+</Callout>
+
+### External Requests
+
+```javascript
+// Regular fetch example (may fail depending on server CORS policy)
+const response = await fetch("https://api.example.com/data", {
+  headers: { "Content-Type": "application/json" },
+});
+const data = await response.json();
+```
+
+## Performance Optimization
+
+### State Update Optimization
+
+Use `setState` for state updates in `defineElement`:
+
+```javascript
+dmn.plugin.defineElement({
+  name: "Optimized Panel",
+
+  template: (state, settings, { html }) => html`
+    <div>Count: ${state.count ?? 0}</div>
+  `,
+
+  onMount: ({ setState }) => {
+    // Update multiple values at once
+    setState({
+      count: 0,
+      history: [],
+      lastUpdate: Date.now(),
+    });
+  },
+});
+```
+
+### Avoiding Unnecessary Renders
+
+Only call `setState` when state actually changes:
+
+```javascript
+onMount: ({ setState, getSettings }) => {
+  let lastKps = 0;
+
+  const interval = setInterval(() => {
+    const newKps = calculateKps();
+    // Only update when value changes
+    if (newKps !== lastKps) {
+      lastKps = newKps;
+      setState({ kps: newKps });
+    }
+  }, 100);
+
+  return () => clearInterval(interval);
+};
+```
+
+## Multi-Window Patterns
+
+### Control Overlay from Main
+
+```javascript
+// In main window
+if (dmn.window.type === "main") {
+  dmn.bridge.sendTo("overlay", "UPDATE_OVERLAY_VALUE", { value: 42 });
+}
+```

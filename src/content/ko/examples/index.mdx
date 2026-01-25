@@ -1,0 +1,437 @@
+---
+title: 예제 모음
+description: 실전 플러그인 예제
+---
+
+# 예제 모음
+
+## KPS 모니터 (Keys Per Second)
+
+실시간으로 초당 키 입력 수를 표시하는 패널입니다.
+
+```javascript
+// @id kps-monitor
+
+dmn.plugin.defineElement({
+  name: "KPS Monitor",
+  maxInstances: 1,
+
+  settings: {
+    windowSize: {
+      type: "number",
+      default: 1,
+      min: 0.5,
+      max: 5,
+      step: 0.5,
+      label: "측정 구간 (초)",
+    },
+    showPeak: { type: "boolean", default: true, label: "최고 기록 표시" },
+  },
+
+  messages: {
+    ko: {
+      "menu.create": "KPS 패널 생성",
+      "menu.delete": "KPS 패널 삭제",
+      current: "현재",
+      peak: "최고",
+    },
+    en: {
+      "menu.create": "Create KPS Panel",
+      "menu.delete": "Delete KPS Panel",
+      current: "Current",
+      peak: "Peak",
+    },
+  },
+
+  contextMenu: {
+    create: "menu.create",
+    delete: "menu.delete",
+  },
+
+  template: (state, settings, { html, t }) => html`
+    <div
+      style="
+      background: rgba(0,0,0,0.7);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-family: monospace;
+      color: #fff;
+    "
+    >
+      <div>
+        ${t("current")}: <strong>${(state.kps ?? 0).toFixed(1)}</strong>
+      </div>
+      ${settings.showPeak
+        ? html`
+            <div style="opacity: 0.7">
+              ${t("peak")}: ${(state.peak ?? 0).toFixed(1)}
+            </div>
+          `
+        : ""}
+    </div>
+  `,
+
+  onMount: ({ setState, getSettings, onHook }) => {
+    const timestamps = [];
+    let peak = 0;
+
+    onHook("key", ({ state }) => {
+      if (state !== "DOWN") return;
+
+      const now = Date.now();
+      const settings = getSettings();
+      const windowMs = settings.windowSize * 1000;
+
+      timestamps.push(now);
+
+      // 윈도우 내 타임스탬프만 유지
+      while (timestamps.length && timestamps[0] < now - windowMs) {
+        timestamps.shift();
+      }
+
+      const kps = timestamps.length / settings.windowSize;
+      peak = Math.max(peak, kps);
+      setState({ kps, peak });
+    });
+  },
+});
+```
+
+## 키 히트맵
+
+각 키의 사용 빈도를 색상으로 시각화합니다.
+
+```javascript
+// @id key-heatmap
+
+// 색상 보간 헬퍼 함수
+function interpolateColor(c1, c2, ratio) {
+  const hex = (s) => parseInt(s.slice(1), 16);
+  const r1 = (hex(c1) >> 16) & 255,
+    g1 = (hex(c1) >> 8) & 255,
+    b1 = hex(c1) & 255;
+  const r2 = (hex(c2) >> 16) & 255,
+    g2 = (hex(c2) >> 8) & 255,
+    b2 = hex(c2) & 255;
+  const r = Math.round(r1 + (r2 - r1) * ratio);
+  const g = Math.round(g1 + (g2 - g1) * ratio);
+  const b = Math.round(b1 + (b2 - b1) * ratio);
+  return `rgb(${r},${g},${b})`;
+}
+
+dmn.plugin.defineElement({
+  name: "Key Heatmap",
+  maxInstances: 1,
+
+  settings: {
+    colorCold: { type: "color", default: "#3b82f6", label: "낮은 빈도 색상" },
+    colorHot: { type: "color", default: "#ef4444", label: "높은 빈도 색상" },
+  },
+
+  messages: {
+    ko: { "menu.create": "히트맵 생성", "menu.delete": "히트맵 삭제" },
+    en: { "menu.create": "Create Heatmap", "menu.delete": "Delete Heatmap" },
+  },
+
+  contextMenu: {
+    create: "menu.create",
+    delete: "menu.delete",
+  },
+
+  template: (state, settings, { html }) => {
+    const counters = state.counters ?? {};
+    const maxCount = state.maxCount ?? 1;
+
+    return html`
+      <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+        ${Object.entries(counters).map(([key, count]) => {
+          const ratio = maxCount > 0 ? count / maxCount : 0;
+          const color = interpolateColor(
+            settings.colorCold,
+            settings.colorHot,
+            ratio
+          );
+          return html`
+            <div
+              style="
+              width: 40px; height: 40px; background: ${color};
+              border-radius: 4px; display: flex; align-items: center;
+              justify-content: center; font-size: 10px; color: #fff;
+            "
+            >
+              ${key.replace("Key", "")}
+            </div>
+          `;
+        })}
+      </div>
+    `;
+  },
+
+  onMount: ({ setState }) => {
+    const counters = {};
+
+    const unsub = dmn.keys.onCounterChanged(({ key, count }) => {
+      counters[key] = count;
+      const maxCount = Math.max(...Object.values(counters));
+      setState({ counters: { ...counters }, maxCount });
+    });
+
+    return () => unsub();
+  },
+});
+```
+
+## 녹화 기록 뷰어
+
+키 입력 시퀀스를 기록하고 저장합니다.
+
+```javascript
+// @id key-recorder
+
+dmn.plugin.defineElement({
+  name: "Key Recorder",
+  maxInstances: 1,
+
+  messages: {
+    ko: {
+      "menu.create": "레코더 생성",
+      "menu.delete": "레코더 삭제",
+      "menu.clear": "기록 초기화",
+      record: "녹화",
+      stop: "중지",
+      count: "기록 수",
+    },
+    en: {
+      "menu.create": "Create Recorder",
+      "menu.delete": "Delete Recorder",
+      "menu.clear": "Clear Records",
+      record: "Record",
+      stop: "Stop",
+      count: "Records",
+    },
+  },
+
+  contextMenu: {
+    create: "menu.create",
+    delete: "menu.delete",
+    items: [
+      {
+        label: "menu.clear",
+        onClick: ({ actions }) => actions.clear(),
+      },
+    ],
+  },
+
+  template: (state, settings, { html, t }) => html`
+    <div
+      style="
+      padding: 16px;
+      background: rgba(26, 26, 46, 0.9);
+      border-radius: 8px;
+      color: #fff;
+      min-width: 150px;
+    "
+    >
+      <div style="margin-bottom: 8px; font-size: 14px;">
+        ${state.recording ? "🔴 " : ""}${t(state.recording ? "stop" : "record")}
+      </div>
+      <div style="font-size: 12px; opacity: 0.7;">
+        ${t("count")}: ${(state.events ?? []).length}
+      </div>
+      <div
+        style="
+        max-height: 150px; overflow: auto;
+        font-size: 11px; font-family: monospace;
+        margin-top: 8px;
+      "
+      >
+        ${(state.events ?? [])
+          .slice(-10)
+          .map((e) => html` <div>${e.key} (${e.duration}ms)</div> `)}
+      </div>
+    </div>
+  `,
+
+  onMount: ({ setState, expose, onHook }) => {
+    let recording = false;
+    let events = [];
+    let lastTime = 0;
+
+    onHook("key", ({ key, state }) => {
+      if (!recording || state !== "DOWN") return;
+
+      const now = Date.now();
+      events.push({ key, duration: now - lastTime });
+      lastTime = now;
+      setState({ events: [...events] });
+    });
+
+    expose({
+      toggle: () => {
+        recording = !recording;
+        if (recording) {
+          events = [];
+          lastTime = Date.now();
+        }
+        setState({ recording, events: [...events] });
+      },
+      clear: () => {
+        events = [];
+        setState({ events: [] });
+      },
+    });
+
+    setState({ recording: false, events: [] });
+  },
+});
+```
+
+## 세션 타이머
+
+플레이 시간을 추적합니다.
+
+```javascript
+// @id session-timer
+
+function formatTime(ms, format) {
+  const s = Math.floor(ms / 1000);
+  const m = Math.floor(s / 60);
+  const h = Math.floor(m / 60);
+
+  if (format === "hms") {
+    return [h, m % 60, s % 60]
+      .map((n) => n.toString().padStart(2, "0"))
+      .join(":");
+  }
+  return [m, s % 60].map((n) => n.toString().padStart(2, "0")).join(":");
+}
+
+dmn.plugin.defineElement({
+  name: "Session Timer",
+  maxInstances: 1,
+
+  settings: {
+    format: {
+      type: "select",
+      default: "hms",
+      label: "시간 형식",
+      options: [
+        { value: "hms", label: "00:00:00" },
+        { value: "ms", label: "00:00" },
+      ],
+    },
+  },
+
+  messages: {
+    ko: { "menu.create": "타이머 생성", "menu.delete": "타이머 삭제" },
+    en: { "menu.create": "Create Timer", "menu.delete": "Delete Timer" },
+  },
+
+  contextMenu: {
+    create: "menu.create",
+    delete: "menu.delete",
+  },
+
+  template: (state, settings, { html }) => html`
+    <div
+      style="
+      font-family: monospace;
+      font-size: 24px;
+      color: #fff;
+      background: rgba(0,0,0,0.7);
+      padding: 8px 16px;
+      border-radius: 8px;
+    "
+    >
+      ${formatTime(state.elapsed ?? 0, settings.format)}
+    </div>
+  `,
+
+  onMount: ({ setState }) => {
+    const start = Date.now();
+
+    const interval = setInterval(() => {
+      setState({ elapsed: Date.now() - start });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  },
+});
+```
+
+## 브리지 동기화 패널
+
+메인과 오버레이 간 데이터를 실시간 동기화합니다.
+
+```javascript
+// @id sync-panel
+
+dmn.plugin.defineElement({
+  name: "Sync Panel",
+  maxInstances: 1,
+
+  settings: {
+    syncKey: { type: "string", default: "my-sync", label: "동기화 키" },
+  },
+
+  messages: {
+    ko: {
+      "menu.create": "동기화 패널 생성",
+      "menu.delete": "동기화 패널 삭제",
+    },
+    en: {
+      "menu.create": "Create Sync Panel",
+      "menu.delete": "Delete Sync Panel",
+    },
+  },
+
+  contextMenu: {
+    create: "menu.create",
+    delete: "menu.delete",
+  },
+
+  template: (state, settings, { html }) => html`
+    <div
+      style="
+      background: rgba(0,0,0,0.8);
+      padding: 16px;
+      border-radius: 8px;
+      color: #fff;
+    "
+    >
+      <div style="margin-bottom: 8px;">
+        동기화 값: ${state.value ?? "(없음)"}
+      </div>
+      <div style="font-size: 12px; opacity: 0.7;">키: ${settings.syncKey}</div>
+    </div>
+  `,
+
+  onMount: ({ setState, getSettings }) => {
+    const settings = getSettings();
+    const key = `sync:${settings.syncKey}`;
+
+    // 초기값 로드
+    dmn.plugin.storage.get(key).then((v) => {
+      if (v) setState({ value: v });
+    });
+
+    // 브리지로 실시간 동기화
+    const unsub = dmn.bridge.on(key, (data) => {
+      setState({ value: data.value });
+    });
+
+    return () => unsub();
+  },
+});
+```
+
+## 더 많은 예제
+
+실제 플러그인 예제는 프로젝트의 `plugin/` 폴더에서 확인할 수 있습니다:
+
+- `kps.js` - 고급 KPS 모니터 (그래프 포함)
+- `keystroke-visualizer.js` - 키 입력 시각화
+- `v-archive-tier.js` - V-Archive 연동
+- `context-menu-example.js` - 컨텍스트 메뉴 확장 예제
+- `settings-example.js` - defineSettings API 예제
+- `record.js` - 키 입력 기록

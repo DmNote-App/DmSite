@@ -1,0 +1,202 @@
+---
+title: Settings System
+description: Plugin settings management with defineSettings
+---
+
+# Settings System (defineSettings)
+
+`dmn.plugin.defineSettings` is a versatile settings management API for defining settings independent of panels.
+
+## When to Use?
+
+| Use Case                                | Description                                                                          |
+| --------------------------------------- | ------------------------------------------------------------------------------------ |
+| **Global settings for multiple panels** | Common settings shared by multiple `defineElement` panels                            |
+| **Independent feature settings**        | Settings for features without panels like notifications, shortcuts, API integrations |
+| **Plugin environment settings**         | Options affecting the entire plugin                                                  |
+
+## Basic Usage
+
+```javascript
+// @id my-plugin
+
+const pluginSettings = dmn.plugin.defineSettings({
+  settings: {
+    apiKey: {
+      type: "string",
+      default: "",
+      label: "API Key",
+    },
+    theme: {
+      type: "select",
+      options: [
+        { value: "dark", label: "Dark" },
+        { value: "light", label: "Light" },
+      ],
+      default: "dark",
+      label: "Theme",
+    },
+    sectionDivider: {
+      type: "divider",
+    },
+    enabled: {
+      type: "boolean",
+      default: true,
+      label: "Enabled",
+    },
+  },
+});
+
+// `type: "divider"` adds only a divider in settings panel/modal.
+
+// Get settings values
+const current = pluginSettings.get();
+console.log("API Key:", current.apiKey);
+
+// Change settings values
+await pluginSettings.set({ theme: "light" });
+
+// Open settings panel (default: property panel)
+const confirmed = await pluginSettings.open();
+if (confirmed) {
+  console.log("Settings saved!");
+}
+```
+
+## API Reference
+
+### defineSettings(definition)
+
+```typescript
+interface PluginSettingsDefinition {
+  // Settings schema (same format as defineElement)
+  settings: Record<string, PluginSettingSchema>;
+
+  // i18n messages (optional)
+  messages?: Record<string, Record<string, string>>;
+
+  // Settings UI mode (optional, default: "panel")
+  settingsUI?: "panel" | "modal";
+
+  // Callback on settings change (optional)
+  onChange?: (newSettings, oldSettings) => void;
+}
+```
+
+### Return Value (PluginSettingsInstance)
+
+| Method                | Description                                   |
+| --------------------- | --------------------------------------------- |
+| `get()`               | Get current settings                          |
+| `set(updates)`        | Change settings (auto-save)                   |
+| `open()`              | Open settings panel (default: property panel) |
+| `reset()`             | Reset to defaults                             |
+| `subscribe(listener)` | Subscribe to settings changes                 |
+
+## onChange vs subscribe()
+
+Both detect settings changes but have different purposes:
+
+|                          | `onChange`                           | `subscribe()`               |
+| ------------------------ | ------------------------------------ | --------------------------- |
+| **Declaration location** | Inside `defineSettings()` definition | Anywhere                    |
+| **Can unsubscribe**      | ❌ No                                | ✅ Yes                      |
+| **Count**                | 1 only                               | Multiple                    |
+| **Purpose**              | Core/essential logic                 | Conditional/temporary logic |
+
+```javascript
+const settings = dmn.plugin.defineSettings({
+  settings: { apiKey: { type: "string", default: "" } },
+
+  // onChange: Always executes (cannot unsubscribe)
+  onChange: (newSettings, oldSettings) => {
+    if (newSettings.apiKey !== oldSettings.apiKey) {
+      reconnectAPI(newSettings.apiKey);
+    }
+  },
+});
+
+// subscribe: Subscribe only when needed, unsubscribe later
+function openPreviewPanel() {
+  const panel = createPanel();
+
+  const unsubscribe = settings.subscribe((newSettings) => {
+    panel.update(newSettings);
+  });
+
+  panel.onClose = () => unsubscribe();
+}
+```
+
+## i18n Support
+
+```javascript
+const pluginSettings = dmn.plugin.defineSettings({
+  settings: {
+    volume: {
+      type: "number",
+      default: 50,
+      min: 0,
+      max: 100,
+      label: "settings.volume", // Message key
+    },
+  },
+
+  messages: {
+    ko: {
+      "settings.volume": "볼륨",
+    },
+    en: {
+      "settings.volume": "Volume",
+    },
+  },
+});
+```
+
+## Practical Examples
+
+### Global Settings + defineElement Integration
+
+```javascript
+// @id kps-plugin
+
+// Define global settings
+const globalSettings = dmn.plugin.defineSettings({
+  settings: {
+    defaultColor: {
+      type: "color",
+      default: "#86EFAC",
+      label: "Default Color",
+    },
+    refreshRate: {
+      type: "number",
+      default: 50,
+      min: 10,
+      max: 200,
+      label: "Refresh Rate (ms)",
+    },
+  },
+});
+
+// Define panel
+dmn.plugin.defineElement({
+  name: "KPS Panel",
+
+  contextMenu: {
+    create: "Create KPS Panel",
+    delete: "Delete KPS Panel",
+    items: [
+      {
+        label: "Global Settings",
+        onClick: () => globalSettings.open(),
+      },
+    ],
+  },
+
+  // Instance-specific settings
+  settings: {
+    showGraph: { type: "boolean", default: true, label: "Show Graph" },
+  },
+  // ...
+});
+```

@@ -1,0 +1,184 @@
+---
+title: Keys API
+description: dmn.keys API reference for key events and mappings
+---
+
+# Keys API
+
+Key event subscription, mapping, and custom tab management.
+
+## Key State Events
+
+### `dmn.keys.onKeyState(callback): Unsubscribe`
+
+<Callout type="warning">Overlay window only.</Callout>
+
+Subscribes to state changes for registered keys.
+
+```typescript
+interface KeyStateEvent {
+  key: string; // e.g., 'KeyA', 'MouseLeft'
+  state: "UP" | "DOWN";
+  mode: "keyboard" | "mouse";
+}
+
+const unsub = dmn.keys.onKeyState(({ key, state, mode }) => {
+  console.log(`[${mode}] ${key} → ${state}`);
+});
+```
+
+### `dmn.keys.onRawInput(callback): Unsubscribe`
+
+<Callout type="warning">Overlay window only.</Callout>
+
+Subscribes to all raw input events (including unregistered keys).
+
+```typescript
+interface RawInputEvent {
+  device: "KEYBOARD" | "MOUSE";
+  label: string; // e.g., 'A', 'LButton'
+  state: "DOWN" | "UP";
+}
+
+const unsub = dmn.keys.onRawInput(({ device, label, state }) => {
+  console.log(`[${device}] ${label} ${state}`);
+});
+```
+
+---
+
+## Counter Events
+
+### `dmn.keys.onCounterChanged(callback): Unsubscribe`
+
+<Callout type="warning">Overlay window only.</Callout>
+
+Subscribes to counter changes.
+
+```typescript
+interface CounterEvent {
+  key: string;
+  count: number;
+}
+
+const unsub = dmn.keys.onCounterChanged(({ key, count }) => {
+  console.log(`${key}: ${count}`);
+});
+```
+
+---
+
+## Mode Events
+
+### `dmn.keys.onModeChanged(callback): Unsubscribe`
+
+Subscribes to input mode changes (keyboard/mouse).
+
+```typescript
+interface ModeEvent {
+  mode: "keyboard" | "mouse";
+}
+
+const unsub = dmn.keys.onModeChanged(({ mode }) => {
+  console.log("Mode changed:", mode);
+});
+```
+
+---
+
+## Key Mapping
+
+### `dmn.keys.get(): Promise<KeysState>`
+
+Returns current key mapping and counter state.
+
+```typescript
+interface KeysState {
+  keyboard: KeyboardMapping;
+  mouse: MouseMapping;
+  counter: Record<string, number>;
+}
+
+const keys = await dmn.keys.get();
+console.log(keys.keyboard);
+console.log(keys.counter);
+```
+
+### `dmn.keys.set(keys: Partial<KeysState>): Promise<void>`
+
+Updates key mapping.
+
+```javascript
+await dmn.keys.set({
+  keyboard: {
+    /* new mapping */
+  },
+});
+```
+
+---
+
+## Custom Tab
+
+<Callout type="warning">Main window only.</Callout>
+
+### `dmn.keys.registerCustomTab(options): Unsubscribe`
+
+Registers a custom tab in the key settings panel.
+
+```typescript
+interface CustomTabOptions {
+  id: string;
+  label: string;
+  content: (container: HTMLElement) => void | (() => void);
+}
+
+const unsub = dmn.keys.registerCustomTab({
+  id: "my-tab",
+  label: "My Tab",
+  content: (container) => {
+    container.innerHTML = `<div>Custom tab content</div>`;
+    return () => {
+      /* cleanup */
+    };
+  },
+});
+```
+
+---
+
+## Example Usage
+
+```javascript
+// KPS counter
+dmn.plugin.defineElement({
+  name: "KPS Counter",
+  maxInstances: 1,
+
+  template: (state, settings, { html }) => html`
+    <div style="font-size: 24px; font-weight: bold;">
+      KPS: ${(state.kps ?? 0).toFixed(1)}
+    </div>
+  `,
+
+  onMount: ({ setState }) => {
+    const keyTimes = [];
+
+    const unsub = dmn.keys.onKeyState(({ state }) => {
+      if (state !== "DOWN") return;
+
+      const now = Date.now();
+      keyTimes.push(now);
+
+      // Keep only last 1 second
+      while (keyTimes.length && keyTimes[0] < now - 1000) {
+        keyTimes.shift();
+      }
+
+      setState({ kps: keyTimes.length });
+    });
+
+    return () => unsub();
+  },
+});
+```

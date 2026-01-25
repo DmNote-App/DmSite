@@ -1,0 +1,190 @@
+---
+title: Examples
+description: Practical plugin examples
+---
+
+# Examples
+
+## KPS Monitor (Keys Per Second)
+
+A panel that displays real-time keys per second.
+
+```javascript
+// @id kps-monitor
+
+dmn.plugin.defineElement({
+  name: "KPS Monitor",
+  maxInstances: 1,
+
+  settings: {
+    windowSize: {
+      type: "number",
+      default: 1,
+      min: 0.5,
+      max: 5,
+      step: 0.5,
+      label: "Window Size (seconds)",
+    },
+    showPeak: { type: "boolean", default: true, label: "Show Peak" },
+  },
+
+  messages: {
+    ko: {
+      "menu.create": "KPS 패널 생성",
+      "menu.delete": "KPS 패널 삭제",
+      current: "현재",
+      peak: "최고",
+    },
+    en: {
+      "menu.create": "Create KPS Panel",
+      "menu.delete": "Delete KPS Panel",
+      current: "Current",
+      peak: "Peak",
+    },
+  },
+
+  contextMenu: {
+    create: "menu.create",
+    delete: "menu.delete",
+  },
+
+  template: (state, settings, { html, t }) => html`
+    <div
+      style="
+      background: rgba(0,0,0,0.7);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-family: monospace;
+      color: #fff;
+    "
+    >
+      <div>
+        ${t("current")}: <strong>${(state.kps ?? 0).toFixed(1)}</strong>
+      </div>
+      ${settings.showPeak
+        ? html`
+            <div style="opacity: 0.7">
+              ${t("peak")}: ${(state.peak ?? 0).toFixed(1)}
+            </div>
+          `
+        : ""}
+    </div>
+  `,
+
+  onMount: ({ setState, getSettings, onHook }) => {
+    const timestamps = [];
+    let peak = 0;
+
+    onHook("key", ({ state }) => {
+      if (state !== "DOWN") return;
+
+      const now = Date.now();
+      const settings = getSettings();
+      const windowMs = settings.windowSize * 1000;
+
+      timestamps.push(now);
+
+      // Keep only timestamps within window
+      while (timestamps.length && timestamps[0] < now - windowMs) {
+        timestamps.shift();
+      }
+
+      const kps = timestamps.length / settings.windowSize;
+      peak = Math.max(peak, kps);
+      setState({ kps, peak });
+    });
+  },
+});
+```
+
+## Key Heatmap
+
+Visualizes key usage frequency with colors.
+
+```javascript
+// @id key-heatmap
+
+// Color interpolation helper
+function interpolateColor(c1, c2, ratio) {
+  const hex = (s) => parseInt(s.slice(1), 16);
+  const r1 = (hex(c1) >> 16) & 255,
+    g1 = (hex(c1) >> 8) & 255,
+    b1 = hex(c1) & 255;
+  const r2 = (hex(c2) >> 16) & 255,
+    g2 = (hex(c2) >> 8) & 255,
+    b2 = hex(c2) & 255;
+  const r = Math.round(r1 + (r2 - r1) * ratio);
+  const g = Math.round(g1 + (g2 - g1) * ratio);
+  const b = Math.round(b1 + (b2 - b1) * ratio);
+  return `rgb(${r},${g},${b})`;
+}
+
+dmn.plugin.defineElement({
+  name: "Key Heatmap",
+  maxInstances: 1,
+
+  settings: {
+    colorCold: {
+      type: "color",
+      default: "#3b82f6",
+      label: "Low Frequency Color",
+    },
+    colorHot: {
+      type: "color",
+      default: "#ef4444",
+      label: "High Frequency Color",
+    },
+  },
+
+  messages: {
+    ko: { "menu.create": "히트맵 생성", "menu.delete": "히트맵 삭제" },
+    en: { "menu.create": "Create Heatmap", "menu.delete": "Delete Heatmap" },
+  },
+
+  contextMenu: {
+    create: "menu.create",
+    delete: "menu.delete",
+  },
+
+  template: (state, settings, { html }) => {
+    const counters = state.counters ?? {};
+    const maxCount = state.maxCount ?? 1;
+
+    return html`
+      <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+        ${Object.entries(counters).map(([key, count]) => {
+          const ratio = maxCount > 0 ? count / maxCount : 0;
+          const color = interpolateColor(
+            settings.colorCold,
+            settings.colorHot,
+            ratio,
+          );
+          return html`
+            <div
+              style="
+              width: 40px; height: 40px; background: ${color};
+              border-radius: 4px; display: flex; align-items: center;
+              justify-content: center; font-size: 10px; color: #fff;
+            "
+            >
+              ${key.replace("Key", "")}
+            </div>
+          `;
+        })}
+      </div>
+    `;
+  },
+
+  onMount: ({ setState }) => {
+    const counters = {};
+
+    const unsub = dmn.keys.onCounterChanged(({ key, count }) => {
+      counters[key] = count;
+      const maxCount = Math.max(...Object.values(counters));
+      setState({ counters: { ...counters }, maxCount });
+    });
+
+    return () => unsub();
+  },
+});
+```

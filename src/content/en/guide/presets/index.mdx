@@ -1,0 +1,46 @@
+---
+title: Presets
+description: DM Note's preset export/import feature
+---
+
+# Presets
+
+DM Note's presets allow you to **export/import current settings as JSON files**.
+
+## Exporting Presets
+
+1. Configure your key mapping/placement/settings as desired.
+2. Execute **Export Preset** from the main window toolbar.
+3. Select a save location and a `preset.json` file will be created.
+
+## Importing Presets
+
+1. Execute **Import Preset** from the main window toolbar.
+2. Select a previously saved preset `.json` file.
+3. The imported settings will be applied immediately.
+
+<Callout type="warning">
+  Importing a preset will overwrite your current settings. Export first to
+  backup if needed.
+</Callout>
+
+## Items Included in Presets
+
+Presets save/restore the following items:
+
+- Key mappings (`keys`)
+- Key positions/sizes/individual options (`positions`)
+- Custom tabs (`customTabs`) and selected tab (`selectedKeyType`)
+- Background color (`backgroundColor`)
+- Note effect related (`noteSettings`, `noteEffect`)
+- Laboratory features (`laboratoryEnabled`)
+- Custom CSS/JS (`useCustomCSS`, `customCSS`, `useCustomJS`, `customJS`)
+
+<Callout type="info">
+  Key counter "values" (cumulative counts) and plugin storage
+  (`dmn.plugin.storage`) data are not included in presets.
+</Callout>
+
+## Sharing Presets
+
+Share the exported `.json` file as-is to allow other users to load the same settings.

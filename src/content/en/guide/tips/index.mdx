@@ -1,0 +1,110 @@
+---
+title: Tips & Notes
+description: Useful tips and notes for using DM Note
+---
+
+# Tips & Notes
+
+Here are tips and things to know for using DM Note more effectively.
+
+## Using with Games
+
+### Fullscreen Mode Issues
+
+In some games' fullscreen mode, the overlay may not work properly.
+
+**Solutions:**
+
+- Run the game in **borderless windowed mode**.
+- Or select **windowed mode** in game settings.
+
+### Overlay Placement Tips
+
+To place the overlay over the game screen:
+
+1. Enable the **Always on top** option.
+2. Move the overlay to the desired position.
+3. Enable the **Lock overlay window** option.
+
+<Callout type="info">
+  Enabling window lock prevents accidentally moving the overlay.
+</Callout>
+
+## OBS Settings
+
+### Capturing with Transparent Background
+
+To maintain transparent background without chroma key in OBS Studio:
+
+1. Select **Add Source** > **Window Capture**.
+2. Select `DM Note` overlay window for **Window**.
+3. Set **Capture Method** to `Windows 10 (1903 and later)`.
+4. Check **Capture client area**.
+
+### Capturing Game and Overlay Together
+
+To capture both game and overlay at once:
+
+- Add the game with **Game Capture**.
+- Add the overlay with **Window Capture**.
+- Place the overlay source above the game source.
+
+## Performance Optimization
+
+### Graphics Troubleshooting
+
+If the overlay has flickering or rendering issues:
+
+1. Go to **Settings** > **Graphics Settings**.
+2. Try changing the **Rendering Option** to a different value.
+   - Direct3D 11 → Direct3D 9
+   - Direct3D 9 → OpenGL
+
+### Reducing Resource Usage
+
+- Disable unused note effects.
+- Disable unnecessary plugins.
+
+## Troubleshooting
+
+### Key Input Not Detected
+
+1. Try running the program with **Administrator privileges**.
+2. Check if antivirus software is blocking the program.
+3. Verify key mapping is configured correctly.
+
+### Settings Not Saving
+
+1. Check if you have write permissions to `%appdata%/com.dmnote.desktop` folder.
+2. If the folder doesn't exist, run the program again to auto-create it.
+
+### Program Won't Start
+
+1. Check if **WebView2 Runtime** is installed.
+2. It's pre-installed on Windows 10/11, but if missing, download from [Microsoft's official site](https://developer.microsoft.com/microsoft-edge/webview2/).
+
+## Custom CSS Tips
+
+### Real-time Application
+
+If custom CSS is enabled and using a file path, changes are automatically reapplied when you modify/save the CSS file.
+
+If not applied:
+
+1. Check that **Enable Custom CSS** is on
+2. Reselect the CSS file in settings or
+3. Restart the program.
+
+### CSS Debugging
+
+Open Developer Tools with `Ctrl+Shift+I` to inspect elements and test CSS.
+
+## Backup
+
+Regularly backup important settings:
+
+```
+%appdata%/com.dmnote.desktop/
+```
+
+Copying this entire folder backs up all settings, presets, and plugin data.

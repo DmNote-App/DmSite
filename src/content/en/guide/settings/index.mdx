@@ -1,0 +1,105 @@
+---
+title: Settings
+description: DM Note's general settings and advanced options
+---
+
+# Settings
+
+This guide covers DM Note's various settings options.
+
+## General Settings
+
+### Language
+
+Select the program interface language:
+
+- **Korean**
+- **English**
+
+### Background Color
+
+Set the background color of the overlay window. Default is transparent.
+
+<Callout type="info">
+  Using window capture in OBS maintains transparent background. No chroma key
+  needed.
+</Callout>
+
+## Window Settings
+
+### Always on Top
+
+Keeps the overlay window always above other windows. Useful when placing the key viewer over game screens.
+
+### Lock Overlay Window
+
+When enabled, the overlay window ignores mouse events (click-through) allowing you to click on windows underneath.
+
+<Callout type="warning">
+  When locked, you cannot directly interact with the overlay.
+</Callout>
+
+## Graphics Settings
+
+### Rendering Option
+
+Select the graphics rendering method:
+
+- **Auto**: Automatically selects the best option for your system
+- **Direct3D 11**: Recommended for most modern systems
+- **Direct3D 9**: For older system compatibility
+- **OpenGL**: Alternative if DirectX has issues
+
+<Callout type="info">
+  If you experience graphics issues, try changing the rendering option.
+</Callout>
+
+### Resize Anchor
+
+Select the reference point when resizing the overlay window:
+
+- **top-left**: Fixed top-left, expand bottom-right
+- **top-right**: Fixed top-right, expand bottom-left
+- **bottom-left**: Fixed bottom-left, expand top-right
+- **bottom-right**: Fixed bottom-right, expand top-left
+- **center**: Fixed center, expand all directions
+
+## Custom CSS/JS
+
+### Custom CSS
+
+Load a custom CSS file to customize key and counter styles.
+
+1. Click the **Select CSS File** button.
+2. Select your CSS file.
+3. Styles are applied immediately.
+
+<Callout type="info">
+  For detailed CSS styling information, see the [Custom CSS
+  Guide](/docs/custom-css).
+</Callout>
+
+### JS Plugins
+
+Load JavaScript plugins to extend program functionality.
+
+1. Turn on the **Enable JS Plugins** toggle.
+2. Click the **Manage Plugins** button.
+3. Click **Add JS Plugin** to select a file.
+
+<Callout type="info">
+  For detailed plugin development information, see [Getting
+  Started](/docs/getting-started).
+</Callout>
+
+## Reset Settings
+
+To reset all settings to defaults:
+
+1. Click the **Reset Settings** button.
+2. Select **Confirm** in the confirmation message.
+
+<Callout type="warning">
+  Settings reset cannot be undone. Save important settings as presets
+  beforehand.
+</Callout>

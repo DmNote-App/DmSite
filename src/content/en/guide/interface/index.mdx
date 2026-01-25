@@ -1,0 +1,66 @@
+---
+title: Interface Guide
+description: Guide to DM Note's main window and overlay window interface
+---
+
+# Interface Guide
+
+DM Note consists of two independent windows.
+
+## Main Window
+
+The main window is where you manage all program settings.
+
+### Top Tabs
+
+- **Keys**: Manage key mapping and placement.
+- **Settings**: Change program settings.
+
+### Keys Tab
+
+The key mapping tab provides the following features:
+
+| Feature             | Description                                                |
+| ------------------- | ---------------------------------------------------------- |
+| Key mode selection  | Select various key modes like 4key, 5key, 6key, 8key, etc. |
+| Add/Remove keys     | Right-click on the grid to add or remove keys.             |
+| Change key mapping  | Click a key to change the mapped keyboard key.             |
+| Adjust key position | Drag keys to move them to desired positions.               |
+| Adjust key size     | Select a key and drag the handles to resize.               |
+
+### Settings Tab
+
+The settings tab allows you to configure:
+
+- **General settings**: Language, background color, rendering options, etc.
+- **Note effects**: Note effect color, speed, height, etc.
+- **Key counter**: Counter display and style settings
+- **Custom CSS/JS**: Custom styles and plugins
+
+## Overlay Window
+
+The overlay window is a transparent window where key inputs are visualized.
+
+### Features
+
+- **Transparent background**: Background is transparent so it can be placed as an overlay on top of game screens.
+- **Click-through**: Enable "Click-through" option in settings to pass mouse clicks through the overlay.
+- **Always on top**: Use "Always on top" option to keep it above other windows.
+
+### Using with OBS
+
+To maintain transparent background in OBS Studio:
+
+1. Use **Window Capture**.
+2. Set capture method to **Windows 10 (1903 and later)**.
+3. Check **Capture client area**.
+
+<Callout type="info">
+  Transparent background is maintained without chroma key.
+</Callout>
+
+## Keyboard Shortcuts
+
+| Shortcut       | Action                             |
+| -------------- | ---------------------------------- |
+| `Ctrl+Shift+I` | Open Developer Tools (Main window) |

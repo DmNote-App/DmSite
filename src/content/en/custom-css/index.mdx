@@ -1,0 +1,97 @@
+---
+title: Custom CSS Guide
+sidebarTitle: Introduction
+description: How to style keys and counters with CSS in DM Note
+---
+
+# Custom CSS Guide
+
+DM Note allows you to freely customize key and counter styles through custom CSS.
+You can implement various styles like neon signs, minimal designs, game themes, and more.
+
+<Callout type="info">
+  If custom CSS is enabled and using a file path, changes are automatically
+  reapplied when you modify/save the CSS file.
+</Callout>
+
+## Basic Concepts
+
+### CSS Variable System
+
+DM Note uses CSS Variables (Custom Properties) to control styles.
+This allows you to easily change core styles of keys and counters without complex selectors.
+
+```css
+/* Key style variables */
+[data-state="active"] {
+  --key-radius: 8px; /* Corner roundness */
+  --key-bg: #ff2b80; /* Background color */
+  --key-border: 2px solid #fff; /* Border */
+  --key-text-color: #fff; /* Text color */
+}
+```
+
+### State-based Styling
+
+Keys and counters have two states:
+
+| State        | Selector                  | Description       |
+| ------------ | ------------------------- | ----------------- |
+| **Inactive** | `[data-state="inactive"]` | Key not pressed   |
+| **Active**   | `[data-state="active"]`   | Key being pressed |
+
+For counters:
+
+- `[data-counter-state="inactive"]`: Key not pressed
+- `[data-counter-state="active"]`: Key being pressed
+
+## Applying CSS Files
+
+1. Create a CSS file with your desired styles.
+2. Go to the **Settings** tab.
+3. Click **Select CSS File** in the **Custom CSS** section.
+4. Select your CSS file.
+
+## Quick Start Example
+
+Here's a simple neon sign style example:
+
+```css
+/* Global key styles */
+[data-state="inactive"],
+[data-state="active"] {
+  --key-radius: 6px;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+/* Inactive state */
+[data-state="inactive"] {
+  --key-bg: transparent;
+  --key-border: 3px solid #474244;
+  --key-text-color: #474244;
+}
+
+/* Active state - neon effect */
+[data-state="active"] {
+  --key-bg: transparent;
+  --key-border: 3px solid #ff2b80;
+  --key-text-color: #ff2b80;
+  text-shadow: 0px 0px 3px #ff2b80;
+  box-shadow:
+    0px 0px 4px #b3245d,
+    0px 0px 4px #b3245d;
+}
+```
+
+## Next Steps
+
+<Cards>
+  <Cards.Card title="Key Styling" href="/docs/custom-css/key-styling" />
+  <Cards.Card title="Counter Styling" href="/docs/custom-css/counter-styling" />
+  <Cards.Card
+    title="CSS Variable Reference"
+    href="/docs/custom-css/variables"
+  />
+  <Cards.Card title="Examples" href="/docs/custom-css/examples" />
+</Cards>

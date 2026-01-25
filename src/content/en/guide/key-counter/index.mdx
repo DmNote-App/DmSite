@@ -1,0 +1,90 @@
+---
+title: Key Counter
+description: How to set up the key counter feature in DM Note
+---
+
+# Key Counter
+
+Key Counter displays the cumulative press count for each key.
+
+## Enabling Key Counter
+
+1. Go to the **Settings** tab.
+2. Find the **Key Counter** section.
+3. Turn on the **Enable Key Counter** toggle.
+
+## Settings Options
+
+### Position
+
+Select where the counter is displayed:
+
+- **Top**: Display above the key
+- **Bottom**: Display below the key
+- **Left**: Display to the left of the key
+- **Right**: Display to the right of the key
+
+### Offset
+
+Fine-tune the counter position.
+
+- **X Offset**: Horizontal movement
+- **Y Offset**: Vertical movement
+
+### Color
+
+Set the counter text color.
+
+- **Inactive color**: Color when key is not pressed
+- **Active color**: Color when key is being pressed
+
+## Styling with Custom CSS
+
+Key counters can be styled more precisely with custom CSS.
+
+### Counter CSS Variables
+
+```css
+/* Counter style variables */
+.counter {
+  --counter-color: #ffffff; /* Text color */
+  --counter-stroke-color: transparent; /* Text outline color */
+  --counter-stroke-width: 0px; /* Text outline thickness */
+}
+```
+
+### State-based Styling
+
+```css
+/* Inactive state */
+.counter[data-counter-state="inactive"] {
+  --counter-color: #474244;
+}
+
+/* Active state */
+.counter[data-counter-state="active"] {
+  --counter-color: #ff2b80;
+  text-shadow: 0px 0px 3px #ff2b80;
+}
+```
+
+### Styling Specific Key Counters
+
+Combine class selectors to style counters of specific keys differently:
+
+```css
+/* Counter for keys with .blue class */
+.blue .counter[data-counter-state="active"] {
+  --counter-color: #2ebef3;
+  text-shadow: 0px 0px 3px #2ebef3;
+}
+```
+
+<Callout type="info">
+  For more CSS styling methods, see the [Custom CSS Guide](/docs/custom-css).
+</Callout>
+
+## Counter Value Save/Reset
+
+Counter values are saved with app settings and persist after program restart.
+To reset counter values, click the reset button at the bottom of the program (resets all counters in that tab) or right-click on each key and select "Reset Counter".

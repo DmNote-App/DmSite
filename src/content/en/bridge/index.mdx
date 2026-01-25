@@ -1,0 +1,256 @@
+---
+title: Window Communication
+description: Main-Overlay communication using Bridge API
+---
+
+# Window Communication (Bridge)
+
+Use `dmn.bridge` to send and receive messages between main and overlay windows.
+
+## Key Uses
+
+- 🪟 **Window communication**: Data transfer between main ↔ overlay
+- 🔌 **Plugin communication**: Data sharing between plugins in same or different windows
+- 📡 **Broadcast**: Send messages to all plugins in all windows
+
+## API Reference
+
+### send(type, data)
+
+Broadcast message to all windows.
+
+```javascript
+await dmn.bridge.send("WPM_UPDATE", { value: 80, max: 200 });
+```
+
+### sendTo(target, type, data)
+
+Send message to specific window only.
+
+```javascript
+// Send to overlay only
+await dmn.bridge.sendTo("overlay", "THEME_CHANGED", { theme: "dark" });
+
+// Send to main only
+await dmn.bridge.sendTo("main", "KEY_PRESSED", { key: "KeyD" });
+```
+
+### on(type, listener)
+
+Subscribe to specific message type.
+
+```javascript
+const unsub = dmn.bridge.on("WPM_UPDATE", (data) => {
+  console.log("WPM:", data.value);
+});
+
+// Unsubscribe
+unsub();
+```
+
+### once(type, listener)
+
+Receive specific message type only once.
+
+```javascript
+dmn.bridge.once("INIT_COMPLETE", (data) => {
+  console.log("Initialization complete:", data);
+});
+```
+
+### onAny(listener)
+
+Receive all message types. Useful for debugging.
+
+```javascript
+const unsub = dmn.bridge.onAny((type, data) => {
+  console.log(`[Bridge] ${type}:`, data);
+});
+```
+
+### off(type, listener?)
+
+Unsubscribe from messages.
+
+```javascript
+// Unsubscribe specific listener
+dmn.bridge.off("WPM_UPDATE", myListener);
+
+// Unsubscribe all listeners for that type
+dmn.bridge.off("WPM_UPDATE");
+```
+
+## Usage Patterns
+
+### One-way Event Sending
+
+```javascript
+// Send from overlay
+await dmn.bridge.send("KEY_PRESSED", { key: "KeyD" });
+
+// Receive in main
+dmn.bridge.on("KEY_PRESSED", ({ key }) => {
+  console.log(`${key} pressed`);
+});
+```
+
+### Real-time Data Sync
+
+```javascript
+// === Overlay: Calculate KPS and send ===
+// @id kps-sender
+
+if (dmn.window.type !== "overlay") return;
+
+let count = 0;
+
+dmn.keys.onKeyState(({ state }) => {
+  if (state === "DOWN") count++;
+});
+
+setInterval(() => {
+  dmn.bridge.sendTo("main", "KPS_UPDATE", { kps: count });
+  count = 0;
+}, 100);
+```
+
+```javascript
+// === Main: Display KPS ===
+// @id kps-display
+
+if (dmn.window.type !== "main") return;
+
+const display = document.createElement("div");
+display.textContent = "KPS: 0";
+document.body.appendChild(display);
+
+dmn.bridge.on("KPS_UPDATE", ({ kps }) => {
+  display.textContent = `KPS: ${kps}`;
+});
+
+dmn.plugin.registerCleanup(() => {
+  display.remove();
+});
+```
+
+### Request-Response Pattern
+
+```javascript
+// === Main: Request data ===
+dmn.bridge.send("REQUEST_STATS", { type: "current" });
+
+dmn.bridge.once("RESPONSE_STATS", (stats) => {
+  console.log("Stats:", stats);
+});
+```
+
+```javascript
+// === Overlay: Handle request and respond ===
+dmn.bridge.on("REQUEST_STATS", ({ type }) => {
+  const stats = {
+    kps: currentKPS,
+    totalKeys: totalKeyCount,
+    uptime: Date.now() - startTime,
+  };
+
+  dmn.bridge.sendTo("main", "RESPONSE_STATS", stats);
+});
+```
+
+### Data Sharing Between Plugins
+
+```javascript
+// === Data provider (data-provider.js) ===
+// @id data-provider
+
+const sharedData = { score: 0, level: 1 };
+
+function updateData(score, level) {
+  sharedData.score = score;
+  sharedData.level = level;
+  dmn.bridge.send("SHARED_DATA_UPDATE", sharedData);
+}
+
+// Example: Increase score every second
+setInterval(() => {
+  updateData(sharedData.score + 10, sharedData.level);
+}, 1000);
+```
+
+```javascript
+// === Data consumer A (consumer-a.js) ===
+// @id consumer-a
+
+dmn.bridge.on("SHARED_DATA_UPDATE", (data) => {
+  console.log("[Consumer A] Data:", data);
+  updateUI(data.score);
+});
+```
+
+```javascript
+// === Data consumer B (consumer-b.js) ===
+// @id consumer-b
+
+// Multiple plugins can receive the same message simultaneously
+dmn.bridge.on("SHARED_DATA_UPDATE", (data) => {
+  console.log("[Consumer B] Data:", data);
+  displayLevel(data.level);
+});
+```
+
+## defineElement and Bridge Integration
+
+```javascript
+// @id bridge-kps-panel
+
+dmn.plugin.defineElement({
+  name: "Bridge KPS Panel",
+  maxInstances: 1,
+
+  messages: {
+    ko: { "menu.create": "KPS 패널 생성", "menu.delete": "KPS 패널 삭제" },
+    en: {
+      "menu.create": "Create KPS Panel",
+      "menu.delete": "Delete KPS Panel",
+    },
+  },
+
+  contextMenu: {
+    create: "menu.create",
+    delete: "menu.delete",
+  },
+
+  template: (state, settings, { html }) => html`
+    <div
+      style="
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 16px;
+      border-radius: 8px;
+    "
+    >
+      <div style="font-size: 24px; font-weight: bold;">
+        ${state.kps ?? 0} KPS
+      </div>
+      <div
+        style="display: flex; gap: 2px; height: 30px; align-items: flex-end;"
+      >
+        ${(state.history ?? []).map(
+          (v) => html`
+            <div
+              style="
+              flex: 1;
+              height: ${v}%;
+              background: #86EFAC;
+              border-radius: 2px;
+            "
+            ></div>
+          `,
+        )}
+      </div>
+    </div>
+  `,
+
+  // ... onMount implementation
+});
+```

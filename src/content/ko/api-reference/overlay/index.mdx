@@ -1,0 +1,134 @@
+---
+title: 오버레이 (overlay)
+description: 오버레이 창 상태 조회 및 제어 API
+---
+
+# 오버레이 (overlay)
+
+`dmn.overlay`는 오버레이 창의 표시/잠금/리사이즈 기준점/크기를 제어합니다.
+
+## 상태 조회
+
+### get()
+
+현재 오버레이 상태를 조회합니다.
+
+```typescript
+interface OverlayState {
+  visible: boolean;
+  locked: boolean;
+  anchor: string;
+}
+```
+
+```javascript
+const state = await dmn.overlay.get();
+console.log("표시 상태:", state.visible);
+console.log("잠금 상태:", state.locked);
+console.log("앵커:", state.anchor);
+```
+
+## 상태 제어
+
+### setVisible(visible)
+
+오버레이 표시 여부를 설정합니다.
+
+```javascript
+await dmn.overlay.setVisible(true); // 표시
+await dmn.overlay.setVisible(false); // 숨김
+```
+
+### setLock(locked)
+
+오버레이 잠금 상태를 설정합니다.
+
+```javascript
+await dmn.overlay.setLock(true); // 잠금 (클릭 통과 / 이동·크기조절 불가)
+await dmn.overlay.setLock(false); // 잠금 해제
+```
+
+### setAnchor(anchor)
+
+리사이즈 기준점을 설정합니다.
+
+<Callout type="info">
+  지원 값: `top-left`, `top-right`, `bottom-left`, `bottom-right`, `center`
+</Callout>
+
+```javascript
+await dmn.overlay.setAnchor("top-left"); // 좌상단 기준
+await dmn.overlay.setAnchor("center"); // 중앙 기준
+await dmn.overlay.setAnchor("bottom-right"); // 우하단 기준
+```
+
+### resize(payload)
+
+오버레이 크기를 변경합니다. 지정한 앵커를 기준으로 위치가 자동 보정될 수 있으며, 결과로 새로운 bounds를 반환합니다.
+
+```typescript
+interface ResizePayload {
+  width: number;
+  height: number;
+  anchor?: string;
+  contentTopOffset?: number;
+}
+```
+
+```javascript
+const newBounds = await dmn.overlay.resize({
+  width: 800,
+  height: 200,
+});
+console.log("새 위치/크기:", newBounds);
+```
+
+## 이벤트 구독
+
+### onVisibility(listener)
+
+표시 상태 변경 이벤트를 구독합니다.
+
+```javascript
+const unsub = dmn.overlay.onVisibility(({ visible }) => {
+  console.log(visible ? "오버레이 표시됨" : "오버레이 숨겨짐");
+});
+
+// 정리 시 구독 해제
+dmn.plugin.registerCleanup(unsub);
+```
+
+### onLock(listener)
+
+잠금 상태 변경 이벤트를 구독합니다.
+
+```javascript
+const unsub = dmn.overlay.onLock(({ locked }) => {
+  console.log(locked ? "잠금됨" : "잠금 해제됨");
+});
+```
+
+### onAnchor(listener)
+
+앵커 변경 이벤트를 구독합니다.
+
+```javascript
+const unsub = dmn.overlay.onAnchor(({ anchor }) => {
+  console.log("새 앵커:", anchor);
+});
+```
+
+### onResized(listener)
+
+크기 변경 이벤트를 구독합니다.
+
+```javascript
+const unsub = dmn.overlay.onResized((bounds) => {
+  console.log(`새 위치: ${bounds.x}, ${bounds.y}`);
+  console.log(`새 크기: ${bounds.width} x ${bounds.height}`);
+});
+```
+
+<Callout type="warning">
+  현재 `dmn.overlay`는 오버레이의 위치를 임의 좌표로 이동시키는 API를 지원하지 않습니다.
+</Callout>

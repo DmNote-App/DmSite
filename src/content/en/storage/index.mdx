@@ -1,0 +1,250 @@
+---
+title: Storage
+description: Plugin data persistence (dmn.plugin.storage)
+---
+
+# Storage
+
+Use `dmn.plugin.storage` to persistently store plugin data.
+All data is saved with the app settings file and persists across app restarts.
+
+## Automatic Namespace
+
+Each plugin gets an **automatically isolated storage space**.
+Simply use keys without worrying about conflicts with other plugins.
+
+```javascript
+// If plugin ID is "kps-panel"
+// Internally stored as "kps-panel:settings" key
+await dmn.plugin.storage.set("settings", { theme: "dark" });
+```
+
+## API Reference
+
+### get(key)
+
+Retrieve data from storage.
+
+```javascript
+const settings = await dmn.plugin.storage.get("settings");
+// Returns null if no data
+```
+
+### set(key, value)
+
+Save data to storage. Any JSON-serializable value can be stored.
+
+```javascript
+// String
+await dmn.plugin.storage.set("theme", "dark");
+
+// Object
+await dmn.plugin.storage.set("settings", {
+  enabled: true,
+  fontSize: 14,
+});
+
+// Array
+await dmn.plugin.storage.set("history", [
+  { timestamp: Date.now(), value: 100 },
+]);
+```
+
+### remove(key)
+
+Delete data for a specific key.
+
+```javascript
+await dmn.plugin.storage.remove("settings");
+```
+
+### clear()
+
+Delete all data stored by this plugin.
+
+```javascript
+await dmn.plugin.storage.clear();
+```
+
+### keys()
+
+Get list of all keys stored by this plugin.
+
+```javascript
+const allKeys = await dmn.plugin.storage.keys();
+console.log("Stored keys:", allKeys); // ['settings', 'position']
+```
+
+### hasData(prefix)
+
+Check if data exists with a specific prefix.
+
+```javascript
+const hasSettings = await dmn.plugin.storage.hasData("settings");
+console.log("Settings data exists:", hasSettings); // true or false
+```
+
+### clearByPrefix(prefix)
+
+Delete all data starting with a specific prefix.
+
+```javascript
+const deletedCount = await dmn.plugin.storage.clearByPrefix("cache-");
+console.log("Deleted count:", deletedCount);
+```
+
+## Usage Patterns
+
+### Save and Restore Settings
+
+```javascript
+// @id my-plugin
+
+const defaultSettings = {
+  panelVisible: true,
+  position: { x: 10, y: 10 },
+  fontSize: 14,
+};
+
+let settings;
+
+async function loadSettings() {
+  const saved = await dmn.plugin.storage.get("settings");
+  settings = saved || defaultSettings;
+  return settings;
+}
+
+async function saveSettings() {
+  await dmn.plugin.storage.set("settings", settings);
+}
+
+// Initialize
+await loadSettings();
+
+// Save on change
+settings.fontSize = 16;
+await saveSettings();
+```
+
+### History Management
+
+```javascript
+const MAX_HISTORY = 100;
+
+async function addToHistory(entry) {
+  const history = (await dmn.plugin.storage.get("history")) || [];
+
+  history.push({
+    ...entry,
+    timestamp: Date.now(),
+  });
+
+  // Limit max count
+  if (history.length > MAX_HISTORY) {
+    history.shift();
+  }
+
+  await dmn.plugin.storage.set("history", history);
+}
+
+async function getHistory() {
+  return (await dmn.plugin.storage.get("history")) || [];
+}
+```
+
+### Caching
+
+```javascript
+async function getCachedData(key) {
+  const cacheKey = `cache-${key}`;
+  const cached = await dmn.plugin.storage.get(cacheKey);
+
+  // Use cache if exists and within 1 hour
+  if (cached && Date.now() - cached.timestamp < 3600000) {
+    return cached.data;
+  }
+
+  // Calculate new value
+  const data = await fetchData(key);
+
+  await dmn.plugin.storage.set(cacheKey, {
+    data,
+    timestamp: Date.now(),
+  });
+
+  return data;
+}
+```
+
+### Data Migration
+
+```javascript
+const CURRENT_VERSION = 2;
+
+async function migrateStorage() {
+  const version = (await dmn.plugin.storage.get("version")) || 1;
+
+  if (version < CURRENT_VERSION) {
+    if (version === 1) {
+      // v1 → v2 migration
+      const oldSettings = await dmn.plugin.storage.get("settings");
+      if (oldSettings) {
+        await dmn.plugin.storage.set("settings", {
+          ...oldSettings,
+          newFeature: true, // Add new field
+        });
+      }
+    }
+
+    await dmn.plugin.storage.set("version", CURRENT_VERSION);
+    console.log(`Migration complete: v${version} → v${CURRENT_VERSION}`);
+  }
+}
+
+// Run on plugin start
+await migrateStorage();
+```
+
+## Notes
+
+### Avoid Storing Empty Values
+
+Unnecessary data storage pollutes the settings file.
+
+```javascript
+// ❌ Bad: Also saves empty values
+await dmn.plugin.storage.set("history", []);
+await dmn.plugin.storage.set("count", 0);
+
+// ✅ Good: Only save meaningful values
+if (history.length > 0) {
+  await dmn.plugin.storage.set("history", history);
+}
+
+if (count > 0) {
+  await dmn.plugin.storage.set("count", count);
+}
+```
+
+### Avoid Saving on Initial Load
+
+```javascript
+// ❌ Bad
+async function initSettings() {
+  let settings = await dmn.plugin.storage.get("settings");
+  if (!settings) {
+    settings = defaultSettings;
+    await dmn.plugin.storage.set("settings", settings); // Unnecessary save
+  }
+  return settings;
+}
+
+// ✅ Good
+async function initSettings() {
+  const saved = await dmn.plugin.storage.get("settings");
+  if (saved) return saved;
+
+  // Return default without saving
+  return defaultSettings;
+}
+```

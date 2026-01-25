@@ -1,0 +1,205 @@
+---
+title: Key Styling
+description: How to customize key appearance and state effects with CSS
+---
+
+# Key Styling
+
+This guide explains how to customize key appearance using CSS.
+
+## Basic Structure
+
+Keys indicate their current state through the `data-state` attribute:
+
+- `data-state="inactive"`: Key not pressed
+- `data-state="active"`: Key being pressed
+
+## Global Key Styles
+
+Set styles that apply to all keys:
+
+```css
+[data-state="inactive"],
+[data-state="active"] {
+  /* Corner roundness */
+  --key-radius: 8px;
+
+  /* Font style */
+  font-size: 24px;
+  font-weight: 700;
+
+  /* Transition effect */
+  transition: 0.1s ease-in-out;
+}
+```
+
+## Inactive State Style
+
+Styles when the key is not pressed:
+
+```css
+[data-state="inactive"] {
+  /* Background color */
+  --key-bg: #2a2a2a;
+
+  /* Border */
+  --key-border: 2px solid #444;
+
+  /* Text color */
+  --key-text-color: #888;
+
+  /* Shadow effect */
+  box-shadow: 0px 4px 0px #1a1a1a;
+}
+```
+
+## Active State Style
+
+Styles when the key is being pressed:
+
+```css
+[data-state="active"] {
+  /* Background color */
+  --key-bg: #ff2b80;
+
+  /* Border */
+  --key-border: 2px solid #ff2b80;
+
+  /* Text color */
+  --key-text-color: #fff;
+
+  /* Shadow effect */
+  box-shadow: 0px 0px 8px #ff2b80;
+
+  /* Text shadow */
+  text-shadow: 0px 0px 4px #ff2b80;
+}
+```
+
+## Key Offset (Press Effect)
+
+You can implement a press effect where the key moves when pressed:
+
+```css
+[data-state="active"] {
+  /* X offset */
+  --key-offset-x: 0px;
+
+  /* Y offset (pushed down) */
+  --key-offset-y: 4px;
+
+  /* Remove shadow to emphasize press effect */
+  box-shadow: 0px 0px 0px #1a1a1a;
+}
+```
+
+<Callout type="info">
+  `--key-offset-x` and `--key-offset-y` move the key position in active state.
+  Add depth with `box-shadow` in inactive state, and remove shadow with offset
+  in active state to create a natural press effect.
+</Callout>
+
+## Specific Key Styles
+
+Use class names to apply different styles to specific keys.
+
+### Assigning Classes
+
+1. **Right-click** on the key whose style you want to change in the main window.
+2. Select **Set Class**.
+3. Enter a class name (e.g., `blue`, `special`).
+
+### Applying Class-specific Styles
+
+```css
+/* Active state for keys with .blue class */
+.blue[data-state="active"] {
+  --key-bg: transparent;
+  --key-border: 3px solid #2ebef3;
+  --key-text-color: #2ebef3;
+  text-shadow: 0px 0px 3px #2ebef3;
+  box-shadow: 0px 0px 4px #2b8eff;
+}
+
+/* Active state for keys with .special class */
+.special[data-state="active"] {
+  --key-bg: transparent;
+  background: linear-gradient(45deg, #ff2b80, #2ebef3);
+  --key-border: none;
+  --key-text-color: #fff;
+}
+```
+
+<Callout type="warning">
+  Enter only the class name without the selector symbol (`.`) when entering class names.
+
+- ✅ Correct: `blue`
+- ❌ Wrong: `.blue`
+</Callout>
+
+## Style Examples
+
+### Neon Sign Style
+
+```css
+[data-state="inactive"] {
+  --key-bg: transparent;
+  --key-border: 3px solid #333;
+  --key-text-color: #333;
+}
+
+[data-state="active"] {
+  --key-bg: transparent;
+  --key-border: 3px solid #ff2b80;
+  --key-text-color: #ff2b80;
+  text-shadow:
+    0px 0px 2px #ff2b80,
+    0px 0px 4px #ff2b80,
+    0px 0px 8px #ff2b80;
+  box-shadow:
+    0px 0px 4px #ff2b80,
+    inset 0px 0px 4px rgba(255, 43, 128, 0.3);
+}
+```
+
+### Minimal Flat Style
+
+```css
+[data-state="inactive"],
+[data-state="active"] {
+  --key-radius: 4px;
+  transition: 0.05s ease-out;
+}
+
+[data-state="inactive"] {
+  --key-bg: #f0f0f0;
+  --key-border: none;
+  --key-text-color: #333;
+}
+
+[data-state="active"] {
+  --key-bg: #333;
+  --key-border: none;
+  --key-text-color: #fff;
+}
+```
+
+### Pastel 3D Style
+
+```css
+[data-state="inactive"] {
+  --key-radius: 20px;
+  --key-bg: #ffd4e5;
+  --key-border: 2px solid #e8b4c8;
+  --key-text-color: #8b5a6b;
+  box-shadow: 0px 4px 0px #d9a0b8;
+}
+
+[data-state="active"] {
+  --key-bg: #ffc4dd;
+  --key-border: 2px solid #e8b4c8;
+  --key-text-color: #8b5a6b;
+  --key-offset-y: 4px;
+  box-shadow: 0px 0px 0px #d9a0b8;
+}
+```

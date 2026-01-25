@@ -1,0 +1,152 @@
+---
+title: Getting Started
+description: Getting started with DM Note plugin system - setup and first plugin
+---
+
+# Getting Started
+
+This guide walks you through enabling the DM Note plugin system and writing your first plugin.
+
+## Enabling Plugins
+
+1. Open the **Settings** tab in the main window.
+2. Turn on the **Enable JS Plugins** toggle.
+3. Click the **Manage Plugins** button to open the modal.
+4. Click **Add JS Plugin** to select a `.js` file.
+
+Plugins can be individually enabled/disabled in the list and removed using the trash icon.
+
+## Plugin Development Workflow
+
+### Reload
+
+Click the **Reload** button in settings to reload all plugins.
+Useful for testing changes after modifying files.
+
+### Debugging
+
+- **Main Window**: Open Developer Tools with `Ctrl+Shift+I`.
+- **Overlay Window**: Enable developer mode in settings to access DevTools.
+
+## First Plugin
+
+### Create Plugin File
+
+Create a `hello-plugin.js` file using a text editor:
+
+```javascript
+// @id hello-plugin
+
+dmn.plugin.defineElement({
+  name: "Hello Panel",
+
+  contextMenu: {
+    create: "Create Hello Panel",
+    delete: "Delete Hello Panel",
+  },
+
+  settings: {
+    message: { type: "string", default: "Hello, World!", label: "Message" },
+    textColor: { type: "color", default: "#86EFAC", label: "Text Color" },
+  },
+
+  previewState: {
+    count: 42,
+  },
+
+  template: (state, settings, { html }) => html`
+    <div
+      style="
+      background: rgba(0, 0, 0, 0.8);
+      color: ${settings.textColor};
+      padding: 16px;
+      border-radius: 8px;
+      font-family: sans-serif;
+    "
+    >
+      <div style="font-size: 18px; font-weight: bold;">${settings.message}</div>
+      <div style="margin-top: 8px; opacity: 0.7;">
+        Key presses: ${state.count ?? 0}
+      </div>
+    </div>
+  `,
+
+  onMount: ({ setState, onHook }) => {
+    let count = 0;
+
+    // Subscribe to key input events
+    onHook("key", ({ state }) => {
+      if (state === "DOWN") {
+        count++;
+        setState({ count });
+      }
+    });
+
+    console.log("Hello Plugin started!");
+
+    // Return cleanup function
+    return () => {
+      console.log("Hello Plugin stopped!");
+    };
+  },
+});
+```
+
+### Register Plugin
+
+1. Click **Manage Plugins** in settings.
+2. Click **Add JS Plugin** and select `hello-plugin.js`.
+3. Right-click on an empty grid space in the main screen to see **Create Hello Panel** menu.
+4. Click to create the panel.
+
+### Verify Operation
+
+- Drag the panel to adjust its position.
+- Right-click the panel for settings and delete options.
+- Try changing the message and color in settings.
+- Press keyboard keys to see the count increase.
+
+## Plugin ID Rules
+
+The `@id` comment at the top of the file specifies the plugin's unique identifier:
+
+```javascript
+// @id my-plugin-id
+```
+
+**Rules:**
+
+- Use only lowercase letters, numbers, hyphens (`-`), and underscores (`_`)
+- kebab-case recommended (e.g., `kps-counter`, `stats-panel`)
+- Must be within the first 20 lines of the file
+
+**Important:**
+
+- Plugins with the same ID share storage data.
+- Changing the ID will make existing data inaccessible.
+- Without `@id`, the filename automatically becomes the ID.
+
+## Automatic Scope Isolation
+
+DM Note automatically isolates each plugin code in a separate function scope:
+
+- ✅ **Automatic strict mode**: All plugins run in strict mode
+- ✅ **Variable isolation**: Prevents variable conflicts between plugins
+- ✅ **No IIFE needed**: No need to explicitly wrap code
+
+```javascript
+// Just write naturally like this
+const myData = 123;
+
+dmn.plugin.registerCleanup(() => {
+  console.log("cleanup");
+});
+```
+
+## Next Steps
+
+Now that you understand the basic plugin structure, check these docs:
+
+- [Declarative API](/docs/declarative-api) - Learn all `defineElement` options
+- [Template Syntax](/docs/template-syntax) - How to write htm templates
+- [Lifecycle](/docs/lifecycle) - Cleanup and resource management

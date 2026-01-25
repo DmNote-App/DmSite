@@ -1,0 +1,185 @@
+---
+title: Plugin API
+description: dmn.plugin API reference
+---
+
+# Plugin API
+
+Core plugin registration and management API.
+
+## Element Definition
+
+### `dmn.plugin.defineElement(options): void`
+
+Defines a draggable overlay element. See [Declarative API](/docs/declarative-api) for details.
+
+```javascript
+dmn.plugin.defineElement({
+  name: "My Plugin",
+  maxInstances: 1,
+
+  settings: {
+    color: { type: "color", default: "#ffffff", label: "Color" },
+  },
+
+  messages: {
+    ko: { "menu.create": "생성", "menu.delete": "삭제" },
+    en: { "menu.create": "Create", "menu.delete": "Delete" },
+  },
+
+  contextMenu: {
+    create: "menu.create",
+    delete: "menu.delete",
+  },
+
+  template: (state, settings, { html, t }) => html` <div>Content</div> `,
+
+  onMount: ({ setState, getSettings, onHook }) => {
+    return () => {
+      /* cleanup */
+    };
+  },
+});
+```
+
+---
+
+## Settings Definition
+
+### `dmn.plugin.defineSettings(options): void`
+
+Defines plugin settings UI in the main window settings panel. See [Settings System](/docs/settings) for details.
+
+```javascript
+dmn.plugin.defineSettings({
+  id: "my-settings",
+  title: "My Plugin Settings",
+
+  settings: {
+    enabled: { type: "boolean", default: true, label: "Enable" },
+    theme: {
+      type: "select",
+      default: "dark",
+      options: [
+        { value: "light", label: "Light" },
+        { value: "dark", label: "Dark" },
+      ],
+      label: "Theme",
+    },
+  },
+});
+```
+
+---
+
+## Lifecycle
+
+### `dmn.plugin.registerCleanup(callback): void`
+
+Registers cleanup function called when plugin is unloaded.
+
+```javascript
+const interval = setInterval(() => {
+  console.log("tick");
+}, 1000);
+
+dmn.plugin.registerCleanup(() => {
+  clearInterval(interval);
+});
+```
+
+<Callout type="warning">
+  Always clean up timers, event listeners, and DOM elements.
+</Callout>
+
+---
+
+## Storage
+
+### `dmn.plugin.storage`
+
+Plugin-specific persistent storage. See [Storage API](/docs/storage) for details.
+
+```javascript
+// Save
+await dmn.plugin.storage.set("myKey", { value: 42 });
+
+// Load
+const data = await dmn.plugin.storage.get("myKey");
+
+// Delete
+await dmn.plugin.storage.remove("myKey");
+
+// List keys
+const keys = await dmn.plugin.storage.keys();
+```
+
+---
+
+## Plugin Info
+
+### `dmn.plugin.id: string`
+
+Returns current plugin ID (from `// @id` comment).
+
+```javascript
+// @id my-plugin
+console.log(dmn.plugin.id); // 'my-plugin'
+```
+
+### `dmn.plugin.list(): Promise<PluginInfo[]>`
+
+Returns list of all loaded plugins.
+
+```typescript
+interface PluginInfo {
+  id: string;
+  name: string;
+  instances: number;
+}
+
+const plugins = await dmn.plugin.list();
+plugins.forEach((p) => {
+  console.log(`${p.name} (${p.id}): ${p.instances} instances`);
+});
+```
+
+---
+
+## Example Usage
+
+```javascript
+// @id stats-tracker
+
+dmn.plugin.defineElement({
+  name: "Stats Tracker",
+  maxInstances: 1,
+
+  template: (state, settings, { html }) => html`
+    <div style="background: #222; padding: 12px; border-radius: 8px;">
+      <div>Total Keys: ${state.total ?? 0}</div>
+      <div>Session: ${state.session ?? 0}</div>
+    </div>
+  `,
+
+  onMount: ({ setState, onHook }) => {
+    let session = 0;
+
+    // Load saved total
+    dmn.plugin.storage.get("total").then((total) => {
+      setState({ total: total ?? 0 });
+    });
+
+    onHook("key", ({ state }) => {
+      if (state !== "DOWN") return;
+      session++;
+
+      dmn.plugin.storage.get("total").then((total) => {
+        const newTotal = (total ?? 0) + 1;
+        dmn.plugin.storage.set("total", newTotal);
+        setState({ total: newTotal, session });
+      });
+    });
+  },
+});
+```

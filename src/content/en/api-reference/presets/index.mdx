@@ -1,0 +1,129 @@
+---
+title: Presets API
+description: dmn.presets API reference
+---
+
+# Presets API
+
+Save and load complete configuration presets.
+
+## Preset Operations
+
+### `dmn.presets.save(name: string): Promise<void>`
+
+Saves current configuration as a preset.
+
+```javascript
+await dmn.presets.save("My Gaming Setup");
+```
+
+### `dmn.presets.load(name: string): Promise<void>`
+
+Loads a preset by name.
+
+```javascript
+await dmn.presets.load("My Gaming Setup");
+```
+
+### `dmn.presets.delete(name: string): Promise<void>`
+
+Deletes a preset.
+
+```javascript
+await dmn.presets.delete("My Gaming Setup");
+```
+
+### `dmn.presets.list(): Promise<string[]>`
+
+Returns list of all preset names.
+
+```javascript
+const presets = await dmn.presets.list();
+console.log(presets); // ['Default', 'Gaming', 'Streaming', ...]
+```
+
+### `dmn.presets.export(name: string): Promise<string>`
+
+Exports a preset as JSON string.
+
+```javascript
+const json = await dmn.presets.export("My Gaming Setup");
+console.log(json);
+```
+
+### `dmn.presets.import(json: string): Promise<void>`
+
+Imports a preset from JSON string.
+
+```javascript
+const json = `{ "name": "Imported", ... }`;
+await dmn.presets.import(json);
+```
+
+---
+
+## Change Events
+
+### `dmn.presets.onChanged(callback): Unsubscribe`
+
+Subscribes to preset list changes.
+
+```javascript
+const unsub = dmn.presets.onChanged((presets) => {
+  console.log("Presets changed:", presets);
+});
+```
+
+---
+
+## Example Usage
+
+```javascript
+// Preset manager panel
+dmn.plugin.defineElement({
+  name: "Preset Manager",
+  maxInstances: 1,
+
+  template: (state, settings, { html }) => {
+    const presets = state.presets ?? [];
+    return html`
+      <div>
+        <h3>Presets</h3>
+        <ul>
+          ${presets.map(
+            (name) => html`
+              <li>
+                <span>${name}</span>
+                <button @click=${() => dmn.presets.load(name)}>Load</button>
+                <button @click=${() => dmn.presets.delete(name)}>Delete</button>
+              </li>
+            `,
+          )}
+        </ul>
+        <button
+          @click=${() => {
+            const name = prompt("Preset name:");
+            if (name) dmn.presets.save(name);
+          }}
+        >
+          Save Current
+        </button>
+      </div>
+    `;
+  },
+
+  onMount: ({ setState }) => {
+    // Load initial list
+    dmn.presets.list().then((presets) => {
+      setState({ presets });
+    });
+
+    // Watch changes
+    const unsub = dmn.presets.onChanged((presets) => {
+      setState({ presets });
+    });
+
+    return () => unsub();
+  },
+});
+```

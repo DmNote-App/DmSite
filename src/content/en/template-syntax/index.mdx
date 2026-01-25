@@ -1,0 +1,215 @@
+---
+title: Template Syntax
+description: Template writing guide based on htm library
+---
+
+# Template Syntax (htm)
+
+DM Note uses the **htm** library to convert templates to React Elements.
+It allows intuitive writing close to standard HTML syntax.
+
+## Basic Syntax
+
+### Value Interpolation
+
+```javascript
+template: (state, settings, { html }) => html`
+  <div>Current value: ${state.value}</div>
+  <div style="color: ${settings.color};">Colored text</div>
+`;
+```
+
+<Callout type="warning">
+  Function interpolation is not supported. ```javascript // ❌ Wrong html`
+  <div>${(state) => state.value}</div>` // ✅ Correct html`
+  <div>${state.value}</div>` ```
+</Callout>
+
+### Style Attribute
+
+```javascript
+// ✅ Recommended: Write directly as string
+html`<div style="color: ${color}; font-size: ${size}px;">Text</div>`;
+
+// ⚠️ Works but not recommended
+html`<div style=${`color: ${color};`}>Text</div>`;
+
+// ❌ Not supported: Style object
+html`<div style=${{ color: "red" }}>Text</div>`;
+
+// Alternative: Use styleMap for style objects (React style)
+html`<div style=${styleMap({ color, fontSize: `${size}px` })}>Text</div>`;
+```
+
+### Conditional Rendering
+
+```javascript
+// Ternary operator
+html`
+  <div>
+    ${isVisible ? html`<span>Visible</span>` : html`<span>Hidden</span>`}
+  </div>
+`;
+
+// && operator (render only when true)
+html` <div>${showGraph ? html`<div class="graph">Graph</div>` : ""}</div> `;
+```
+
+<Callout type="info">
+  For conditional rendering, use `null`, `false`, or empty string (`""`) when
+  there's no content.
+</Callout>
+
+### Array Rendering
+
+```javascript
+// Return React Element array with map
+html`
+  <div class="list">
+    ${items.map((item) => html` <div class="item">${item.name}</div> `)}
+  </div>
+`;
+
+// Using index
+html`
+  <div>
+    ${data.map((value, index) => html` <span key=${index}>${value}</span> `)}
+  </div>
+`;
+```
+
+### Class Names
+
+```javascript
+// Specify directly as string
+html`<div class="btn ${isActive ? "active" : ""}">Button</div>`;
+
+// className works the same (React compatible)
+html`<div className="btn">Button</div>`;
+```
+
+## Nested Templates
+
+When using `html` tag inside another `html` tag, you must explicitly specify it:
+
+```javascript
+html`
+  <div class="container">
+    ${items.map(
+      (item) => html`
+        <div class="card">
+          ${item.highlighted
+            ? html`<strong>${item.name}</strong>`
+            : html`<span>${item.name}</span>`}
+        </div>
+      `,
+    )}
+  </div>
+`;
+```
+
+## Style Definition
+
+### Inline Styles
+
+```javascript
+template: (state, settings, { html }) => html`
+  <div
+    style="
+    background: rgba(0, 0, 0, 0.8);
+    color: ${settings.textColor};
+    padding: 16px;
+    border-radius: 8px;
+  "
+  >
+    ${state.value}
+  </div>
+`;
+```
+
+### `<style>` Tag
+
+```javascript
+template: (state, settings, { html }) => html`
+  <style>
+    .panel {
+      background: rgba(0, 0, 0, 0.8);
+      padding: 16px;
+      border-radius: 8px;
+    }
+    .panel__value {
+      font-size: 24px;
+      font-weight: bold;
+      color: ${settings.textColor};
+    }
+    .panel__label {
+      font-size: 12px;
+      opacity: 0.7;
+    }
+  </style>
+
+  <div class="panel">
+    <div class="panel__value">${state.value}</div>
+    <div class="panel__label">KPS</div>
+  </div>
+`;
+```
+
+## Practical Example
+
+### Stats Panel
+
+```javascript
+template: (state, settings, { html }) => html`
+  <style>
+    .stats-panel {
+      background: ${settings.bgColor};
+      padding: 16px;
+      border-radius: 12px;
+      color: white;
+      font-family: system-ui, sans-serif;
+    }
+    .stats-panel__header {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      opacity: 0.7;
+    }
+    .stats-panel__value {
+      font-size: 48px;
+      font-weight: bold;
+      line-height: 1;
+      margin: 8px 0;
+    }
+    .stats-panel__graph {
+      display: flex;
+      gap: 2px;
+      height: 40px;
+      align-items: flex-end;
+    }
+    .stats-panel__bar {
+      flex: 1;
+      background: ${settings.barColor};
+      border-radius: 2px 2px 0 0;
+      transition: height 0.1s ease;
+    }
+  </style>
+
+  <div class="stats-panel">
+    <div class="stats-panel__header">Live KPS</div>
+    <div class="stats-panel__value">${state.kps?.toFixed(1) ?? "0.0"}</div>
+
+    ${settings.showGraph
+      ? html`
+          <div class="stats-panel__graph">
+            ${(state.history ?? []).map(
+              (v) => html`
+                <div class="stats-panel__bar" style="height: ${v}%;"></div>
+              `,
+            )}
+          </div>
+        `
+      : ""}
+  </div>
+`;
+```
