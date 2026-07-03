@@ -9,6 +9,11 @@ const GITHUB_URL = "https://github.com/DmNote-App/DmNote";
 const RELEASES_URL = `${GITHUB_URL}/releases`;
 const LATEST_RELEASE_URL = `${RELEASES_URL}/latest`;
 
+// 큰 제목 광학 정렬 — 라틴 대문자는 글리프에 좌측 사이드베어링이 있어 왼쪽이 살짝 떠 보인다.
+// 한글 등은 베어링이 ~0이라 보정하면 오히려 왼쪽으로 튀므로 첫 글자가 라틴일 때만 당겨준다
+const opticalLead = (text: string) =>
+  /^[A-Za-z]/.test(text) ? "-0.03em" : undefined;
+
 // 제품 랜딩 — 히어로(실제 앱 스크린샷) → 기능 스토리 → 개요 → CTA
 export function LandingContent() {
   const { t, locale } = useLanguage();
@@ -35,10 +40,13 @@ export function LandingContent() {
   return (
     <div className="landing-bg relative z-10 text-grey-900 font-sans overflow-x-hidden w-full selection:bg-accent-500 selection:text-white">
       {/* ── Hero — 왼쪽 텍스트 블록, 바로 아래 풀폭 미디어 ── */}
-      <section className="relative px-6 pt-40 pb-4 md:pt-60 md:pb-6">
-        <div className="max-w-6xl mx-auto">
+      <section className="relative pt-40 pb-4 md:pt-60 md:pb-6">
+        <div className="site-rail">
           <Reveal>
-            <h1 className="max-w-2xl text-display font-semibold text-grey-900">
+            <h1
+              className="max-w-2xl text-display font-semibold text-grey-900"
+              style={{ textIndent: opticalLead(t.hero.title) }}
+            >
               {t.hero.title}{" "}
               <span className="dim-text whitespace-nowrap">
                 {t.hero.titleHighlight}
@@ -102,8 +110,8 @@ export function LandingContent() {
       </section>
 
       {/* ── 기능 스토리 (좌우 교차) ── */}
-      <section className="relative px-6 pt-10 pb-24 md:pt-12 md:pb-32">
-        <div className="max-w-6xl mx-auto space-y-24 md:space-y-32">
+      <section className="relative pt-10 pb-24 md:pt-12 md:pb-32">
+        <div className="site-rail space-y-24 md:space-y-32">
           {stories.map((s, i) => (
             <FeatureRow key={s.src} {...s} reverse={i % 2 === 1} />
           ))}
@@ -111,10 +119,13 @@ export function LandingContent() {
       </section>
 
       {/* ── 전체 기능 개요 ── */}
-      <section className="relative px-6 py-24 md:py-32">
-        <div className="max-w-6xl mx-auto">
+      <section className="relative py-24 md:py-32">
+        <div className="site-rail">
           <Reveal className="mb-14 md:mb-16 max-w-2xl">
-            <h2 className="text-headline font-semibold text-grey-900">
+            <h2
+              className="text-headline font-semibold text-grey-900"
+              style={{ textIndent: opticalLead(t.features.title) }}
+            >
               {t.features.title}{" "}
               <span className="dim-text">{t.features.titleHighlight}</span>
             </h2>
@@ -141,9 +152,12 @@ export function LandingContent() {
       </section>
 
       {/* ── 마무리 CTA ── */}
-      <section className="relative px-6 py-28 md:py-36 border-t border-white/[0.06]">
-        <Reveal className="max-w-6xl mx-auto">
-          <h2 className="max-w-2xl text-headline font-semibold break-keep text-grey-900">
+      <section className="relative py-28 md:py-36 border-t border-white/[0.06]">
+        <Reveal className="site-rail">
+          <h2
+            className="max-w-2xl text-headline font-semibold break-keep text-grey-900"
+            style={{ textIndent: opticalLead(t.cta.title) }}
+          >
             {t.cta.title}{" "}
             <span className="dim-text">{t.cta.titleHighlight}</span>
           </h2>
@@ -171,8 +185,8 @@ export function LandingContent() {
       </section>
 
       {/* ── Footer ── */}
-      <footer className="relative z-10 border-t border-white/[0.06] px-6 py-8">
-        <div className="max-w-6xl mx-auto flex flex-col-reverse sm:flex-row items-center justify-between gap-4">
+      <footer className="relative z-10 border-t border-white/[0.06] py-8">
+        <div className="site-rail flex flex-col-reverse sm:flex-row items-center justify-between gap-4">
           <div className="text-[13px] text-grey-400">{t.footer.copyright}</div>
           <nav className="flex gap-6 text-sm">
             <Link

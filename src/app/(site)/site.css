@@ -55,6 +55,12 @@
   color-scheme: dark;
 }
 
+/* navbar 하단 보더 — border-b(box-border) 대신 inset shadow로 그려야
+   콘텐츠 박스가 온전한 64px 유지 → docs와 로고 세로중심이 정확히 일치 */
+.site-theme .site-navbar {
+  box-shadow: inset 0 -1px 0 rgb(255 255 255 / 0.06);
+}
+
 /* WebKit navbar 성능 튜닝 */
 .webkit .site-theme .site-navbar {
   -webkit-backdrop-filter: blur(12px);
@@ -156,6 +162,16 @@
 /* =============================================
    랜딩 공통 유틸리티
    ============================================= */
+
+/* 콘텐츠 레일 — docs(Nextra) 프레임과 좌우 정렬 맞춤
+   패딩을 90rem 레일 안쪽에 둬야 docs(--nextra-content-width: 90rem)의
+   로고/본문 위치와 어긋나지 않는다 */
+.site-theme .site-rail {
+  max-width: 90rem;
+  margin-inline: auto;
+  padding-inline: max(env(safe-area-inset-left), 1.5rem)
+    max(env(safe-area-inset-right), 1.5rem);
+}
 
 /* 스크롤 진입 리빌 (Reveal 컴포넌트용) — 블러가 풀리며 등장 */
 .site-theme .reveal {

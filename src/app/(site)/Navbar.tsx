@@ -8,9 +8,9 @@ export function Navbar() {
 
   return (
     <nav
-      className="site-navbar fixed top-0 left-0 right-0 z-50 h-16 px-6 bg-surface/80 backdrop-blur-xl border-b border-white/[0.06]"
+      className="site-navbar fixed top-0 left-0 right-0 z-50 h-16 bg-surface/80 backdrop-blur-xl"
     >
-      <div className="max-w-6xl mx-auto h-full flex items-center justify-between">
+      <div className="site-rail h-full flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Link
             href="/"
