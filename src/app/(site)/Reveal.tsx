@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
-// 스크롤 진입 시 한 번만 fade-up 시키는 가벼운 리빌
+// 스크롤 진입 시 등장, 이탈 시 역재생하는 양방향 리빌
 export function Reveal({
   children,
   delay = 0,
@@ -34,11 +34,8 @@ export function Reveal({
 
     const observer = new IntersectionObserver(
       (entries) => {
-        const entry = entries[0];
-        if (entry?.isIntersecting) {
-          setVisible(true);
-          observer.disconnect();
-        }
+        // 진입하면 등장, 벗어나면 다시 숨김 — CSS transition이 역재생 처리
+        setVisible(!!entries[0]?.isIntersecting);
       },
       { threshold: 0.15, rootMargin: "0px 0px -10% 0px" }
     );
