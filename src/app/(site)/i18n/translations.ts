@@ -8,17 +8,17 @@ export const translations = {
     hero: {
       title: "Custom",
       titleHighlight: "Key Viewer",
-      description: "게이머를 위한 커스텀 키뷰어",
-      descriptionSub: "커스터마이징과 직관적인 인터페이스를 제공합니다.",
+      description: "실시간 입력 표시와 자유로운 커스터마이징을",
+      descriptionSub: "지원하는 키뷰어입니다.",
       download: "Download",
       release: "Release",
+      screenshotAlt: "DM NOTE 앱 화면 — 그리드 키 편집기",
     },
     features: {
-      sectionLabel: "Features",
-      title: "Fully",
-      titleHighlight: "Customizable",
-      description: "DM Note는 완벽한 커스터마이징을 지원합니다.",
-      descriptionSub: "당신만의 키뷰어를 만들어보세요.",
+      title: "Make it",
+      titleHighlight: "yours",
+      description: "키 배치부터 스타일, 동작까지",
+      descriptionSub: "전부 직접 설정할 수 있습니다.",
       items: {
         realtime: {
           title: "실시간 입력 감지",
@@ -62,33 +62,30 @@ export const translations = {
       },
     },
     footer: {
-      copyright: "© 2025 DM Note. Licensed under GPL-3.0",
+      copyright: "© 2026 DM NOTE. Licensed under GPL-3.0",
+      links: {
+        docs: "문서",
+        github: "GitHub",
+        releases: "릴리즈",
+      },
     },
     showcase: {
-      sectionLabel: "Showcase",
-      title: "Quick",
-      titleHighlight: "Preview",
-      titleSuffix: "",
-      description: "주요 기능들을 빠르게 살펴보세요.",
-      download: "다운로드",
       items: {
         css: {
           title: "CSS 커스터마이징",
-          description: "자유로운 스타일링",
-        },
-        grid: {
-          title: "그리드 레이아웃",
-          description: "직관적인 배치",
-        },
-        counter: {
-          title: "키 카운터",
-          description: "실시간 입력 통계",
         },
         plugin: {
           title: "플러그인",
-          description: "JavaScript 확장",
+          description: "JavaScript로 나만의 기능을 자유롭게 확장할 수 있어요.",
         },
       },
+    },
+    cta: {
+      title: "설치 없이",
+      titleHighlight: "바로 실행",
+      description: "무료 오픈소스로 제공됩니다.",
+      button: "다운로드",
+      secondary: "문서 보기",
     },
   },
   en: {
@@ -98,17 +95,17 @@ export const translations = {
     hero: {
       title: "Custom",
       titleHighlight: "Key Viewer",
-      description: "Custom Key Viewer for Gamers",
-      descriptionSub: "Offering full customization and an intuitive UI",
+      description: "A key viewer with real-time input display",
+      descriptionSub: "and full customization.",
       download: "Download",
       release: "Release",
+      screenshotAlt: "DM NOTE app window — grid key editor",
     },
     features: {
-      sectionLabel: "Features",
-      title: "Fully",
-      titleHighlight: "Customizable",
-      description: "DM Note supports complete customization",
-      descriptionSub: "Create your own unique key viewer",
+      title: "Make it",
+      titleHighlight: "yours",
+      description: "Adjust everything from key layout",
+      descriptionSub: "to style and behavior.",
       items: {
         realtime: {
           title: "Real-time Input",
@@ -152,33 +149,30 @@ export const translations = {
       },
     },
     footer: {
-      copyright: "© 2025 DM Note. Licensed under GPL-3.0",
+      copyright: "© 2026 DM NOTE. Licensed under GPL-3.0",
+      links: {
+        docs: "Docs",
+        github: "GitHub",
+        releases: "Releases",
+      },
     },
     showcase: {
-      sectionLabel: "Showcase",
-      title: "Quick",
-      titleHighlight: "Preview",
-      titleSuffix: "",
-      description: "Take a quick look at the key features of DM Note",
-      download: "Download",
       items: {
         css: {
           title: "CSS Customization",
-          description: "Unlimited styling",
-        },
-        grid: {
-          title: "Grid Layout",
-          description: "Intuitive positioning",
-        },
-        counter: {
-          title: "Key Counter",
-          description: "Real-time statistics",
         },
         plugin: {
           title: "Plugins",
-          description: "Extend with JavaScript",
+          description: "Extend it with your own features, freely, using JavaScript.",
         },
       },
+    },
+    cta: {
+      title: "No install,",
+      titleHighlight: "just run",
+      description: "Free and open source.",
+      button: "Download",
+      secondary: "Read the docs",
     },
   },
 };
@@ -193,9 +187,9 @@ export type Translations = {
     descriptionSub: string;
     download: string;
     release: string;
+    screenshotAlt: string;
   };
   features: {
-    sectionLabel: string;
     title: string;
     titleHighlight: string;
     description: string;
@@ -211,18 +205,20 @@ export type Translations = {
       settings: { title: string; description: string };
     };
   };
-  footer: { copyright: string };
-  showcase: {
-    sectionLabel: string;
+  footer: {
+    copyright: string;
+    links: { docs: string; github: string; releases: string };
+  };
+  cta: {
     title: string;
     titleHighlight: string;
-    titleSuffix: string;
     description: string;
-    download: string;
+    button: string;
+    secondary: string;
+  };
+  showcase: {
     items: {
-      css: { title: string; description: string };
-      grid: { title: string; description: string };
-      counter: { title: string; description: string };
+      css: { title: string };
       plugin: { title: string; description: string };
     };
   };

@@ -13,17 +13,17 @@ const navbar = (
       <div className="flex items-center gap-2">
         <img
           src="/icon.ico"
-          alt="DM Note Logo"
+          alt="DM NOTE Logo"
           className="h-6 w-6 rounded-md"
         />
-        <b>DM Note</b>
+        <b>DM NOTE</b>
       </div>
     }
     projectLink="https://github.com/DmNote-App/DmNote"
   />
 );
 
-const footer = <Footer className="dm-docs-footer">GPL 3.0 © DM Note.</Footer>;
+const footer = <Footer className="dm-docs-footer">GPL 3.0 © DM NOTE.</Footer>;
 
 const LOCALES = ["ko", "en"] as const;
 type Locale = (typeof LOCALES)[number];

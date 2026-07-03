@@ -2,8 +2,8 @@ import type { Metadata, Viewport } from "next";
 
 export const siteConfig = {
   url: "https://dmnote.app",
-  name: "DM Note",
-  title: "DM Note - Custom Key Viewer",
+  name: "DM NOTE",
+  title: "DM NOTE - Custom Key Viewer",
   description:
     "강력한 커스터마이징을 지원하는 키뷰어",
   keywords: [
@@ -14,10 +14,10 @@ export const siteConfig = {
     "스트리밍",
     "OBS",
     "키 입력",
-    "DM Note",
+    "DM NOTE",
   ],
-  authors: [{ name: "DM Note" }],
-  creator: "DM Note",
+  authors: [{ name: "DM NOTE" }],
+  creator: "DM NOTE",
   locale: "ko_KR",
   icon: "/icon.ico",
 } as const;
@@ -77,11 +77,11 @@ export const docsMetadata: Metadata = {
     template: `%s`,
   },
   description:
-    "DM Note API 레퍼런스",
+    "DM NOTE API 레퍼런스",
   openGraph: {
     title: `${siteConfig.name} 문서`,
     description:
-      "DM Note API 레퍼런스",
+      "DM NOTE API 레퍼런스",
   },
 };
 

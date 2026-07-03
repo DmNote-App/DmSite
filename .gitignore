@@ -2,3 +2,8 @@ node_modules
 .next
 out
 public/_pagefind
+
+# 로컬 작업 문서 / 빌드 아티팩트
+tasks/
+*.tsbuildinfo
+.claude/

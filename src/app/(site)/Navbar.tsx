@@ -8,20 +8,22 @@ export function Navbar() {
 
   return (
     <nav
-      className="site-navbar fixed top-0 left-0 right-0 z-50 h-16 bg-surface/70 backdrop-blur-xl border-b border-white/[0.06]"
+      className="site-navbar fixed top-0 left-0 right-0 z-50 h-16 px-6 bg-surface/80 backdrop-blur-xl border-b border-white/[0.06]"
     >
-      <div className="max-w-[1440px] mx-auto px-6 h-full flex items-center justify-between">
+      <div className="max-w-6xl mx-auto h-full flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/" className="font-bold flex items-center gap-2" style={{ color: "rgb(var(--grey-900))" }}>
-            <img src="/icon.ico" alt="DM Note Logo" className="w-6 h-6 rounded-md" />
-            DM Note
+          <Link
+            href="/"
+            className="font-bold flex items-center gap-2 text-grey-900 whitespace-nowrap shrink-0"
+          >
+            <img src="/icon.ico" alt="DM NOTE Logo" className="w-6 h-6 rounded-md" />
+            DM NOTE
           </Link>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-5">
           <Link
             href="/docs"
-            className="text-sm font-medium transition-colors"
-            style={{ color: "rgb(var(--grey-600))" }}
+            className="text-sm font-medium text-grey-500 hover:text-grey-900 transition-colors"
           >
             {t.nav.documentation}
           </Link>
@@ -30,8 +32,7 @@ export function Navbar() {
             href="https://github.com/DmNote-App/DmNote"
             target="_blank"
             rel="noreferrer"
-            className="transition-colors"
-            style={{ color: "rgb(var(--grey-500))" }}
+            className="text-grey-500 hover:text-grey-900 transition-colors"
             aria-label="GitHub"
           >
             <svg height="24" width="24" viewBox="0 0 16 16" fill="currentColor">
