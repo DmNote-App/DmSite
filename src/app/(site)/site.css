@@ -302,3 +302,67 @@
 .site-theme .dm-cta-link.secondary:hover {
   color: rgb(var(--grey-900));
 }
+
+/* =============================================
+   유틸 페이지 폼
+   ============================================= */
+
+/* 카드 엘리베이션 — 보더 대신 면 밝기 차 + 은은한 그림자 + 상단 하이라이트
+   근흑 캔버스에선 그림자가 주 단서가 못 되므로 면 대비가 주 역할 */
+.site-theme .dm-card {
+  border-radius: 16px;
+  background: rgb(var(--surface-muted));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.04),
+    0 0 0 1px rgb(255 255 255 / 0.04),
+    0 12px 32px -16px rgb(0 0 0 / 0.55),
+    0 3px 10px -4px rgb(0 0 0 / 0.35);
+}
+
+/* 모바일에선 카드를 화면 좌우에 풀블리드 — 음수 마진은 site-rail 패딩과 동일식 */
+@media (max-width: 47.9375rem) {
+  .site-theme .dm-card {
+    border-radius: 0;
+    margin-left: calc(-1 * max(env(safe-area-inset-left), 1.5rem));
+    margin-right: calc(-1 * max(env(safe-area-inset-right), 1.5rem));
+  }
+}
+
+/* 공용 인풋 — 보더 없는 필드형, 호버에 면이 밝아지고 포커스는 가는 액센트 링 */
+.site-theme .dm-input {
+  width: 100%;
+  height: 2.75rem;
+  border-radius: 12px;
+  border: none;
+  background: rgb(var(--surface));
+  padding-inline: 0.875rem;
+  font-size: 0.9375rem;
+  color: rgb(var(--grey-900));
+  outline: none;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.site-theme .dm-input::placeholder {
+  color: rgb(var(--grey-300));
+}
+
+.site-theme .dm-input:hover {
+  background: rgb(var(--surface-hover));
+}
+
+.site-theme .dm-input:focus {
+  background: rgb(var(--surface-hover));
+  box-shadow: inset 0 0 0 1px rgb(130 106 237 / 0.5);
+}
+
+/* 숫자 인풋 스피너 제거 — 값은 직접 입력하는 게 주 사용 흐름 */
+.site-theme .dm-input::-webkit-outer-spin-button,
+.site-theme .dm-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.site-theme .dm-input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}

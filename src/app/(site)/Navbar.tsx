@@ -27,6 +27,12 @@ export function Navbar() {
           >
             {t.nav.documentation}
           </Link>
+          <Link
+            href="/utils"
+            className="text-sm font-medium text-grey-500 hover:text-grey-900 transition-colors"
+          >
+            {t.nav.utils}
+          </Link>
           <LanguageSwitcher />
           <a
             href="https://github.com/DmNote-App/DmNote"
