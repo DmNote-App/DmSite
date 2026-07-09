@@ -19,6 +19,37 @@
   --text-lead--line-height: 1.55;
 }
 
+/* 시맨틱 컬러 — 실제 값은 site.css의 .site-theme 스코프 변수에서 결정 (라이트/다크)
+   Tailwind v4는 tailwind.config.js를 읽지 않으므로 여기 등록해야 유틸리티가 생성된다.
+   inline 필수: 일반 @theme은 :root에 변수를 만들어 var()가 :root에서 해석되는데
+   --grey-* 는 .site-theme 스코프라 실패함. inline은 값을 유틸리티에 직접 넣는다 */
+@theme inline {
+  --color-grey-50: rgb(var(--grey-50));
+  --color-grey-100: rgb(var(--grey-100));
+  --color-grey-200: rgb(var(--grey-200));
+  --color-grey-300: rgb(var(--grey-300));
+  --color-grey-400: rgb(var(--grey-400));
+  --color-grey-500: rgb(var(--grey-500));
+  --color-grey-600: rgb(var(--grey-600));
+  --color-grey-700: rgb(var(--grey-700));
+  --color-grey-800: rgb(var(--grey-800));
+  --color-grey-900: rgb(var(--grey-900));
+  --color-canvas: rgb(var(--canvas));
+  --color-surface: rgb(var(--surface));
+  --color-surface-muted: rgb(var(--surface-muted));
+  --color-surface-hover: rgb(var(--surface-hover));
+  --color-surface-border: rgb(var(--surface-border));
+  --color-accent-500: #826aed;
+}
+
+/* Tailwind v4 preflight가 버튼 기본 커서를 default로 되돌림 — 클릭 가능한 건 포인터로 */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
 :root {
   --scrollbar-size: 8px;
   --scrollbar-track: transparent;
