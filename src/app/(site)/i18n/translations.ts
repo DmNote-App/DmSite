@@ -55,16 +55,18 @@ export const translations = {
       items: {
         css: {
           title: "CSS 커스터마이징",
-          description: "CSS를 넣어 키 모양부터 배치까지 원하는 대로 바꿉니다.",
+          description:
+            "CSS로 키뷰어를 세밀하게 다듬어 원하는 스타일을 적용할 수 있습니다.",
         },
         plugin: {
           title: "플러그인",
-          description: "JavaScript로 필요한 기능을 직접 만들어 붙입니다.",
+          description:
+            "JavaScript로 나만의 기능을 자유롭게 확장할 수 있습니다.",
         },
         noteEffect: {
           title: "노트 효과",
           description:
-            "리듬게임에 맞춰 다듬은 노트 효과로 입력이 한눈에 들어옵니다.",
+            "리듬게임에 최적화된 노트 효과로 시각적 피드백을 제공합니다.",
         },
       },
     },
@@ -157,16 +159,17 @@ export const translations = {
         css: {
           title: "CSS Customization",
           description:
-            "Write your own CSS to restyle every key, from shape to layout.",
+            "Apply the styles you want by finely customizing the key viewer with CSS.",
         },
         plugin: {
           title: "Plugins",
-          description: "Build the features you need in JavaScript and drop them in.",
+          description:
+            "Extend it freely with your own features using JavaScript.",
         },
         noteEffect: {
           title: "Note Effects",
           description:
-            "Note effects tuned for rhythm games show every input at a glance.",
+            "Provides visual feedback with note effects optimized for rhythm games.",
         },
       },
     },
