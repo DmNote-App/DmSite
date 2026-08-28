@@ -20,8 +20,8 @@ Add items to the menu shown when right-clicking a key.
 
 ```javascript
 const menuId = dmn.ui.contextMenu.addKeyMenuItem({
-  id: "copy-keycode",
-  label: "Copy Key Code",
+  id: 'copy-keycode',
+  label: 'Copy Key Code',
   onClick: (context) => {
     navigator.clipboard.writeText(context.keyCode);
   },
@@ -30,21 +30,24 @@ const menuId = dmn.ui.contextMenu.addKeyMenuItem({
 
 **Context Object:**
 
-| Property   | Type        | Description             |
-| ---------- | ----------- | ----------------------- |
-| `keyCode`  | string      | Key code (e.g., "KeyD") |
-| `index`    | number      | Key index               |
-| `position` | KeyPosition | Key position info       |
-| `mode`     | string      | Current key mode        |
+| Property   | Type        | Description                                                                                |
+| ---------- | ----------- | ------------------------------------------------------------------------------------------ |
+| `keyCode`  | string      | Canonical slot identifier (e.g. "D", "LEFT CTRL+Z", "F\|NUMPAD 4")                         |
+| `id`       | string      | Stable element ID (UUID). Keeps identifying the same key across reorders and mode switches |
+| `index`    | number      | Key index. Deprecated: only valid for the current snapshot, use `id` for identity          |
+| `position` | KeyPosition | Key position info                                                                          |
+| `mode`     | string      | Current key mode                                                                           |
 
 ### Grid Menu (addGridMenuItem)
 
 Add items to the menu shown when right-clicking empty grid space.
+So the menu stays short no matter how many plugins are installed, items added here are grouped under a single `Plugins` submenu.
+They keep their registration order and `position` does not apply.
 
 ```javascript
 dmn.ui.contextMenu.addGridMenuItem({
-  id: "add-timer",
-  label: "Add Timer",
+  id: 'add-timer',
+  label: 'Add Timer',
   onClick: (context) => {
     createTimer(context.position);
   },
@@ -60,11 +63,11 @@ dmn.ui.contextMenu.addGridMenuItem({
 
 ### Menu Item Options
 
-```javascript
+```javascript fragment=expression
 {
   id: "my-menu",           // Unique ID within plugin
   label: "Menu Item",      // Display text
-  position: "bottom",      // "top" | "bottom" (default: bottom)
+  position: "bottom",      // "top" | "bottom" (default: bottom, key menu only)
 
   // Conditional visibility
   visible: (context) => context.mode === "4key",
@@ -79,12 +82,14 @@ dmn.ui.contextMenu.addGridMenuItem({
 }
 ```
 
+`visible` and `disabled` accept a boolean or a function of the context. A function that throws is treated as hidden / disabled (the rest of the menu still renders), and non-function values are coerced by truthiness. `0`, `""`, and `null` hide an item when passed to `visible`, and leave it enabled when passed to `disabled`.
+
 ### Menu Management
 
 ```javascript
 // Update menu
 dmn.ui.contextMenu.updateMenuItem(menuId, {
-  label: "New Label",
+  label: 'New Label',
   disabled: true,
 });
 
@@ -155,15 +160,15 @@ dmn.ui.displayElement.add({
 
   // Direct function (recommended)
   onClick: async () => {
-    console.log("Clicked!");
+    console.log('Clicked!');
   },
 
   onPositionChange: async (pos) => {
-    await dmn.plugin.storage.set("position", pos);
+    await dmn.plugin.storage.set('position', pos);
   },
 
   onDelete: async () => {
-    console.log("Deleted!");
+    console.log('Deleted!');
   },
 });
 ```
@@ -185,27 +190,195 @@ dmn.ui.displayElement.add({
 | `update(config)`                    | Update metadata                     |
 | `remove()`                          | Remove element                      |
 
+### Anchor
+
+Pins an element to a specific key:
+
+```javascript
+dmn.ui.displayElement.add({
+  html: `<div>→</div>`,
+  position: { x: 0, y: 0 },
+  anchor: {
+    keyCode: 'D',
+    offset: { x: 70, y: 0 },
+  },
+});
+```
+
+`anchor.keyCode` is a canonical slot identifier. For a multi-key slot, use its
+canonical string (e.g. `"LEFT CTRL+Z"` for `match: 'all'`, `"F|NUMPAD 4"`
+for `match: 'any'`). See
+[Canonical slot identifiers](/docs/api-reference/keys#canonical-slot-identifiers).
+
+### Cleanup
+
+Remove every display element owned by the current plugin during cleanup.
+
+```javascript
+dmn.plugin.registerCleanup(() => {
+  dmn.ui.displayElement.clearMyElements();
+});
+```
+
 ## Dialog
 
 Modal dialogs for user interaction.
 
 ### alert
 
-Show simple alert.
+Show simple alert. The returned Promise resolves when the user presses the confirm button or the dialog is dismissed.
 
 ```javascript
-await dmn.ui.dialog.alert("Saved!");
+await dmn.ui.dialog.alert('Saved!');
+// Runs after the user confirms
 
-await dmn.ui.dialog.alert("Task complete", { confirmText: "OK" });
+await dmn.ui.dialog.alert('Task complete', { confirmText: 'OK' });
 ```
 
 ### confirm
 
 Show confirm/cancel dialog.
 
+Options: `confirmText` (confirm button label), `cancelText` (cancel button label), `danger` (renders destructive confirmations in danger colors)
+
 ```javascript
-const ok = await dmn.ui.dialog.confirm("Proceed?");
+const ok = await dmn.ui.dialog.confirm('Proceed?');
 if (ok) {
   // Confirm clicked
 }
+
+// Destructive action
+const confirmed = await dmn.ui.dialog.confirm('All data will be deleted.', {
+  danger: true,
+  confirmText: 'Delete',
+  cancelText: 'Keep',
+});
 ```
+
+### custom
+
+Shows a custom HTML dialog. Use the Components API to build controls that match the app UI.
+
+```javascript
+const formHtml = `
+  <div class="flex flex-col gap-[12px]">
+    ${dmn.ui.components.formRow(
+      'Name',
+      dmn.ui.components.input({ id: 'name' }),
+    )}
+    ${dmn.ui.components.formRow(
+      'Theme',
+      dmn.ui.components.dropdown({
+        id: 'theme',
+        options: [
+          { label: 'Dark', value: 'dark' },
+          { label: 'Light', value: 'light' },
+        ],
+      }),
+    )}
+  </div>
+`;
+
+const confirmed = await dmn.ui.dialog.custom(formHtml, {
+  confirmText: 'Save',
+  cancelText: 'Cancel',
+  showCancel: true,
+});
+```
+
+## Components
+
+These helpers return HTML strings for dialogs and display elements.
+
+### button
+
+```javascript
+const saveButton = dmn.ui.components.button('Save', {
+  variant: 'primary',
+  onClick: () => console.log('Save clicked'),
+});
+```
+
+### checkbox
+
+```javascript
+const enabledCheckbox = dmn.ui.components.checkbox({
+  checked: true,
+  id: 'enabled',
+  onChange: (checked) => console.log('Enabled:', checked),
+});
+```
+
+### input
+
+```javascript
+const volumeInput = dmn.ui.components.input({
+  type: 'number',
+  value: 50,
+  min: 0,
+  max: 100,
+  width: 100,
+  id: 'volume',
+  onChange: (value) => console.log('Volume:', value),
+});
+```
+
+### dropdown
+
+```javascript
+const themeDropdown = dmn.ui.components.dropdown({
+  options: [
+    { label: 'Dark', value: 'dark' },
+    { label: 'Light', value: 'light' },
+  ],
+  selected: 'dark',
+  id: 'theme',
+  onChange: (value) => console.log('Theme:', value),
+});
+```
+
+### formRow
+
+Pairs a label with a component.
+
+```javascript
+const row = dmn.ui.components.formRow('Volume', volumeInput);
+```
+
+### panel
+
+Wraps content for use inside a display element. Do not use this wrapper inside a dialog.
+
+```javascript
+const panelHtml = dmn.ui.components.panel(row, {
+  title: 'Settings',
+  width: 400,
+});
+
+dmn.ui.displayElement.add({
+  html: panelHtml,
+  position: { x: 100, y: 100 },
+});
+```
+
+## Color Picker
+
+### pickColor(options)
+
+Opens the app color picker.
+
+```javascript
+dmn.ui.pickColor({
+  initialColor: '#ff0000',
+  onColorChange: (color) => {
+    console.log('Preview color:', color);
+  },
+  onColorChangeComplete: (color) => {
+    console.log('Committed color:', color);
+  },
+  referenceElement: document.getElementById('color-button'),
+  onClose: () => console.log('Picker closed'),
+});
+```
+
+Use `position: { x, y }` when there is no reference element. The optional `id` prevents duplicate pickers for the same owner.

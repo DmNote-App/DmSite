@@ -15,9 +15,16 @@ Simply use keys without worrying about conflicts with other plugins.
 
 ```javascript
 // If plugin ID is "kps-panel"
-// Internally stored as "kps-panel:settings" key
+// Internally stored under the "kps-panel/settings" namespace
 await dmn.plugin.storage.set("settings", { theme: "dark" });
 ```
+
+<Callout type="warning">
+  The `instances` key is reserved for the app's saved plugin element placements
+  (`defineElement`). `set` and `remove` on this key are rejected with
+  `PLUGIN_INSTANCES_KEY_RESERVED`; placements are only removed together with
+  the namespace when you call `clear`. Use a different key.
+</Callout>
 
 ## API Reference
 
@@ -66,6 +73,11 @@ Delete all data stored by this plugin.
 await dmn.plugin.storage.clear();
 ```
 
+<Callout type="info">
+  Not available in the OBS browser source runtime. Destructive bulk deletes are
+  blocked for remote clients.
+</Callout>
+
 ### keys()
 
 Get list of all keys stored by this plugin.
@@ -78,6 +90,7 @@ console.log("Stored keys:", allKeys); // ['settings', 'position']
 ### hasData(prefix)
 
 Check if data exists with a specific prefix.
+The prefix is automatically scoped to the current plugin, so do not include the plugin ID.
 
 ```javascript
 const hasSettings = await dmn.plugin.storage.hasData("settings");
@@ -87,11 +100,17 @@ console.log("Settings data exists:", hasSettings); // true or false
 ### clearByPrefix(prefix)
 
 Delete all data starting with a specific prefix.
+The prefix is automatically scoped to the current plugin, so it cannot delete another plugin's data.
 
 ```javascript
 const deletedCount = await dmn.plugin.storage.clearByPrefix("cache-");
 console.log("Deleted count:", deletedCount);
 ```
+
+<Callout type="info">
+  Not available in the OBS browser source runtime. Destructive bulk deletes are
+  blocked for remote clients.
+</Callout>
 
 ## Usage Patterns
 

@@ -7,9 +7,14 @@ description: dmn.keys API reference for key events and mappings
 
 Key event subscription, mapping, and custom tab management.
 
+<Callout type="info">
+  OBS is read-only. Native Tauri main and overlay windows can write through the
+  revision coordinator and subscribe to the same canonical events.
+</Callout>
+
 ## Key State Events
 
-### `dmn.keys.onKeyState(callback): Unsubscribe`
+### `dmn.keys.onKeyState(callback): ReadyUnsubscribe`
 
 <Callout type="warning">Overlay window only.</Callout>
 
@@ -17,13 +22,53 @@ Subscribes to state changes for registered keys.
 
 ```typescript
 interface KeyStateEvent {
-  key: string; // e.g., 'KeyA', 'MouseLeft'
-  state: "UP" | "DOWN";
-  mode: "keyboard" | "mouse";
+  // Canonical slot identifier, e.g. 'A', 'MOUSE1', 'F|NUMPAD 4'
+  key: string;
+  state: 'UP' | 'DOWN';
+  mode: string; // current layout mode ID (e.g. '4key')
+  // Elapsed time (ms) between input capture and event emit.
+  // Recover the real input time with `performance.now() - eventAgeMs`.
+  eventAgeMs?: number;
+  // UP events only. Physical hold duration (ms) measured by the input
+  // daemon when the same physical input produced canonical DOWN and UP.
+  // Omitted when those transitions came from different or unknown inputs.
+  holdDurationMs?: number;
 }
 
 const unsub = dmn.keys.onKeyState(({ key, state, mode }) => {
   console.log(`[${mode}] ${key} → ${state}`);
+});
+```
+
+`holdDurationMs` is delivery-latency independent when present. A canonical slot
+can remain active across overlapping devices or member keys, so consumers that
+need its full active duration must also track the matching canonical `DOWN` and
+`UP` timestamps when this optional field is absent.
+
+The returned function also exposes a `ready` promise that resolves once the
+subscription is actually registered with the backend. Events fired before
+`ready` resolves may not be delivered, so await it when you need a guaranteed
+starting point (e.g. before requesting a snapshot):
+
+```typescript
+const unsub = dmn.keys.onKeyState(handler);
+await unsub.ready; // subscription is live from this point
+```
+
+### `dmn.keys.onKeysReset(callback): ReadyUnsubscribe`
+
+Fires when the pressed-key state is invalidated as a whole, e.g. when the
+keyboard hook (re)starts after a global shortcut change. Any state derived
+from previous `onKeyState` events (held keys, active visualizations) should
+be cleared and rebuilt from a fresh snapshot.
+
+```typescript
+interface KeysResetEvent {
+  reason: string; // e.g., 'hook_restart'
+}
+
+dmn.keys.onKeysReset(({ reason }) => {
+  console.log(`key state reset: ${reason}`);
 });
 ```
 
@@ -35,15 +80,20 @@ Subscribes to all raw input events (including unregistered keys).
 
 ```typescript
 interface RawInputEvent {
-  device: "KEYBOARD" | "MOUSE";
-  label: string; // e.g., 'A', 'LButton'
-  state: "DOWN" | "UP";
+  device: 'keyboard' | 'mouse' | 'gamepad' | 'unknown';
+  label: string; // e.g., 'A', 'MOUSE1', 'HIDB:1ccf:101c:9:3'
+  labels: string[]; // all candidate labels for this event
+  state: 'DOWN' | 'UP';
 }
 
 const unsub = dmn.keys.onRawInput(({ device, label, state }) => {
   console.log(`[${device}] ${label} ${state}`);
 });
 ```
+
+HID device buttons (Windows) are delivered with `device: 'gamepad'` and
+labels in the form `HIDB:vid:pid:usagePage:usage`. See the
+[Knobs API](/docs/api-reference/knobs) for HID axis (knob) elements.
 
 ---
 
@@ -54,10 +104,46 @@ const unsub = dmn.keys.onRawInput(({ device, label, state }) => {
 Returns the current cumulative key counter snapshot.
 
 ```typescript
+// Inner map keys are canonical slot identifiers
 type KeyCounters = Record<string, Record<string, number>>;
 
 const counters = await dmn.keys.getCounters();
-console.log(counters["4key"]);
+console.log(counters['4key']);
+```
+
+### `dmn.keys.setCounters(counters): Promise<KeyCounters>`
+
+Replaces all cumulative key counters and returns the committed snapshot.
+
+```javascript
+await dmn.keys.setCounters({
+  '4key': { D: 100, F: 200, J: 150, K: 180 },
+});
+```
+
+### `dmn.keys.resetCounters(): Promise<KeyCounters>`
+
+Resets cumulative counters for every mode.
+
+```javascript
+await dmn.keys.resetCounters();
+```
+
+### `dmn.keys.resetCountersMode(mode): Promise<KeyCounters>`
+
+Resets cumulative counters for one mode.
+
+```javascript
+await dmn.keys.resetCountersMode('4key');
+```
+
+### `dmn.keys.resetSingleCounter(mode, key): Promise<KeyCounters>`
+
+Resets one canonical slot counter in one mode.
+
+```javascript
+await dmn.keys.resetSingleCounter('4key', 'D');
+await dmn.keys.resetSingleCounter('4key', 'F|NUMPAD 4');
 ```
 
 ### `dmn.keys.onCounterChanged(callback): Unsubscribe`
@@ -68,12 +154,34 @@ Subscribes to counter changes.
 
 ```typescript
 interface CounterEvent {
-  key: string;
+  mode: string;
+  key: string; // canonical slot identifier
   count: number;
+  sessionId: string;
+  revision: number;
 }
 
-const unsub = dmn.keys.onCounterChanged(({ key, count }) => {
-  console.log(`${key}: ${count}`);
+const unsub = dmn.keys.onCounterChanged(
+  ({ mode, key, count, sessionId, revision }) => {
+    console.log(
+      `[${mode}] ${key}: ${count} (${sessionId}, revision ${revision})`,
+    );
+  },
+);
+```
+
+`revision` is the monotonically increasing order of the runtime counter
+change within `sessionId`. Compare both fields with
+`keyCountersSessionId`/`keyCountersRevision` from `dmn.app.bootstrap()` when
+reconciling a bootstrap snapshot with live events.
+
+### `dmn.keys.onCountersChanged(callback): Unsubscribe`
+
+Subscribes to whole counter snapshot replacements such as reset and bulk set operations.
+
+```javascript
+const unsub = dmn.keys.onCountersChanged((counters) => {
+  console.log('Counter snapshot changed:', counters);
 });
 ```
 
@@ -83,49 +191,321 @@ const unsub = dmn.keys.onCounterChanged(({ key, count }) => {
 
 ### `dmn.keys.onModeChanged(callback): Unsubscribe`
 
-Subscribes to input mode changes (keyboard/mouse).
+Subscribes to layout mode changes (`keys:mode-changed`).
 
 ```typescript
 interface ModeEvent {
-  mode: "keyboard" | "mouse";
+  mode: string; // current layout mode ID (e.g. '4key')
 }
 
 const unsub = dmn.keys.onModeChanged(({ mode }) => {
-  console.log("Mode changed:", mode);
+  console.log('Mode changed:', mode);
 });
+```
+
+### `dmn.keys.setMode(mode): Promise<KeysModeResponse>`
+
+Changes the active key mode.
+
+```javascript
+const result = await dmn.keys.setMode('8key');
+console.log('Mode changed:', result.success);
+```
+
+### `dmn.keys.resetMode(mode): Promise<KeysModeResponse>`
+
+Resets one key mode, its positions, and plugin display elements placed in that
+mode to the built-in defaults. Other plugin storage is preserved.
+
+```javascript
+await dmn.keys.resetMode('4key');
+```
+
+### `dmn.keys.resetAll(): Promise<KeysResetAllResponse>`
+
+Resets all keys, positions, counters, custom tabs, and plugin display element
+placements to their built-in defaults. Installed plugins and other plugin
+storage are preserved. The reset targets saved `defineElement` placements.
+Runtime elements created directly by plugin startup code with
+`displayElement.add()` can remain or be created again while the plugin remains
+installed.
+
+```javascript
+const result = await dmn.keys.resetAll();
+console.log('Selected mode:', result.selectedKeyType);
 ```
 
 ---
 
 ## Key Mapping
 
-### `dmn.keys.get(): Promise<KeysState>`
+### `dmn.keys.get(): Promise<KeyMappings>`
 
-Returns current key mapping and counter state.
+Returns the key mappings for all modes.
 
 ```typescript
-interface KeysState {
-  keyboard: KeyboardMapping;
-  mouse: MouseMapping;
-  counter: Record<string, number>;
+type SlotMatch = 'all' | 'any';
+
+// A slot is either a single key string, or a multi-key binding:
+// - match: 'any': the slot activates when any member key is pressed
+// - match: 'all': the slot activates while all member keys are held together
+interface MultiKeySlot {
+  keys: string[]; // 2 to 8 member keys
+  match: SlotMatch;
 }
 
-const keys = await dmn.keys.get();
-console.log(keys.keyboard);
-console.log(keys.counter);
+type KeySlot = string | MultiKeySlot;
+type KeyMappings = Record<string, KeySlot[]>;
+
+const mappings = await dmn.keys.get();
+console.log(mappings['4key']);
 ```
 
-### `dmn.keys.set(keys: Partial<KeysState>): Promise<void>`
+<Callout type="warning">
+  Since the multi-key update, a slot value can be an object (`MultiKeySlot`),
+  not just a string. Plugins that assume every slot is a string should be
+  updated before handling mappings that contain multi-key slots.
+</Callout>
 
-Updates key mapping.
+### Canonical slot identifiers
 
-```javascript
-await dmn.keys.set({
-  keyboard: {
-    /* new mapping */
-  },
+Event and counter surfaces identify a slot by its canonical string:
+
+- A single-key slot is its key string, unchanged (e.g. `"D"`).
+- A `match: 'all'` slot joins its members with `+` in member order
+  (e.g. `"LEFT CTRL+Z"`).
+- A `match: 'any'` slot joins its members with `|` (e.g. `"F|NUMPAD 4"`).
+
+Canonical strings are for generation and equality comparison only. Do not
+parse them back into members; read the slot objects from `get()` instead.
+The display label of an `any` slot joins members with `/` (e.g. `Z/B`), which
+is a UI convention separate from the canonical `|`. Switching a slot between
+`all` and `any` changes its canonical identifier, so existing counters do not
+carry over between the two forms.
+
+Canonical identifiers appear in `onKeyState().key`, counter map keys
+(`getCounters()`, `onCounterChanged`, `onCountersChanged`),
+`resetSingleCounter(mode, key)`, and UI anchor and key menu `keyCode` values.
+Mapping surfaces (`get()`, `update()`, `onChanged`, editor documents, preset
+snapshots) carry the `KeySlot` union instead.
+
+Hand-crafted legacy data may contain a single-key slot whose string itself
+includes `+` or `|` (for example the one string `"A+B"`). Such a slot is
+preserved losslessly but is inert: no daemon input can activate it. It can
+cosmetically share a canonical identifier, and therefore a counter bucket,
+with a real multi-key slot; where both exist, note effects resolve to the
+real multi-key slot.
+
+### `dmn.keys.update(mappings: KeyMappings, options?): Promise<KeyMappings>`
+
+Replaces the key mappings and returns the committed value.
+
+```typescript
+const mappings = await dmn.keys.get();
+mappings['4key'][0] = 'S';
+const committed = await dmn.keys.update(mappings);
+```
+
+To write mappings while the current configuration contains multi-key slots,
+declare multi-key support explicitly:
+
+```typescript
+const committed = await dmn.keys.update(mappings, { multiKey: true });
+```
+
+Without the declaration, a write is rejected with the
+`MULTI_KEY_UNSUPPORTED` error code (non-retryable) whenever the current
+mappings contain at least one multi-key slot. This fail-closed gate protects
+user configurations from being destroyed by plugins that round-trip mappings
+without preserving multi-key slots. The same rule applies to
+`updateWithPositions()` and to `dmn.editor.commit()` requests that include
+`keys` (declare via `multiKey: true` on the commit request).
+
+### `dmn.keys.getPositions(): Promise<KeyPositions>`
+
+Returns the key positions for all modes.
+
+```typescript
+const positions = await dmn.keys.getPositions();
+console.log(positions['4key']);
+```
+
+Style-related fields on each `KeyPosition` include solid colors and optional
+gradient siblings:
+
+```typescript
+interface KeyPosition {
+  id?: string; // stable element identity (UUID), assigned and owned by the app
+  // ...position, image, note, and counter fields...
+  imageMode?: 'replace' | 'overlay'; // image placement, defaults to replace (image replaces the key)
+  idleImageTransform?: { offsetX: number; offsetY: number; rotation: number; scale: number }; // identity when absent
+  activeImageTransform?: { offsetX: number; offsetY: number; rotation: number; scale: number };
+  noteOpacityTop?: number;
+  noteOpacityBottom?: number;
+  noteGradient?: GradientSpec | null;
+  noteGlowSyncPaint?: boolean;
+  noteGlowOpacityTop?: number;
+  noteGlowOpacityBottom?: number;
+  noteGlowGradient?: GradientSpec | null;
+  noteBorderColor?: string;
+  noteBorderGradient?: GradientSpec | null;
+  backgroundColor?: string;
+  activeBackgroundColor?: string;
+  borderColor?: string;
+  activeBorderColor?: string;
+  borderWidth?: number; // px, defaults to 1 when unset. 0 disables the border
+  backgroundGradient?: GradientSpec | null;
+  activeBackgroundGradient?: GradientSpec | null;
+  borderGradient?: GradientSpec | null;
+  activeBorderGradient?: GradientSpec | null;
+  fontColor?: string;
+  activeFontColor?: string;
+  fontGradient?: GradientSpec | null;
+  activeFontGradient?: GradientSpec | null;
+  shadow?: ElementShadowSpec;
+  activeShadow?: ElementShadowSpec;
+}
+
+interface KeyCounterSettings {
+  // ...placement, typography, and animation fields...
+  fill: { idle: string; active: string };
+  fillIdleGradient?: GradientSpec | null;
+  fillActiveGradient?: GradientSpec | null;
+}
+
+interface GradientSpec {
+  angle: number; // 0 (inclusive) to 360 (exclusive). 360 normalizes to 0; CSS semantics (0 = up, clockwise)
+  stops: { color: string; pos: number }[]; // 2–8 stops, pos 0–1 ascending
+}
+
+interface ElementShadowSpec {
+  enabled: boolean;
+  color: string; // alpha controls opacity
+  offsetX: number; // px, -100 to 100
+  offsetY: number; // px, -100 to 100
+  blur: number; // px, 0 to 100
+}
+```
+
+Every element position (`keyPositions`, `statPositions`, `graphPositions`,
+`knobPositions`) carries a stable `id`. Treat it as opaque: echo back the value
+you read and never invent one. A write whose `id` is missing or unknown gets a
+fresh one assigned by the backend. When the same `id` appears more than once,
+for example when you copy an element you read and append it, the element in
+its original slot keeps the identity and the remaining copies get fresh ones.
+Loading a full preset re-issues every `id`; a tab preset re-issues only the
+collections that preset supplies positions for. Use `id` to track an element
+across reorders instead of its array index.
+
+When a gradient field is present it takes priority over the matching solid
+field, and the solid field is kept in sync with the first stop color on save.
+To return to a solid color, set the gradient field to `null` and update the
+solid field.
+
+The counter fill gradient fields likewise take priority over `counter.fill.idle`
+and `counter.fill.active`.
+
+For note borders, `noteBorderGradient` takes priority over `noteBorderColor`.
+`noteBorderColor` always stays a `#RRGGBB` hex value, so saving a gradient
+syncs it to the hex form of the first stop. Stop colors accept only hex
+(`#RGB`, `#RGBA`, `#RRGGBB`, `#RRGGBBAA`) or `rgb()`/`rgba()` notation.
+
+Note bodies and glows support the same format. When `noteGradient` or
+`noteGlowGradient` is present, that surface switches to the new semantics:
+`noteOpacity`/`noteGlowOpacity` acts as a global multiplier (100 when absent),
+and the legacy fields (the two-color top/bottom object and the per-end
+opacities) stay synced as approximations for older versions. Stop color
+restrictions match the border. Writing an element without the gradient field
+(or with it set to `null`) returns that surface to legacy semantics. To
+switch a surface in one write, set the gradient field and its multiplier
+together in the same `updatePositions` call; the solid field and the legacy
+approximations are derived and synced on save.
+
+When `noteGlowSyncPaint` is `true`, the glow paint fields (`noteGlowColor`,
+`noteGlowGradient`, `noteGlowOpacity`, `noteGlowOpacityTop/Bottom`) are derived
+from the body paint on save. Any glow value written in that state is
+overwritten by the body value, so set it to `false` first to edit the glow
+independently. Defaults to `false`.
+
+`shadow` and `activeShadow` control the idle and pressed shadows independently.
+When omitted, the built-in shadow remains unchanged. Store a spec with
+`enabled: false` to explicitly disable a shadow.
+
+### `dmn.keys.updatePositions(positions: KeyPositions): Promise<KeyPositions>`
+
+Replaces the key positions and returns the committed value.
+
+```typescript
+const positions = await dmn.keys.getPositions();
+positions['4key'][0].dx = 100;
+const committed = await dmn.keys.updatePositions(positions);
+```
+
+Position writes from plugins are serialized on a dedicated queue and settle
+against the committed document: the promise resolves only after the commit and
+the follow-up read complete, and the returned collections carry the stable
+element `id` values the app assigned (elements submitted without an `id` get
+one issued). On failure the original error is rejected as-is; if a commit
+might have succeeded but the follow-up read failed, read the current value
+before retrying instead of resubmitting blindly. The same applies to
+`statItems`, `graphItems`, and `knobItems` `updatePositions`.
+
+<Callout type="warning">
+  `keys[mode][i]` and `keyPositions[mode][i]` are coupled by index. A standalone
+  `update()` or `updatePositions()` may fail with `PAIRED_UPDATE_REQUIRED` if it
+  changes a mode set or an array length. Use `updateWithPositions()` for key
+  additions, removals, and reordering.
+</Callout>
+
+### `dmn.keys.updateWithPositions(mappings, positions, options?): Promise<KeysWithPositionsResult>`
+
+Updates key mappings and their index-coupled positions in one atomic commit.
+The two values must have matching mode sets and array lengths. The committed
+values are returned, and both `keys:changed` and `positions:changed` are emitted
+after the commit succeeds.
+
+```typescript
+interface KeysWithPositionsResult {
+  keys: KeyMappings;
+  positions: KeyPositions;
+}
+
+const result = await dmn.keys.updateWithPositions(mappings, positions, {
+  multiKey: true,
 });
 ```
+
+The third `options` argument takes the same `{ multiKey?: boolean }`
+declaration as `update()`. Without it, the write is rejected with
+`MULTI_KEY_UNSUPPORTED` whenever the current mappings contain a multi-key
+slot.
+
+### `dmn.keys.onChanged(callback): Unsubscribe`
+
+Subscribes to key mapping changes (`keys:changed`).
+
+```typescript
+const unsubscribe = dmn.keys.onChanged((mappings) => {
+  console.log('key mappings changed', mappings);
+});
+```
+
+### `dmn.keys.onPositionsChanged(callback): Unsubscribe`
+
+Subscribes to key position changes (`positions:changed`).
+
+```typescript
+const unsubscribe = dmn.keys.onPositionsChanged((positions) => {
+  console.log('key positions changed', positions);
+});
+```
+
+<Callout type="warning">
+  These two per-collection events remain available for compatibility, but are
+  deprecated for new editor state synchronization. Use
+  [`dmn.editor.onCommitted()`](/docs/api-reference/editor#subscribe-to-committed-changes)
+  to observe atomic multi-collection edits.
+</Callout>
 
 ---
 
@@ -133,38 +513,62 @@ await dmn.keys.set({
 
 <Callout type="warning">Main window only.</Callout>
 
-### `dmn.keys.registerCustomTab(options): Unsubscribe`
+### `dmn.keys.customTabs.list(): Promise<CustomTab[]>`
 
-Registers a custom tab in the key settings panel.
+Returns all custom tabs.
 
-```typescript
-interface CustomTabOptions {
-  id: string;
-  label: string;
-  content: (container: HTMLElement) => void | (() => void);
-}
+```javascript
+const tabs = await dmn.keys.customTabs.list();
+```
 
-const unsub = dmn.keys.registerCustomTab({
-  id: "my-tab",
-  label: "My Tab",
-  content: (container) => {
-    container.innerHTML = `<div>Custom tab content</div>`;
-    return () => {
-      /* cleanup */
-    };
-  },
-});
+### `dmn.keys.customTabs.create(name): Promise<CustomTabResult>`
+
+Creates and selects a new custom tab.
+
+```javascript
+const result = await dmn.keys.customTabs.create('My Keys');
+console.log(result.result?.id, result.error);
+```
+
+### `dmn.keys.customTabs.delete(id): Promise<CustomTabDeleteResult>`
+
+Deletes a custom tab and its tab-scoped editor data.
+
+```javascript
+const result = await dmn.keys.customTabs.delete('custom-123');
+console.log('Selected mode:', result.selected);
+```
+
+### `dmn.keys.customTabs.select(id): Promise<CustomTabDeleteResult>`
+
+Selects an existing built-in mode or custom tab.
+
+```javascript
+await dmn.keys.customTabs.select('custom-123');
 ```
 
 ### `dmn.keys.customTabs.restore(customTabs, selectedKeyType): Promise<void>`
 
-Restores custom tabs and selected mode atomically. Syncs backend state, overlay, and main window.
+Restores the names/order of existing custom tabs and the selected mode
+atomically. Every tab ID must already have paired `keys` and `keyPositions`;
+use `create`, `delete`, and `updateWithPositions` for topology changes. Invalid
+or orphaned tab metadata is rejected without changing stored data.
 
 ```javascript
 await dmn.keys.customTabs.restore(
-  [{ id: "custom-123", name: "My Keys", keys: ["KeyA", "KeyS"] }],
-  "custom-123",
+  [{ id: 'custom-123', name: 'My Keys' }],
+  'custom-123',
 );
+```
+
+### `dmn.keys.customTabs.onChanged(callback): Unsubscribe`
+
+Subscribes to custom tab create, delete, select, and restore changes.
+
+```javascript
+const unsub = dmn.keys.customTabs.onChanged((payload) => {
+  console.log(payload.customTabs, payload.selectedKeyType);
+});
 ```
 
 ---
@@ -230,7 +634,7 @@ dmn.stats.reset();
 ```javascript
 // KPS counter using stats API
 dmn.plugin.defineElement({
-  name: "KPS Counter",
+  name: 'KPS Counter',
   maxInstances: 1,
 
   template: (state, settings, { html }) => html`

@@ -1,0 +1,50 @@
+---
+title: 리소스 API
+description: 폰트, 이미지, 사운드 리소스 API
+---
+
+# 리소스 API
+
+## 폰트
+
+### `dmn.font.load()`
+
+시스템 파일 선택기를 열어 폰트를 가져오고 앱이 관리하는 경로를 반환합니다.
+
+```typescript
+const result = await dmn.font.load();
+// {
+//   success: boolean,
+//   error?: string,
+//   errorCode?: 'invalid-font-content',
+//   fontName?: string,
+//   fontPath?: string,
+//   weightRanges?: Array<{ min: number, max: number }>
+// }
+```
+
+`fontName`은 폰트 파일 내부 메타데이터의 family 이름입니다(읽을 수 있는 family 레코드가 없을 때만 파일명을 사용). 그래서 같은 family의 여러 파일이 하나의 family로 등록됩니다. 폰트로 파싱할 수 없는 파일이면 `success`가 `false`, `errorCode`가 `'invalid-font-content'`이고 아무것도 복사되지 않습니다. `success`가 `false`인데 `errorCode`가 없으면 사용자가 선택을 취소한 것입니다.
+
+## 이미지
+
+### `dmn.image.load()`
+
+시스템 파일 선택기를 열어 이미지를 가져오고 앱이 관리하는 경로를 반환합니다.
+
+```typescript
+const result = await dmn.image.load();
+// {
+//   success: boolean,
+//   error?: string,
+//   errorCode?: 'invalid-image-content',
+//   imagePath?: string
+// }
+```
+
+파일은 확장자가 아니라 내용으로 검증합니다. 이미지로 디코드할 수 없는 파일이면 `success: false`와 `errorCode: 'invalid-image-content'`를 반환하고, 선택을 취소하면 `success: false`에 `errorCode`가 없습니다.
+
+## 사운드
+
+사운드 라이브러리의 표시 여부, 편집, 호환성 API는 별도의 [사운드 API 레퍼런스](/docs/api-reference/sound)를 참고하세요.
+
+리소스 API가 반환하는 경로는 앱이 관리하는 불투명 식별자로 취급해야 합니다.

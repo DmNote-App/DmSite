@@ -9,6 +9,11 @@ description: dmn.app, dmn.window API reference
 
 App-level control including boot, restart, and external URLs.
 
+<Callout type="info">
+  Automatic update is main-window only. Restart and quit wait for pending editor
+  writes in every native Tauri window before the process exits.
+</Callout>
+
 ### `dmn.app.bootstrap(): Promise<Bootstrap>`
 
 Returns app bootstrap data (settings, keys, presets, etc.)
@@ -17,11 +22,23 @@ Returns app bootstrap data (settings, keys, presets, etc.)
 const bootstrap = await dmn.app.bootstrap();
 
 // Bootstrap properties
-console.log(bootstrap.selectedKeyType); // 'keyboard' | 'mouse'
+console.log(bootstrap.selectedKeyType); // current layout mode ID (e.g. '4key')
 console.log(bootstrap.settings); // app settings object
-console.log(bootstrap.keys.keyboard); // key mapping
-console.log(bootstrap.keys.counter); // counter state
+console.log(bootstrap.keys['4key']); // key mapping (KeySlot union entries)
+console.log(bootstrap.keyCounters); // counter state
+console.log(bootstrap.keyCountersSessionId); // counter stream session
+console.log(bootstrap.keyCountersRevision); // counter snapshot revision
 ```
+
+`bootstrap.keys` carries the same `KeySlot` union
+(`string | MultiKeySlot`) as `dmn.keys.get()`. Consumers that assume plain
+string slots should handle both shapes - see the
+[Keys API](/docs/api-reference/keys).
+
+`keyCountersRevision` is a read-only, monotonically increasing watermark for
+the returned `keyCounters` snapshot. It is intended for ordering bootstrap
+snapshots against live counter updates within the same
+`keyCountersSessionId`. A changed session ID starts a new revision sequence.
 
 ### `dmn.app.restart(): Promise<void>`
 
@@ -31,12 +48,12 @@ Restarts the app. Settings are preserved.
 await dmn.app.restart();
 ```
 
-### `dmn.app.openExternalUrl(url: string): Promise<void>`
+### `dmn.app.openExternal(url: string): Promise<void>`
 
 Opens a URL in the system default browser.
 
 ```javascript
-await dmn.app.openExternalUrl("https://dmstudio.app");
+await dmn.app.openExternal('https://dmstudio.app');
 ```
 
 ---
@@ -50,7 +67,7 @@ Window management API.
 Returns the current window type.
 
 ```typescript
-type WindowType = "main" | "overlay";
+type WindowType = 'main' | 'overlay';
 
 console.log(dmn.window.type); // 'main' or 'overlay'
 ```
@@ -86,13 +103,13 @@ await dmn.window.openDevtoolsAll();
 ```javascript
 // App info display
 dmn.plugin.defineElement({
-  name: "App Info",
+  name: 'App Info',
   maxInstances: 1,
 
   template: (state, settings, { html }) => html`
     <div style="background: #333; padding: 16px; border-radius: 8px;">
       <div>Window: ${dmn.window.type}</div>
-      <div>Mode: ${state.mode ?? "loading..."}</div>
+      <div>Mode: ${state.mode ?? 'loading...'}</div>
     </div>
   `,
 
