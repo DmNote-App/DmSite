@@ -159,7 +159,7 @@ settings: {
     label: "그래프 표시",
   },
 
-  // 정적 boolean — 항상 숨김
+  // 정적 boolean, 항상 숨김
   hiddenOption: {
     type: "number",
     default: 5,
@@ -167,7 +167,7 @@ settings: {
     visible: false,
   },
 
-  // 함수 — 다른 설정값에 따라 동적으로 표시/숨김
+  // 함수, 다른 설정값에 따라 동적으로 표시/숨김
   graphDivider: {
     type: "divider",
     visible: (settings) => settings.showGraph,
@@ -188,7 +188,7 @@ settings: {
 ```
 
 <Callout type="info">
-  숨겨진 설정의 저장값은 유지됩니다 — 표시만 제어하며 데이터 손실은 없습니다.
+  숨겨진 설정의 저장값은 유지됩니다. 표시만 제어하며 데이터 손실은 없습니다.
 </Callout>
 
 `visible` 시그니처는 컨텍스트 메뉴의 `PluginMenuItem.visible`과 동일한 패턴입니다:

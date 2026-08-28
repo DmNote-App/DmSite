@@ -159,7 +159,7 @@ settings: {
     label: "Show Graph",
   },
 
-  // Static boolean — always hidden
+  // Static boolean, always hidden
   hiddenOption: {
     type: "number",
     default: 5,
@@ -167,7 +167,7 @@ settings: {
     visible: false,
   },
 
-  // Function — dynamically show/hide based on other settings
+  // Function, dynamically show/hide based on other settings
   graphDivider: {
     type: "divider",
     visible: (settings) => settings.showGraph,
@@ -188,7 +188,7 @@ settings: {
 ```
 
 <Callout type="info">
-  Hidden settings retain their stored values — only display is controlled, no data loss.
+  Hidden settings retain their stored values. Only display is controlled, no data loss.
 </Callout>
 
 The `visible` signature follows the same pattern as `PluginMenuItem.visible` in context menus:
