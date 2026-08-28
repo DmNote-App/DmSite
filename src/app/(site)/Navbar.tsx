@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { LanguageSwitcher, useLanguage } from "./i18n";
+import LogoMark from "@/components/LogoMark";
 
 export function Navbar() {
   const { t } = useLanguage();
@@ -16,7 +17,7 @@ export function Navbar() {
             href="/"
             className="font-bold flex items-center gap-2 text-grey-900 whitespace-nowrap shrink-0"
           >
-            <img src="/icon.ico" alt="DM NOTE Logo" className="w-6 h-6 rounded-md" />
+            <LogoMark className="w-[18px] h-[18px]" />
             DM NOTE
           </Link>
         </div>

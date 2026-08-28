@@ -3,6 +3,7 @@ import { Footer, Layout, Navbar } from "nextra-theme-docs";
 import { getPageMap } from "nextra/page-map";
 import { notFound } from "next/navigation";
 import EditLinkFixer from "@/components/EditLink";
+import LogoMark from "@/components/LogoMark";
 import { docsMetadata } from "../../seo.config";
 
 export const metadata = docsMetadata;
@@ -11,11 +12,7 @@ const navbar = (
   <Navbar
     logo={
       <div className="flex items-center gap-2">
-        <img
-          src="/icon.ico"
-          alt="DM NOTE Logo"
-          className="h-6 w-6 rounded-md"
-        />
+        <LogoMark className="h-[18px] w-[18px]" />
         <b>DM NOTE</b>
       </div>
     }
