@@ -1,8 +1,29 @@
+import localFont from "next/font/local";
 import "./globals.css";
 import "nextra-theme-docs/style.css";
 import { Head } from "nextra/components";
 import { baseMetadata, baseViewport, siteConfig } from "./seo.config";
 import AppProviders from "@/providers/AppProviders";
+
+// 자체 호스팅 + preload라 CSS를 파싱하기 전에 받기 시작한다.
+// CDN에 있을 때는 스타일시트를 읽고 나서야 URL을 발견해 229ms를 흘려보냈다.
+// 굵기 축이 400~700인 가변 폰트 한 벌로 쓰던 네 굵기를 모두 덮는다
+const pretendard = localFont({
+  src: "./fonts/PretendardVariable.subset.woff2",
+  weight: "400 700",
+  style: "normal",
+  display: "swap",
+  variable: "--font-pretendard",
+  fallback: [
+    "-apple-system",
+    "BlinkMacSystemFont",
+    "system-ui",
+    "Apple SD Gothic Neo",
+    "Noto Sans KR",
+    "Malgun Gothic",
+    "sans-serif",
+  ],
+});
 
 export const metadata = baseMetadata;
 export const viewport = baseViewport;
@@ -33,7 +54,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ko" dir="ltr" suppressHydrationWarning>
+    <html
+      lang="ko"
+      dir="ltr"
+      className={pretendard.variable}
+      suppressHydrationWarning
+    >
       <Head>
         {/* Google Tag Manager */}
         <script
