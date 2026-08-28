@@ -14,26 +14,26 @@ const LATEST_RELEASE_URL = `${RELEASES_URL}/latest`;
 const opticalLead = (text: string) =>
   /^[A-Za-z]/.test(text) ? "-0.03em" : undefined;
 
-// 제품 랜딩 — 히어로(실제 앱 스크린샷) → 기능 스토리 → 개요 → CTA
+// 제품 랜딩 — 히어로(앱 스크린샷) → 기능 스토리 → 설정 미리보기 → 나머지 기능 → CTA
 export function LandingContent() {
   const { t, locale } = useLanguage();
 
-  // 좌우 교차 스토리 섹션 (각 섹션 = 메시지 하나 + 제품 영상 하나)
+  // 좌우 교차 스토리 (각 행 = 메시지 하나 + 클립 하나)
   const stories = [
     {
-      src: "/assets/CSS.mp4",
+      clip: "custom-css",
       title: t.showcase.items.css.title,
-      desc: t.features.items.css.description,
+      desc: t.showcase.items.css.description,
     },
     {
-      src: "/assets/counter.webm",
-      title: t.features.items.realtime.title,
-      desc: t.features.items.realtime.description,
-    },
-    {
-      src: "/assets/plugin.webm",
+      clip: "custom-js",
       title: t.showcase.items.plugin.title,
       desc: t.showcase.items.plugin.description,
+    },
+    {
+      clip: "note-effect",
+      title: t.showcase.items.noteEffect.title,
+      desc: t.showcase.items.noteEffect.description,
     },
   ];
 
@@ -48,7 +48,10 @@ export function LandingContent() {
               style={{ textIndent: opticalLead(t.hero.title) }}
             >
               {t.hero.title}{" "}
-              <span className="dim-text whitespace-nowrap">
+              <span
+                className="dim-text whitespace-nowrap"
+                data-text={t.hero.titleHighlight}
+              >
                 {t.hero.titleHighlight}
               </span>
             </h1>
@@ -92,7 +95,10 @@ export function LandingContent() {
 
           <Reveal delay={200}>
             <div className="relative mt-12 md:mt-14">
-              <div className="hero-frame">
+              <div
+                className="hero-frame"
+                onContextMenu={(e) => e.preventDefault()}
+              >
                 <img
                   src={`/assets/app-${locale}.png`}
                   alt={t.hero.screenshotAlt}
@@ -101,6 +107,7 @@ export function LandingContent() {
                   loading="eager"
                   fetchPriority="high"
                   decoding="async"
+                  draggable={false}
                   className="w-full h-auto block"
                 />
               </div>
@@ -113,12 +120,12 @@ export function LandingContent() {
       <section className="relative pt-10 pb-24 md:pt-12 md:pb-32">
         <div className="site-rail space-y-24 md:space-y-32">
           {stories.map((s, i) => (
-            <FeatureRow key={s.src} {...s} reverse={i % 2 === 1} />
+            <FeatureRow key={s.clip} {...s} reverse={i % 2 === 1} />
           ))}
         </div>
       </section>
 
-      {/* ── 전체 기능 개요 ── */}
+      {/* ── 설정 미리보기 — 앱 설정 화면에 도는 클립 그대로 ── */}
       <section className="relative py-24 md:py-32">
         <div className="site-rail">
           <Reveal className="mb-14 md:mb-16 max-w-2xl">
@@ -127,16 +134,31 @@ export function LandingContent() {
               style={{ textIndent: opticalLead(t.features.title) }}
             >
               {t.features.title}{" "}
-              <span className="dim-text">{t.features.titleHighlight}</span>
+              <span className="dim-text" data-text={t.features.titleHighlight}>
+                {t.features.titleHighlight}
+              </span>
             </h2>
             <p className="mt-4 text-lead font-normal text-grey-400 break-keep">
               {t.features.description} {t.features.descriptionSub}
             </p>
           </Reveal>
 
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
+            {PREVIEW_KEYS.map((key, i) => (
+              <Reveal key={key} delay={(i % 3) * 70}>
+                <PreviewCard
+                  clip={PREVIEW_CLIPS[key]}
+                  title={t.previews.items[key].title}
+                  desc={t.previews.items[key].description}
+                />
+              </Reveal>
+            ))}
+          </div>
+
+          {/* 클립이 없는 나머지 기능은 글로만 */}
           <Reveal delay={80}>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-10">
-              {FEATURE_KEYS.map((key) => (
+            <div className="mt-16 md:mt-20 border-t border-white/[0.06] pt-14 md:pt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-10">
+              {REST_FEATURE_KEYS.map((key) => (
                 <div key={key}>
                   <h3 className="text-[15px] font-medium leading-6 text-grey-700">
                     {t.features.items[key].title}
@@ -152,14 +174,16 @@ export function LandingContent() {
       </section>
 
       {/* ── 마무리 CTA ── */}
-      <section className="relative py-28 md:py-36 border-t border-white/[0.06]">
+      <section className="relative pt-28 pb-52 md:pt-36 md:pb-60">
         <Reveal className="site-rail">
           <h2
             className="max-w-2xl text-headline font-semibold break-keep text-grey-900"
             style={{ textIndent: opticalLead(t.cta.title) }}
           >
             {t.cta.title}{" "}
-            <span className="dim-text">{t.cta.titleHighlight}</span>
+            <span className="dim-text" data-text={t.cta.titleHighlight}>
+              {t.cta.titleHighlight}
+            </span>
           </h2>
           <p className="mt-4 max-w-xl text-lead font-normal text-grey-400 break-keep">
             {t.cta.description}
@@ -218,14 +242,14 @@ export function LandingContent() {
   );
 }
 
-// 좌우 교차 기능 섹션
+// 좌우 교차 기능 섹션 — 클립은 바깥쪽 가장자리에 붙인다
 function FeatureRow({
-  src,
+  clip,
   title,
   desc,
   reverse,
 }: {
-  src: string;
+  clip: string;
   title: string;
   desc: string;
   reverse: boolean;
@@ -240,95 +264,98 @@ function FeatureRow({
           </p>
         </div>
       </Reveal>
-      <Reveal delay={80} className={reverse ? "lg:order-1" : ""}>
-        <ProductWindow src={src} />
+      <Reveal
+        delay={80}
+        className={`w-full max-w-[640px] ${
+          reverse ? "lg:order-1 lg:justify-self-start" : "lg:justify-self-end"
+        }`}
+      >
+        <ClipFrame clip={clip} rounding="lg" />
       </Reveal>
     </div>
   );
 }
 
-// 제품 창 목업 — 화면 안에서만 재생, webm 폴백 유지
-function ProductWindow({ src }: { src: string }) {
+// 설정 미리보기 카드 — 클립 + 설정 이름 + 설명
+function PreviewCard({
+  clip,
+  title,
+  desc,
+}: {
+  clip: string;
+  title: string;
+  desc: string;
+}) {
+  return (
+    <div>
+      <ClipFrame clip={clip} />
+      <h3 className="mt-5 text-[15px] font-medium leading-6 text-grey-700">
+        {title}
+      </h3>
+      <p className="mt-1.5 text-[15px] font-normal leading-6 text-[#969DA8] break-keep">
+        {desc}
+      </p>
+    </div>
+  );
+}
+
+// 클립 프레임 — 화면 근처에서 로드하고 화면을 벗어나면 멈춘다.
+// 한 페이지에 아홉 개가 있어 전부 돌면 디코딩이 낭비된다
+function ClipFrame({
+  clip,
+  rounding = "md",
+}: {
+  clip: string;
+  rounding?: "md" | "lg";
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [shouldLoad, setShouldLoad] = useState(false);
-  const [resolvedSrc, setResolvedSrc] = useState<string | null>(() => {
-    const clean = src.split("?")[0]?.split("#")[0] ?? src;
-    return clean.toLowerCase().endsWith(".webm") ? null : src;
-  });
 
-  // webm 재생 가능 여부 (Safari 폴백)
-  useEffect(() => {
-    const clean = src.split("?")[0]?.split("#")[0] ?? src;
-    if (!clean.toLowerCase().endsWith(".webm")) {
-      setResolvedSrc(src);
-      return;
-    }
-    const test = document.createElement("video");
-    const canPlay =
-      test.canPlayType('video/webm; codecs="vp8, vorbis"') ||
-      test.canPlayType('video/webm; codecs="vp9, opus"') ||
-      test.canPlayType("video/webm");
-    setResolvedSrc(canPlay ? src : null);
-  }, [src]);
-
-  // 뷰포트 근처 진입 시 로드 + 화면 안에서만 재생
   useEffect(() => {
     const el = ref.current;
-    if (!el || !resolvedSrc) return;
-
-    const play = () => videoRef.current?.play().catch(() => {});
-    const pause = () => {
-      try {
-        videoRef.current?.pause();
-      } catch {}
-    };
+    if (!el) return;
 
     if (!("IntersectionObserver" in window)) {
       setShouldLoad(true);
       return;
     }
+
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0]?.isIntersecting) {
           setShouldLoad(true);
-          play();
+          videoRef.current?.play().catch(() => {});
         } else {
-          pause();
+          videoRef.current?.pause();
         }
       },
       { threshold: 0.2, rootMargin: "200px 0px" }
     );
     observer.observe(el);
+
     return () => {
       observer.disconnect();
-      pause();
+      videoRef.current?.pause();
     };
-  }, [resolvedSrc]);
+  }, []);
 
   return (
     <div
       ref={ref}
-      className="relative w-full overflow-hidden rounded-2xl aspect-[16/10]"
-      style={{
-        backgroundColor: "rgb(var(--surface-muted))",
-        boxShadow: "0 40px 120px -40px rgba(0,0,0,0.85)",
-      }}
+      className={`clip-frame ${rounding === "lg" ? "lg" : ""} aspect-[16/10]`}
     >
-      {resolvedSrc && shouldLoad ? (
+      {shouldLoad && (
         <video
           ref={videoRef}
-          src={resolvedSrc}
+          src={`/assets/clips/${clip}.mp4`}
           preload="metadata"
           loop
           muted
           autoPlay
           playsInline
-          className="w-full h-full object-cover"
-          onError={() => setResolvedSrc(null)}
+          className="w-full h-full block"
         />
-      ) : (
-        <div className="w-full h-full" />
       )}
     </div>
   );
@@ -379,24 +406,40 @@ function ArrowIcon() {
 }
 
 // ── 데이터 ──
-type FeatureKey =
-  | "realtime"
-  | "grid"
-  | "css"
-  | "preset"
-  | "overlay"
-  | "noteEffect"
+type PreviewKey =
   | "keyCounter"
-  | "settings";
+  | "obsMode"
+  | "overlayLock"
+  | "alwaysOnTop"
+  | "resizeAnchor"
+  | "trayEnabled";
 
-const FEATURE_KEYS: FeatureKey[] = [
+// 설정 화면에서 도는 클립과 같은 파일
+const PREVIEW_CLIPS: Record<PreviewKey, string> = {
+  keyCounter: "key-counter",
+  obsMode: "obs-mode",
+  overlayLock: "overlay-lock",
+  alwaysOnTop: "always-on-top",
+  resizeAnchor: "resize-anchor",
+  trayEnabled: "tray-enabled",
+};
+
+const PREVIEW_KEYS: PreviewKey[] = [
+  "keyCounter",
+  "obsMode",
+  "overlayLock",
+  "alwaysOnTop",
+  "resizeAnchor",
+  "trayEnabled",
+];
+
+// 스토리와 미리보기에서 다루지 않은 기능
+type FeatureKey = "realtime" | "grid" | "preset" | "settings";
+
+const REST_FEATURE_KEYS: FeatureKey[] = [
   "realtime",
   "grid",
-  "css",
   "preset",
-  "overlay",
-  "noteEffect",
-  "keyCounter",
   "settings",
 ];
 

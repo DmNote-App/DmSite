@@ -32,29 +32,10 @@ export const translations = {
           description:
             "직관적인 그리드 시스템으로 키의 크기와 위치를 자유롭게 조절할 수 있습니다.",
         },
-        css: {
-          title: "커스텀 CSS 지원",
-          description:
-            "CSS로 키뷰어를 세밀하게 커스터마이징하여 원하는 스타일을 적용할 수 있습니다.",
-        },
         preset: {
           title: "프리셋 시스템",
           description:
             "자신만의 설정을 프리셋으로 저장하고, 언제든지 불러와 사용할 수 있습니다.",
-        },
-        overlay: {
-          title: "오버레이 모드",
-          description:
-            "게임 위에 투명하게 표시하거나 OBS로 크로마키 없이 캡처할 수 있습니다.",
-        },
-        noteEffect: {
-          title: "노트 효과",
-          description:
-            "리듬게임에 최적화된 노트 이펙트로 시각적 피드백을 제공합니다.",
-        },
-        keyCounter: {
-          title: "키 카운터",
-          description: "키 입력 횟수를 실시간으로 표시합니다.",
         },
         settings: {
           title: "다양한 설정",
@@ -75,10 +56,44 @@ export const translations = {
       items: {
         css: {
           title: "CSS 커스터마이징",
+          description: "CSS를 넣어 키 모양부터 배치까지 원하는 대로 바꿉니다.",
         },
         plugin: {
           title: "플러그인",
-          description: "JavaScript로 나만의 기능을 자유롭게 확장할 수 있어요.",
+          description: "JavaScript로 필요한 기능을 직접 만들어 붙입니다.",
+        },
+        noteEffect: {
+          title: "노트 효과",
+          description:
+            "리듬게임에 맞춰 다듬은 노트 효과로 입력이 한눈에 들어옵니다.",
+        },
+      },
+    },
+    previews: {
+      items: {
+        keyCounter: {
+          title: "키 카운터 표시",
+          description: "각 키 입력 횟수를 기록하고 표시합니다.",
+        },
+        obsMode: {
+          title: "OBS 모드",
+          description: "OBS에서 브라우저 소스로 오버레이를 표시합니다.",
+        },
+        overlayLock: {
+          title: "오버레이 창 고정",
+          description: "오버레이 창이 움직이지 않도록 고정시킵니다.",
+        },
+        alwaysOnTop: {
+          title: "항상 위에 표시",
+          description: "오버레이 창을 항상 다른 창 위에 표시합니다.",
+        },
+        resizeAnchor: {
+          title: "리사이즈 기준점",
+          description: "오버레이 창의 리사이즈 기준점을 선택합니다.",
+        },
+        trayEnabled: {
+          title: "트레이 기능 활성화",
+          description: "창을 닫아도 종료하지 않고 트레이에 남깁니다.",
         },
       },
     },
@@ -178,29 +193,10 @@ export const translations = {
           description:
             "Freely adjust key size and position with an intuitive grid system",
         },
-        css: {
-          title: "Custom CSS",
-          description:
-            "Apply your desired styles by finely customizing the key viewer with CSS",
-        },
         preset: {
           title: "Presets",
           description:
             "Save your own settings as presets and load them anytime",
-        },
-        overlay: {
-          title: "Overlay Mode",
-          description:
-            "Display transparently over games or capture with OBS without chroma key",
-        },
-        noteEffect: {
-          title: "Note Effects",
-          description:
-            "Provides visual feedback with note effects optimized for rhythm games",
-        },
-        keyCounter: {
-          title: "Key Counter",
-          description: "Displays key press counts in real-time",
         },
         settings: {
           title: "Settings",
@@ -221,10 +217,46 @@ export const translations = {
       items: {
         css: {
           title: "CSS Customization",
+          description:
+            "Write your own CSS to restyle every key, from shape to layout.",
         },
         plugin: {
           title: "Plugins",
-          description: "Extend it with your own features, freely, using JavaScript.",
+          description: "Build the features you need in JavaScript and drop them in.",
+        },
+        noteEffect: {
+          title: "Note Effects",
+          description:
+            "Note effects tuned for rhythm games show every input at a glance.",
+        },
+      },
+    },
+    previews: {
+      items: {
+        keyCounter: {
+          title: "Show Key Counter",
+          description: "Track and display the number of presses for each key.",
+        },
+        obsMode: {
+          title: "OBS Mode",
+          description: "Displays the overlay via a browser source in OBS.",
+        },
+        overlayLock: {
+          title: "Lock Overlay Window",
+          description: "Locks the overlay window so it doesn't move.",
+        },
+        alwaysOnTop: {
+          title: "Always on Top",
+          description: "Keeps the overlay window always on top of other windows.",
+        },
+        resizeAnchor: {
+          title: "Resize Anchor",
+          description: "Selects the resize anchor point for the overlay window.",
+        },
+        trayEnabled: {
+          title: "Enable tray mode",
+          description:
+            "Keeps the app in the tray instead of quitting when the window closes.",
         },
       },
     },
@@ -317,11 +349,7 @@ export type Translations = {
     items: {
       realtime: { title: string; description: string };
       grid: { title: string; description: string };
-      css: { title: string; description: string };
       preset: { title: string; description: string };
-      overlay: { title: string; description: string };
-      noteEffect: { title: string; description: string };
-      keyCounter: { title: string; description: string };
       settings: { title: string; description: string };
     };
   };
@@ -338,8 +366,19 @@ export type Translations = {
   };
   showcase: {
     items: {
-      css: { title: string };
+      css: { title: string; description: string };
       plugin: { title: string; description: string };
+      noteEffect: { title: string; description: string };
+    };
+  };
+  previews: {
+    items: {
+      keyCounter: { title: string; description: string };
+      obsMode: { title: string; description: string };
+      overlayLock: { title: string; description: string };
+      alwaysOnTop: { title: string; description: string };
+      resizeAnchor: { title: string; description: string };
+      trayEnabled: { title: string; description: string };
     };
   };
   utils: {

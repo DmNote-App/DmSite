@@ -58,6 +58,7 @@
 /* navbar 하단 보더 — border-b(box-border) 대신 inset shadow로 그려야
    콘텐츠 박스가 온전한 64px 유지 → docs와 로고 세로중심이 정확히 일치 */
 .site-theme .site-navbar {
+  background-color: rgb(var(--canvas) / 0.8);
   box-shadow: inset 0 -1px 0 rgb(255 255 255 / 0.06);
 }
 
@@ -65,7 +66,7 @@
 .webkit .site-theme .site-navbar {
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
-  background-color: rgb(var(--surface) / 0.85);
+  background-color: rgb(var(--canvas) / 0.85);
   contain: paint;
 }
 
@@ -135,10 +136,51 @@
   font-display: swap;
 }
 
-/* 강조 텍스트 — 반투명 화이트로 가라앉힌 밝기 위계 */
+/* 강조 텍스트 — 반투명 화이트로 가라앉힌 밝기 위계 위로 하이라이트가 훑고 지나간다.
+   글자만 쓸고 가야 하므로 겹쳐 둔 사본(::before)에 background-clip: text로 그린다.
+   사본 내용은 data-text에서 오고, 없으면 빈 문자열이라 그냥 정적인 글자로 남는다 */
 .site-theme .dim-text {
+  position: relative;
+  display: inline-block;
   color: rgb(255 255 255 / 0.6);
   font-weight: inherit;
+}
+
+.site-theme .dim-text::before {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    transparent 40%,
+    rgb(255 255 255 / 0.95) 50%,
+    transparent 60%,
+    transparent 100%
+  );
+  background-size: 400% 100%;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: dim-text-shimmer 2s linear infinite;
+}
+
+@keyframes dim-text-shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-theme .dim-text::before {
+    display: none;
+  }
 }
 
 /* =============================================
@@ -252,24 +294,53 @@
   background: linear-gradient(180deg, rgb(19 19 24) 0%, rgb(var(--canvas)) 480px);
 }
 
-/* 히어로 스크린샷 프레임 — 창 크롬은 PNG에 내장, 보더+섀도만 두고 폴드 컷은 뷰포트가 자연스럽게 만든다 */
+/* 히어로 스크린샷 프레임 — 창 테두리와 라운딩이 PNG 안에 들어 있다.
+   여기서 보더와 반지름을 덧그리면 PNG 모서리와 호가 어긋나 모서리에 선이 두 겹으로 보인다.
+   그림자만 알파를 따라가게 두고 폴드 컷은 뷰포트가 자연스럽게 만든다 */
 .site-theme .hero-frame {
   position: relative;
-  border-radius: 16px;
-  overflow: hidden;
-  background: #1a191e; /* 스크린샷 배경색과 동일하게 — 라운드 모서리 블렌딩 */
-  border: 1px solid rgb(255 255 255 / 0.09);
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.06),
-    0 0 0 1px rgb(0 0 0 / 0.4),
-    0 30px 90px -20px rgb(0 0 0 / 0.8),
-    0 12px 32px -12px rgb(0 0 0 / 0.6);
+  filter: drop-shadow(0 24px 48px rgb(0 0 0 / 0.55))
+    drop-shadow(0 6px 16px rgb(0 0 0 / 0.4));
   -webkit-mask-image: linear-gradient(180deg, #000 62%, transparent 100%);
   mask-image: linear-gradient(180deg, #000 62%, transparent 100%);
 }
 
+/* 히어로 스크린샷은 끌어서 가져가거나 길게 눌러 저장하지 못하게 둔다.
+   pointer-events를 끄면 우클릭 대상이 이미지가 아니라 프레임이 되고,
+   프레임이 컨텍스트 메뉴를 막아 '이미지 저장'이 뜨지 않는다 */
 .site-theme .hero-frame img {
   display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+  -webkit-touch-callout: none;
+  pointer-events: none;
+}
+
+/* 설정 미리보기 클립 프레임 — 클립 무대 색을 그대로 깔아 로딩 전에도 판이 이어져 보인다.
+   영상이 면을 꽉 채우므로 링은 inset이 아니라 바깥으로 그려야 살아남는다 */
+.site-theme .clip-frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  background: rgb(33 33 35);
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.06),
+    0 16px 40px -20px rgb(0 0 0 / 0.7);
+}
+
+.site-theme .clip-frame.lg {
+  border-radius: 18px;
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.07),
+    0 28px 70px -28px rgb(0 0 0 / 0.8);
+}
+
+/* 클립은 1036x748로 렌더하지만 아래 70px은 앱이 설명 문구를 덮는 자리라 늘 비어 있다.
+   16:10으로 담고 위를 기준으로 덮으면 그 빈 띠만 잘려 구성이 가운데로 온다 */
+.site-theme .clip-frame video {
+  display: block;
+  object-fit: cover;
+  object-position: 50% 0;
 }
 
 /* 히어로 CTA — 배경 없는 텍스트 링크 */
