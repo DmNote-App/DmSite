@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* 랜딩 타입 스케일 — clamp 기반 (Tailwind v4 theme) */
+/* 랜딩 타입 스케일. clamp 기반 (Tailwind v4 theme) */
 @theme {
   /* 히어로: 40 → 64px */
   --text-display: clamp(2.5rem, 1.75rem + 3.4vw, 4rem);
@@ -19,7 +19,7 @@
   --text-lead--line-height: 1.55;
 }
 
-/* 시맨틱 컬러 — 실제 값은 site.css의 .site-theme 스코프 변수에서 결정 (라이트/다크)
+/* 시맨틱 컬러. 실제 값은 site.css의 .site-theme 스코프 변수에서 결정 (라이트/다크)
    Tailwind v4는 tailwind.config.js를 읽지 않으므로 여기 등록해야 유틸리티가 생성된다.
    inline 필수: 일반 @theme은 :root에 변수를 만들어 var()가 :root에서 해석되는데
    --grey-* 는 .site-theme 스코프라 실패함. inline은 값을 유틸리티에 직접 넣는다 */
@@ -42,7 +42,7 @@
   --color-accent-500: #826aed;
 }
 
-/* Tailwind v4 preflight가 버튼 기본 커서를 default로 되돌림 — 클릭 가능한 건 포인터로 */
+/* Tailwind v4 preflight가 버튼 기본 커서를 default로 되돌림. 클릭 가능한 건 포인터로 */
 @layer base {
   button:not(:disabled),
   [role="button"]:not(:disabled) {
@@ -70,7 +70,7 @@ body[data-site-theme="dark"] {
   color-scheme: dark !important;
 }
 
-/* Pretendard 전역 적용 — 변수는 layout.tsx의 next/font가 심는다.
+/* Pretendard 전역 적용. 변수는 layout.tsx의 next/font가 심는다.
    Nextra 테마가 자기 폰트를 걸어와서 !important가 필요하다 */
 html,
 body,

@@ -34,7 +34,7 @@ export function Reveal({
 
     const observer = new IntersectionObserver(
       (entries) => {
-        // 진입하면 등장, 벗어나면 다시 숨김 — CSS transition이 역재생 처리
+        // 진입하면 등장, 벗어나면 다시 숨김. CSS transition이 역재생 처리
         setVisible(!!entries[0]?.isIntersecting);
       },
       { threshold: 0.15, rootMargin: "0px 0px -10% 0px" }

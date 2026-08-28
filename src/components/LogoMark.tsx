@@ -1,4 +1,4 @@
-// DM NOTE 심볼 — 앱 아이콘의 별만 따로 쓴다.
+// DM NOTE 심볼. 앱 아이콘의 별만 따로 쓴다.
 // currentColor라 놓이는 자리의 글자색을 그대로 따라간다
 const LogoMark = ({ className }: { className?: string }) => (
   <svg

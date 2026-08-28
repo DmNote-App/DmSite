@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Pretendard 서브셋 생성 — src/app/fonts/PretendardVariable.subset.woff2
+# Pretendard 서브셋 생성. 결과물은 src/app/fonts/PretendardVariable.subset.woff2
 #
 # 통짜 Pretendard는 굵기 하나가 780KB라 네 벌이면 3.1MB다. 가변 폰트를
 # KS X 1001 완성형 2350자로 줄이고 굵기 축을 실제 쓰는 400~700으로 좁히면

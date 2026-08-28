@@ -9,12 +9,12 @@ const GITHUB_URL = "https://github.com/DmNote-App/DmNote";
 const RELEASES_URL = `${GITHUB_URL}/releases`;
 const LATEST_RELEASE_URL = `${RELEASES_URL}/latest`;
 
-// 큰 제목 광학 정렬 — 라틴 대문자는 글리프에 좌측 사이드베어링이 있어 왼쪽이 살짝 떠 보인다.
+// 큰 제목 광학 정렬. 라틴 대문자는 글리프에 좌측 사이드베어링이 있어 왼쪽이 살짝 떠 보인다.
 // 한글 등은 베어링이 ~0이라 보정하면 오히려 왼쪽으로 튀므로 첫 글자가 라틴일 때만 당겨준다
 const opticalLead = (text: string) =>
   /^[A-Za-z]/.test(text) ? "-0.03em" : undefined;
 
-// 제품 랜딩 — 히어로(앱 스크린샷) → 기능 스토리 → 설정 미리보기 → 나머지 기능 → CTA
+// 제품 랜딩 구성. 히어로(앱 스크린샷) → 기능 스토리 → 설정 미리보기 → 나머지 기능 → CTA
 export function LandingContent() {
   const { t, locale } = useLanguage();
 
@@ -39,7 +39,7 @@ export function LandingContent() {
 
   return (
     <div className="landing-bg relative z-10 text-grey-900 font-sans overflow-x-hidden w-full selection:bg-accent-500 selection:text-white">
-      {/* ── Hero — 왼쪽 텍스트 블록, 바로 아래 풀폭 미디어 ── */}
+      {/* Hero. 왼쪽 텍스트 블록, 바로 아래 풀폭 미디어 */}
       <section className="relative pt-40 pb-4 md:pt-60 md:pb-6">
         <div className="site-rail">
           <Reveal>
@@ -116,7 +116,7 @@ export function LandingContent() {
         </div>
       </section>
 
-      {/* ── 기능 스토리 (좌우 교차) ── */}
+      {/* 기능 스토리 (좌우 교차) */}
       <section className="relative pt-10 pb-24 md:pt-12 md:pb-32">
         <div className="site-rail space-y-24 md:space-y-32">
           {stories.map((s, i) => (
@@ -125,7 +125,7 @@ export function LandingContent() {
         </div>
       </section>
 
-      {/* ── 설정 미리보기 — 앱 설정 화면에 도는 클립 그대로 ── */}
+      {/* 설정 미리보기. 앱 설정 화면에 도는 클립 그대로 */}
       <section className="relative py-24 md:py-32">
         <div className="site-rail">
           <Reveal className="mb-14 md:mb-16 max-w-2xl">
@@ -173,7 +173,7 @@ export function LandingContent() {
         </div>
       </section>
 
-      {/* ── 마무리 CTA ── */}
+      {/* 마무리 CTA */}
       <section className="relative pt-28 pb-52 md:pt-36 md:pb-60">
         <Reveal className="site-rail">
           <h2
@@ -208,7 +208,7 @@ export function LandingContent() {
         </Reveal>
       </section>
 
-      {/* ── Footer ── */}
+      {/* Footer */}
       <footer className="relative z-10 border-t border-white/[0.06] py-8">
         <div className="site-rail flex flex-col-reverse sm:flex-row items-center justify-between gap-4">
           <div className="text-[13px] text-grey-400">{t.footer.copyright}</div>
@@ -242,7 +242,7 @@ export function LandingContent() {
   );
 }
 
-// 좌우 교차 기능 섹션 — 클립은 바깥쪽 가장자리에 붙인다
+// 좌우 교차 기능 섹션. 클립은 바깥쪽 가장자리에 붙인다
 function FeatureRow({
   clip,
   title,
@@ -276,7 +276,7 @@ function FeatureRow({
   );
 }
 
-// 설정 미리보기 카드 — 클립 + 설정 이름 + 설명
+// 설정 미리보기 카드. 클립 + 설정 이름 + 설명
 function PreviewCard({
   clip,
   title,
@@ -299,7 +299,7 @@ function PreviewCard({
   );
 }
 
-// 클립 프레임 — 화면 근처에서 로드하고 화면을 벗어나면 멈춘다.
+// 클립 프레임. 화면 근처에서 로드하고 화면을 벗어나면 멈춘다.
 // 한 페이지에 아홉 개가 있어 전부 돌면 디코딩이 낭비된다
 function ClipFrame({
   clip,
@@ -361,7 +361,7 @@ function ClipFrame({
   );
 }
 
-// Tech Stack 아이콘 — 정적, CSS 호버
+// Tech Stack 아이콘. 정적이고 호버는 CSS로
 function TechStackIcon({ name, src }: { name: string; src: string }) {
   return (
     <div
@@ -405,7 +405,7 @@ function ArrowIcon() {
   );
 }
 
-// ── 데이터 ──
+// 데이터
 type PreviewKey =
   | "keyCounter"
   | "obsMode"

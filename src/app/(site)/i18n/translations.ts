@@ -13,7 +13,7 @@ export const translations = {
       descriptionSub: "지원하는 키뷰어입니다.",
       download: "Download",
       release: "Release",
-      screenshotAlt: "DM NOTE 앱 화면 — 그리드 키 편집기",
+      screenshotAlt: "DM NOTE 앱 화면, 그리드 키 편집기",
     },
     features: {
       title: "Make it",
@@ -116,7 +116,7 @@ export const translations = {
       descriptionSub: "and full customization.",
       download: "Download",
       release: "Release",
-      screenshotAlt: "DM NOTE app window — grid key editor",
+      screenshotAlt: "DM NOTE app window, grid key editor",
     },
     features: {
       title: "Make it",
