@@ -149,7 +149,12 @@ export function LandingContent() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
             {PREVIEW_KEYS.map((key, i) => (
-              <Reveal key={key} delay={(i % 3) * 70}>
+              <Reveal
+                key={key}
+                delay={(i % 3) * 70}
+                threshold={0}
+                rootMargin="0px"
+              >
                 <PreviewCard
                   clip={PREVIEW_CLIPS[key]}
                   title={t.previews.items[key].title}
@@ -272,6 +277,8 @@ function FeatureRow({
       </Reveal>
       <Reveal
         delay={80}
+        threshold={0}
+        rootMargin="0px"
         className={`w-full max-w-[640px] ${
           reverse ? "lg:order-1 lg:justify-self-start" : "lg:justify-self-end"
         }`}
@@ -317,6 +324,8 @@ function ClipFrame({
   const ref = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [shouldLoad, setShouldLoad] = useState(false);
+  const [isInView, setIsInView] = useState(false);
+  const [needsInteraction, setNeedsInteraction] = useState(false);
 
   useEffect(() => {
     const el = ref.current;
@@ -324,27 +333,70 @@ function ClipFrame({
 
     if (!("IntersectionObserver" in window)) {
       setShouldLoad(true);
+      setIsInView(true);
       return;
     }
 
-    const observer = new IntersectionObserver(
+    const loadObserver = new IntersectionObserver(
       (entries) => {
         if (entries[0]?.isIntersecting) {
           setShouldLoad(true);
-          videoRef.current?.play().catch(() => {});
-        } else {
-          videoRef.current?.pause();
+          loadObserver.disconnect();
         }
       },
-      { threshold: 0.2, rootMargin: "200px 0px" }
+      { threshold: 0, rootMargin: "400px 0px" }
     );
-    observer.observe(el);
+    const playbackObserver = new IntersectionObserver(
+      (entries) => setIsInView(!!entries[0]?.isIntersecting),
+      { threshold: 0 }
+    );
+    loadObserver.observe(el);
+    playbackObserver.observe(el);
 
     return () => {
-      observer.disconnect();
-      videoRef.current?.pause();
+      loadObserver.disconnect();
+      playbackObserver.disconnect();
     };
   }, []);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    let disposed = false;
+
+    const syncPlayback = () => {
+      if (disposed) return;
+      if (!isInView || document.visibilityState !== "visible") {
+        video.pause();
+        return;
+      }
+      if (!video.paused) return;
+
+      video.muted = true;
+      video.play().catch((error: unknown) => {
+        if (
+          !disposed &&
+          error instanceof DOMException &&
+          error.name === "NotAllowedError"
+        ) {
+          setNeedsInteraction(true);
+        }
+      });
+    };
+
+    // 영상이 실제로 생긴 뒤 재생하고, 준비 완료와 탭 복귀에도 상태를 맞춘다
+    video.addEventListener("canplay", syncPlayback);
+    document.addEventListener("visibilitychange", syncPlayback);
+    syncPlayback();
+
+    return () => {
+      disposed = true;
+      video.removeEventListener("canplay", syncPlayback);
+      document.removeEventListener("visibilitychange", syncPlayback);
+      video.pause();
+    };
+  }, [shouldLoad, isInView]);
 
   return (
     <div
@@ -355,11 +407,11 @@ function ClipFrame({
         <video
           ref={videoRef}
           src={`/assets/clips/${clip}.mp4`}
-          preload="metadata"
+          preload="auto"
           loop
           muted
-          autoPlay
           playsInline
+          controls={needsInteraction}
           className="w-full h-full block"
         />
       )}

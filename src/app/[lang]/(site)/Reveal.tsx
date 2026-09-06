@@ -8,11 +8,15 @@ export function Reveal({
   delay = 0,
   as: Tag = "div",
   className = "",
+  threshold = 0.15,
+  rootMargin = "0px 0px -10% 0px",
 }: {
   children: ReactNode;
   delay?: number;
   as?: "div" | "section" | "li";
   className?: string;
+  threshold?: number;
+  rootMargin?: string;
 }) {
   const ref = useRef<HTMLElement>(null);
   const [visible, setVisible] = useState(false);
@@ -37,12 +41,12 @@ export function Reveal({
         // 진입하면 등장, 벗어나면 다시 숨김. CSS transition이 역재생 처리
         setVisible(!!entries[0]?.isIntersecting);
       },
-      { threshold: 0.15, rootMargin: "0px 0px -10% 0px" }
+      { threshold, rootMargin }
     );
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [threshold, rootMargin]);
 
   return (
     <Tag
