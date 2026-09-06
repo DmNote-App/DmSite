@@ -1,89 +1,100 @@
 import type { Metadata, Viewport } from "next";
+import { translations } from "./[lang]/(site)/i18n/translations";
+import { homePath, type Locale } from "@/lib/i18n";
+
+export function siteDescription(locale: Locale): string {
+  const { description, descriptionSub } = translations[locale].hero;
+  return `${description} ${descriptionSub}`;
+}
 
 export const siteConfig = {
   url: "https://dmnote.app",
   name: "DM NOTE",
   title: "DM NOTE - Custom Key Viewer",
-  description:
-    "강력한 커스터마이징을 지원하는 키뷰어",
-  keywords: [
-    "키뷰어",
-    "key viewer",
-    "DJMAX",
-    "리듬게임",
-    "스트리밍",
-    "OBS",
-    "키 입력",
-    "DM NOTE",
-  ],
-  authors: [{ name: "DM NOTE" }],
-  creator: "DM NOTE",
-  locale: "ko_KR",
+  description: siteDescription("ko"),
   icon: "/icon.ico",
 } as const;
 
+export function absoluteUrl(path: string): string {
+  return new URL(path, siteConfig.url).href;
+}
+
 export const baseMetadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
-  title: {
-    default: siteConfig.title,
-    template: `%s`,
-  },
-  description: siteConfig.description,
-  keywords: [...siteConfig.keywords],
-  authors: [...siteConfig.authors],
-  creator: siteConfig.creator,
-  icons: {
-    icon: siteConfig.icon,
-    shortcut: siteConfig.icon,
-  },
-  alternates: {
-    canonical: siteConfig.url,
-  },
-  openGraph: {
-    type: "website",
-    locale: siteConfig.locale,
-    url: siteConfig.url,
-    siteName: siteConfig.name,
-    title: siteConfig.title,
-    description: siteConfig.description,
-    images: [
-      {
-        url: siteConfig.icon,
-        width: 256,
-        height: 256,
-        alt: siteConfig.name,
-      },
-    ],
-  },
-  twitter: {
-    card: "summary",
-    title: siteConfig.title,
-    description: siteConfig.description,
-    images: [siteConfig.icon],
-  },
-  robots: {
-    index: true,
-    follow: true,
-  },
+  title: siteConfig.title,
+  authors: [{ name: siteConfig.name }],
+  creator: siteConfig.name,
+  icons: { icon: siteConfig.icon, shortcut: siteConfig.icon },
   other: {
-    "theme-color": "#000000",
     "apple-mobile-web-app-status-bar-style": "black-translucent",
   },
 };
 
-export const docsMetadata: Metadata = {
-  title: {
-    default: `${siteConfig.name} 문서`,
-    template: `%s`,
-  },
-  description:
-    "DM NOTE API 레퍼런스",
-  openGraph: {
-    title: `${siteConfig.name} 문서`,
-    description:
-      "DM NOTE API 레퍼런스",
-  },
+type PageMetadataOptions = {
+  title: string;
+  description: string;
+  path: string;
+  locale: Locale;
+  languagePaths: Partial<Record<Locale | "x-default", string>>;
 };
+
+export function createPageMetadata({
+  title,
+  description,
+  path,
+  locale,
+  languagePaths,
+}: PageMetadataOptions): Metadata {
+  const url = absoluteUrl(path);
+  const image = {
+    url: absoluteUrl("/share-logo.png"),
+    width: 256,
+    height: 256,
+    type: "image/png",
+    alt: locale === "ko" ? "DM NOTE 로고" : "DM NOTE logo",
+  };
+
+  return {
+    title: { absolute: title },
+    description,
+    alternates: {
+      canonical: url,
+      languages: Object.fromEntries(
+        Object.entries(languagePaths).map(([lang, route]) => [lang, absoluteUrl(route)]),
+      ),
+    },
+    robots: { index: true, follow: true },
+    openGraph: {
+      type: "website",
+      locale: locale === "ko" ? "ko_KR" : "en_US",
+      url,
+      siteName: siteConfig.name,
+      title,
+      description,
+      images: [image],
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description,
+      images: [image],
+    },
+  };
+}
+
+export function homeMetadata(locale: Locale): Metadata {
+  return createPageMetadata({
+    title: siteConfig.title,
+    description: siteDescription(locale),
+    path: homePath(locale),
+    locale,
+    languagePaths: { ko: "/", en: "/en/", "x-default": "/" },
+  });
+}
+
+export function documentTitle(title: string): string {
+  return /\bdm\s*note\b/i.test(title) ? title : `${title} | ${siteConfig.name}`;
+}
 
 export const baseViewport: Viewport = {
   themeColor: "#000000",

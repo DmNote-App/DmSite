@@ -3,6 +3,7 @@
     "dev": "next --turbopack",
     "build": "next build",
     "start": "next start",
+    "seo:check": "node scripts/verify-seo.mjs",
     "postinstall": "patch-package",
     "postbuild": "node scripts/postbuild.js"
   },

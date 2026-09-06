@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { docsPath } from "@/lib/i18n";
 import { useLanguage } from "./i18n";
 import { useRef, useState, useEffect } from "react";
 import { Reveal } from "./Reveal";
@@ -22,16 +23,19 @@ export function LandingContent() {
   const stories = [
     {
       clip: "custom-css",
+      href: docsPath(locale, "custom-css"),
       title: t.showcase.items.css.title,
       desc: t.showcase.items.css.description,
     },
     {
       clip: "custom-js",
+      href: docsPath(locale, "getting-started"),
       title: t.showcase.items.plugin.title,
       desc: t.showcase.items.plugin.description,
     },
     {
       clip: "note-effect",
+      href: docsPath(locale, "guide/note-effects"),
       title: t.showcase.items.noteEffect.title,
       desc: t.showcase.items.noteEffect.description,
     },
@@ -199,7 +203,7 @@ export function LandingContent() {
               {t.cta.button}
             </a>
             <Link
-              href="/docs"
+              href={docsPath(locale)}
               className="dm-btn-ghost h-11 px-6 text-[15px] w-full sm:w-auto"
             >
               {t.cta.secondary}
@@ -214,7 +218,7 @@ export function LandingContent() {
           <div className="text-[13px] text-grey-400">{t.footer.copyright}</div>
           <nav className="flex gap-6 text-sm">
             <Link
-              href="/docs"
+              href={docsPath(locale)}
               className="text-grey-500 hover:text-grey-900 transition-colors"
             >
               {t.footer.links.docs}
@@ -247,18 +251,20 @@ function FeatureRow({
   clip,
   title,
   desc,
+  href,
   reverse,
 }: {
   clip: string;
   title: string;
   desc: string;
+  href: string;
   reverse: boolean;
 }) {
   return (
     <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
       <Reveal className={reverse ? "lg:order-2" : ""}>
         <div className="max-w-md text-left">
-          <h3 className="text-title font-semibold break-keep">{title}</h3>
+          <h3 className="text-title font-semibold break-keep"><Link href={href}>{title}</Link></h3>
           <p className="mt-4 text-[15px] font-normal leading-6 text-grey-400 break-keep">
             {desc}
           </p>

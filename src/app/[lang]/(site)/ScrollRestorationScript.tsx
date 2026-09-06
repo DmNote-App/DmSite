@@ -35,7 +35,7 @@ export function ScrollRestorationScript() {
   return (
     <Script
       id="scroll-restoration"
-      strategy="beforeInteractive"
+      strategy="afterInteractive"
       dangerouslySetInnerHTML={{ __html: code }}
     />
   );

@@ -56,7 +56,7 @@ export const translations = {
         css: {
           title: "CSS 커스터마이징",
           description:
-            "CSS로 키뷰어를 세밀하게 다듬어 원하는 스타일을 적용할 수 있습니다.",
+            "CSS로 키 오버레이의 모양을 바꿀 수 있습니다.",
         },
         plugin: {
           title: "플러그인",
@@ -78,7 +78,7 @@ export const translations = {
         },
         obsMode: {
           title: "OBS 모드",
-          description: "OBS에서 브라우저 소스로 오버레이를 표시합니다.",
+          description: "OBS 브라우저 소스로 키보드 오버레이를 표시합니다.",
         },
         overlayLock: {
           title: "오버레이 창 고정",
@@ -159,7 +159,7 @@ export const translations = {
         css: {
           title: "CSS Customization",
           description:
-            "Apply the styles you want by finely customizing the key viewer with CSS.",
+            "Customize your key overlay's appearance with CSS.",
         },
         plugin: {
           title: "Plugins",
@@ -181,7 +181,7 @@ export const translations = {
         },
         obsMode: {
           title: "OBS Mode",
-          description: "Displays the overlay via a browser source in OBS.",
+          description: "Display your input overlay as an OBS browser source.",
         },
         overlayLock: {
           title: "Lock Overlay Window",

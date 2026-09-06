@@ -4,12 +4,11 @@ import { getPageMap } from "nextra/page-map";
 import { notFound } from "next/navigation";
 import EditLinkFixer from "@/components/EditLink";
 import LogoMark from "@/components/LogoMark";
-import { docsMetadata } from "../../seo.config";
+import { homePath, isLocale } from "@/lib/i18n";
 
-export const metadata = docsMetadata;
-
-const navbar = (
+const navbar = (lang: "ko" | "en") => (
   <Navbar
+    logoLink={homePath(lang)}
     logo={
       <div className="flex items-center gap-2">
         <LogoMark className="h-[18px] w-[18px]" />
@@ -22,9 +21,6 @@ const navbar = (
 
 const footer = <Footer className="dm-docs-footer">GPL 3.0 © DM NOTE.</Footer>;
 
-const LOCALES = ["ko", "en"] as const;
-type Locale = (typeof LOCALES)[number];
-
 type LayoutProps = Readonly<{
   children: ReactNode;
   params: Promise<{
@@ -34,17 +30,16 @@ type LayoutProps = Readonly<{
 
 export default async function DocsLayout(props: LayoutProps) {
   const params = await props.params;
-  const lang = params.lang as Locale;
-
-  if (!LOCALES.includes(lang)) notFound();
+  const { lang } = params;
+  if (!isLocale(lang)) notFound();
 
   return (
     <div suppressHydrationWarning>
       <Layout
-        pageMap={await getPageMap(`/${lang}`)}
+        pageMap={await getPageMap(`/${lang}/docs`)}
         docsRepositoryBase={`https://github.com/DmNote-App/DmNote/tree/master/docs/content/${lang}`}
         editLink="Edit this page"
-        navbar={navbar}
+        navbar={navbar(lang)}
         footer={footer}
         i18n={[
           { locale: "ko", name: "한국어" },

@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { homePath, docsPath } from "@/lib/i18n";
 import { LanguageSwitcher, useLanguage } from "./i18n";
 import LogoMark from "@/components/LogoMark";
 
 export function Navbar() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
 
   return (
     <nav
@@ -14,7 +15,7 @@ export function Navbar() {
       <div className="site-rail h-full flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Link
-            href="/"
+            href={homePath(locale)}
             className="font-bold flex items-center gap-2 text-grey-900 whitespace-nowrap shrink-0"
           >
             <LogoMark className="w-[18px] h-[18px]" />
@@ -23,7 +24,7 @@ export function Navbar() {
         </div>
         <div className="flex items-center gap-5">
           <Link
-            href="/docs"
+            href={docsPath(locale)}
             className="text-sm font-medium text-grey-500 hover:text-grey-900 transition-colors"
           >
             {t.nav.documentation}

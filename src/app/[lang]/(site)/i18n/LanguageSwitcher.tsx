@@ -1,16 +1,21 @@
 "use client";
 
+import Link from "next/link";
+import { homePath } from "@/lib/i18n";
 import { useLanguage } from "./LanguageContext";
 
 export function LanguageSwitcher() {
-  const { locale, setLocale } = useLanguage();
+  const { locale } = useLanguage();
+  const nextLocale = locale === "ko" ? "en" : "ko";
 
   const toggleLocale = () => {
-    setLocale(locale === "ko" ? "en" : "ko");
+    document.cookie = `NEXT_LOCALE=${nextLocale}; Path=/; Max-Age=31536000; SameSite=Lax`;
   };
 
   return (
-    <button
+    <Link
+      href={homePath(nextLocale)}
+      hrefLang={nextLocale}
       onClick={toggleLocale}
       className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
       aria-label={locale === "ko" ? "Switch to English" : "한국어로 전환"}
@@ -30,6 +35,6 @@ export function LanguageSwitcher() {
         />
       </svg>
       <span className="uppercase tracking-wide w-6 text-center">{locale === "ko" ? "EN" : "KO"}</span>
-    </button>
+    </Link>
   );
 }

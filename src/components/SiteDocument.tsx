@@ -1,15 +1,15 @@
 import localFont from "next/font/local";
-import "./globals.css";
+import Script from "next/script";
+import "../app/globals.css";
 import "nextra-theme-docs/style.css";
 import { Head } from "nextra/components";
-import { baseMetadata, baseViewport, siteConfig } from "./seo.config";
-import AppProviders from "@/providers/AppProviders";
+import type { Locale } from "@/lib/i18n";
 
-// 자체 호스팅 + preload라 CSS를 파싱하기 전에 받기 시작한다.
-// CDN에 있을 때는 스타일시트를 읽고 나서야 URL을 발견해 229ms를 흘려보냈다.
+// 자체 호스팅 + preload라 CSS를 파싱하기 전에 받기 시작한다
+// CDN에 있을 때는 스타일시트를 읽고 나서야 URL을 발견해 229ms를 흘려보냈다
 // 굵기 축이 400~700인 가변 폰트 한 벌로 쓰던 네 굵기를 모두 덮는다
 const pretendard = localFont({
-  src: "./fonts/PretendardVariable.subset.woff2",
+  src: "../app/fonts/PretendardVariable.subset.woff2",
   weight: "400 700",
   style: "normal",
   display: "swap",
@@ -25,44 +25,30 @@ const pretendard = localFont({
   ],
 });
 
-export const metadata = baseMetadata;
-export const viewport = baseViewport;
-
-// JSON-LD 구조화된 데이터 (Google 검색 최적화)
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  name: siteConfig.name,
-  description: siteConfig.description,
-  url: siteConfig.url,
-  applicationCategory: "GameApplication",
-  operatingSystem: "Windows",
-  offers: {
-    "@type": "Offer",
-    price: "0",
-    priceCurrency: "KRW",
-  },
-  author: {
-    "@type": "Organization",
-    name: siteConfig.name,
-  },
-};
-
-export default function RootLayout({
+export default function SiteDocument({
   children,
+  lang,
 }: {
   children: React.ReactNode;
+  lang: Locale;
 }) {
   return (
     <html
-      lang="ko"
+      lang={lang}
       dir="ltr"
       className={pretendard.variable}
       suppressHydrationWarning
     >
       <Head>
-        {/* Google Tag Manager */}
-        <script
+        <meta
+          name="naver-site-verification"
+          content="b249cc8c4fa1792f5e3b50b6a8e4ee6ebca3fd2d"
+        />
+      </Head>
+      <body suppressHydrationWarning>
+        <Script
+          id="google-tag-manager"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -71,17 +57,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 })(window,document,'script','dataLayer','GTM-K8GL2GC9');`,
           }}
         />
-        {/* End Google Tag Manager */}
-        <meta
-          name="naver-site-verification"
-          content="b249cc8c4fa1792f5e3b50b6a8e4ee6ebca3fd2d"
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
-      </Head>
-      <body suppressHydrationWarning>
         {/* Google Tag Manager (noscript) */}
         <noscript>
           <iframe
@@ -92,7 +67,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           />
         </noscript>
         {/* End Google Tag Manager (noscript) */}
-        <AppProviders>{children}</AppProviders>
+        {children}
       </body>
     </html>
   );

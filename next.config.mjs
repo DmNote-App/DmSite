@@ -6,10 +6,14 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const withNextra = nextra({
   contentDirBasePath: "/docs",
+  unstable_shouldAddLocaleToLinks: true,
 });
 
 export default withNextra({
   trailingSlash: true,
+  experimental: {
+    globalNotFound: true,
+  },
   turbopack: {
     root: __dirname,
   },
@@ -23,6 +27,10 @@ export default withNextra({
   async rewrites() {
     return {
       beforeFiles: [
+        {
+          source: "/",
+          destination: "/ko/",
+        },
         {
           source: "/recap",
           destination: "https://dm-recap.vercel.app/recap",
